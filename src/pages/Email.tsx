@@ -13,7 +13,8 @@ import emailData from "../data/emails.json" with { type: "json" };
 import Modal from "@mui/material/Modal";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import { truncate } from "../utils/stringHelpers.js";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { truncate } from "../utils/stringHelpers";
 
 const ITEM_HEIGHT = 48;
 
@@ -77,6 +78,10 @@ function Email({ isOpen }: EmailProps) {
         [emails, currentEmailPosition, handleSelectEmail],
     );
 
+    const emailImg = `/emails/${currentEmail.filename}`;
+
+    const isDesktop = useMediaQuery("(min-width: 1150px)");
+
     if (!currentEmail) {
         return <Typography>No emails available</Typography>;
     }
@@ -84,160 +89,34 @@ function Email({ isOpen }: EmailProps) {
     return (
         <>
             {/** Desktop View */}
-            <Stack
-                direction="column"
-                spacing={1}
-                sx={{
-                    padding: 4,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    "@media (max-width: 1150px)": {
-                        display: "none",
-                    },
-                }}
-            >
-                <Box width="380px">
-                    <Stack
-                        direction="column"
-                        spacing={1}
-                        sx={{
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Typography variant="body2" fontWeight="bold">
-                            {currentEmail.name}
-                        </Typography>
-                        <ButtonGroup
-                            variant="outlined"
-                            aria-label="Email navigation"
-                        >
-                            <Button
-                                aria-label="Previous email"
-                                onClick={handlePrevious}
-                                disabled={isFirstEmail}
-                            >
-                                <ArrowBackIosIcon
-                                    sx={{
-                                        height: "16px",
-                                        ml: "5px",
-                                        mr: "-2px",
-                                    }}
-                                />
-                            </Button>
-                            <Button
-                                aria-label="Select email from list"
-                                id="long-button"
-                                aria-controls={open ? "long-menu" : undefined}
-                                aria-expanded={open ? "true" : undefined}
-                                aria-haspopup="true"
-                                onClick={handleClick}
-                                sx={{ width: "370px" }}
-                            >
-                                {truncate(currentEmail.name, 36)}
-                            </Button>
-                            <Button
-                                aria-label="Next email"
-                                onClick={handleNext}
-                                disabled={isLastEmail}
-                            >
-                                <ArrowForwardIosIcon sx={{ height: "16px" }} />
-                            </Button>
-                        </ButtonGroup>
-                        <Menu
-                            id="long-menu"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            slotProps={{
-                                paper: {
-                                    style: {
-                                        maxHeight: ITEM_HEIGHT * 10,
-                                        width: "65ch",
-                                    },
-                                },
-                                list: {
-                                    "aria-labelledby": "long-button",
-                                },
-                            }}
-                        >
-                            {menuItems}
-                        </Menu>
-                    </Stack>
-                </Box>
-                <Fade
-                    key={currentEmailPosition}
-                    appear
-                    in={!open}
-                    timeout={500}
-                >
-                    <img
-                        src={`/src/assets/emails/${currentEmail.filename}`}
-                        alt={`Email: ${currentEmail.name}`}
-                        width="480px"
-                        loading="lazy"
-                    />
-                </Fade>
-            </Stack>
-            {/** Mobile View */}
-            <Modal
-                open={isOpen}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                disableScrollLock={true}
-                sx={{
-                    "@media (min-width: 1149px)": {
-                        display: "none",
-                    },
-                }}
-            >
+            {isDesktop && (
                 <Stack
                     direction="column"
                     spacing={1}
                     sx={{
-                        padding: 2,
-                        backgroundColor: "#ffffff",
-                        justifyContent: "flex-start",
+                        padding: 4,
+                        justifyContent: "center",
                         alignItems: "center",
-                        height: "100vh",
                     }}
                 >
-                    <Fade
-                        key={currentEmailPosition}
-                        appear
-                        in={!open}
-                        timeout={500}
-                    >
-                        <img
-                            src={`/src/assets/emails/${currentEmail.filename}`}
-                            alt={`Email: ${currentEmail.name}`}
-                            width="100%"
-                            loading="lazy"
-                        />
-                    </Fade>
-                    <Box
-                        width="100%"
-                        sx={{
-                            padding: "0px",
-                            position: "absolute",
-                            bottom: "20px",
-                        }}
-                    >
+                    <Box width="380px">
                         <Stack
                             direction="column"
                             spacing={1}
                             sx={{
-                                justifyContent: "flex-start",
+                                justifyContent: "center",
                                 alignItems: "center",
                             }}
                         >
+                            {/**
+
+                            */}
+                            <Typography variant="body2" fontWeight="bold">
+                                {currentEmail.name}
+                            </Typography>
                             <ButtonGroup
                                 variant="outlined"
                                 aria-label="Email navigation"
-                                sx={{
-                                    backgroundColor: "#ffffff",
-                                }}
                             >
                                 <Button
                                     aria-label="Previous email"
@@ -261,9 +140,11 @@ function Email({ isOpen }: EmailProps) {
                                     aria-expanded={open ? "true" : undefined}
                                     aria-haspopup="true"
                                     onClick={handleClick}
-                                    sx={{ width: "225px" }}
+                                    sx={{
+                                        width: "370px",
+                                    }}
                                 >
-                                    {truncate(currentEmail.name, 20)}
+                                    {truncate(currentEmail.name, 36)}
                                 </Button>
                                 <Button
                                     aria-label="Next email"
@@ -284,7 +165,7 @@ function Email({ isOpen }: EmailProps) {
                                     paper: {
                                         style: {
                                             maxHeight: ITEM_HEIGHT * 10,
-                                            width: "50ch",
+                                            width: "65ch",
                                         },
                                     },
                                     list: {
@@ -296,20 +177,152 @@ function Email({ isOpen }: EmailProps) {
                             </Menu>
                         </Stack>
                     </Box>
-                    <IconButton
-                        aria-label="close"
-                        href="/"
+                    <Fade
+                        key={currentEmailPosition}
+                        appear
+                        in={!open}
+                        timeout={500}
+                    >
+                        <img
+                            src={emailImg}
+                            alt={`Email: ${currentEmail.name}`}
+                            width="480px"
+                            loading="lazy"
+                        />
+                    </Fade>
+                </Stack>
+            )}
+            {/** Mobile View */}
+            {!isDesktop && (
+                <Modal
+                    open={isOpen}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    disableScrollLock={true}
+                >
+                    <Stack
+                        direction="column"
+                        spacing={1}
                         sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
+                            padding: 2,
+                            backgroundColor: "#ffffff",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            height: "100vh",
                         }}
                     >
-                        <CloseIcon />
-                    </IconButton>
-                </Stack>
-            </Modal>
+                        <Fade
+                            key={currentEmailPosition}
+                            appear
+                            in={!open}
+                            timeout={500}
+                        >
+                            <img
+                                src={emailImg}
+                                alt={`Email: ${currentEmail.name}`}
+                                width="100%"
+                                loading="lazy"
+                            />
+                        </Fade>
+                        <Box
+                            width="100%"
+                            sx={{
+                                padding: "0px",
+                                position: "absolute",
+                                bottom: "20px",
+                            }}
+                        >
+                            <Stack
+                                direction="column"
+                                spacing={1}
+                                sx={{
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <ButtonGroup
+                                    variant="outlined"
+                                    aria-label="Email navigation"
+                                    sx={{
+                                        backgroundColor: "#ffffff",
+                                        boxShadow: "0px 2px 5px #ababab",
+                                    }}
+                                >
+                                    <Button
+                                        aria-label="Previous email"
+                                        onClick={handlePrevious}
+                                        disabled={isFirstEmail}
+                                    >
+                                        <ArrowBackIosIcon
+                                            sx={{
+                                                height: "16px",
+                                                ml: "5px",
+                                                mr: "-2px",
+                                            }}
+                                        />
+                                    </Button>
+                                    <Button
+                                        aria-label="Select email from list"
+                                        id="long-button"
+                                        aria-controls={
+                                            open ? "long-menu" : undefined
+                                        }
+                                        aria-expanded={
+                                            open ? "true" : undefined
+                                        }
+                                        aria-haspopup="true"
+                                        onClick={handleClick}
+                                        sx={{ width: "225px" }}
+                                    >
+                                        {truncate(currentEmail.name, 20)}
+                                    </Button>
+                                    <Button
+                                        aria-label="Next email"
+                                        onClick={handleNext}
+                                        disabled={isLastEmail}
+                                    >
+                                        <ArrowForwardIosIcon
+                                            sx={{ height: "16px" }}
+                                        />
+                                    </Button>
+                                </ButtonGroup>
+                                <Menu
+                                    id="long-menu"
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    slotProps={{
+                                        paper: {
+                                            style: {
+                                                maxHeight: ITEM_HEIGHT * 10,
+                                                width: "50ch",
+                                            },
+                                        },
+                                        list: {
+                                            "aria-labelledby": "long-button",
+                                        },
+                                    }}
+                                >
+                                    {menuItems}
+                                </Menu>
+                            </Stack>
+                        </Box>
+                        <IconButton
+                            aria-label="close"
+                            href="/"
+                            sx={{
+                                position: "absolute",
+                                right: 8,
+                                top: 8,
+                                color: (theme) => theme.palette.grey[500],
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </Stack>
+                </Modal>
+            )}
         </>
     );
 }

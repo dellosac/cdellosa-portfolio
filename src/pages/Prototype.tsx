@@ -93,11 +93,8 @@ function Prototype(protoTypeProps: PrototypeProps) {
                         alignItems: "center",
                     }}
                 >
-                    <video autoPlay loop width="500">
-                        <source
-                            src={`/src/assets/mp4/${name}.mp4`}
-                            type="video/mp4"
-                        />
+                    <video autoPlay loop width="575">
+                        <source src={`/mp4/${name}.mp4`} type="video/mp4" />
                         Your browser doesn't support the video tag.
                     </video>
                     <Box>
