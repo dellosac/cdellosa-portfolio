@@ -1,0 +1,22 @@
+{
+    "prototypes": [
+        {
+            "name": "Twitter Facepiles",
+            "isMobile": true,
+            "url": "https://cdellosa-prototype-facepiles-idde3.us-east-1.migetapp.com/test/login",
+            "password": "larry"
+        },
+        {
+            "name": "Twitter Message Threads",
+            "isMobile": true,
+            "url": "https://cdellosa-prototype-threads-lt3wv.us-east-1.migetapp.com/",
+            "password": "larry"
+        },
+        {
+            "name": "Twitter Motion Design Language",
+            "isMobile": false,
+            "url": "https://cdellosa-prototype-motion-design-udbfg.us-east-1.migetapp.com/",
+            "password": "larry"
+        }
+    ]
+}
