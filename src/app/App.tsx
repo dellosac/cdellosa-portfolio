@@ -120,12 +120,11 @@ function NavigationAndContent() {
                         paddingBottom: 3,
                     }}
                 >
-                    <Stack direction="row" spacing={2}>
+                    <Stack direction="row" spacing={2} alignItems="flex-start">
                         {/** Left Navigation Menu */}
                         <Grow in>
                             <Container
                                 maxWidth="xs"
-                                fixed
                                 sx={{
                                     mt: 4,
                                     mb: 4,
