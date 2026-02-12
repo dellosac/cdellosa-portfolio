@@ -10,11 +10,11 @@ app.use(express.json());
 app.get("/api/hello", (_req, res) => {
     res.json({ message: "Hello from Express!" });
 });
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, "../dist")));
-// Catch-all route for client-side routing
+// Serve static files from the dist/public directory
+app.use(express.static(path.join(__dirname, "public")));
+// Catch-all route
 app.get("*", (_req, res) => {
-    res.sendFile(path.join(__dirname, "../dist/index.html"));
+    res.sendFile(path.join(__dirname, "public/index.html"));
 });
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
