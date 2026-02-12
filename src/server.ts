@@ -15,14 +15,14 @@ app.get("/api/hello", (_req: Request, res: Response) => {
     res.json({ message: "Hello from Express!" });
 });
 
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, "../dist")));
+// Serve static files from the dist/public directory
+app.use(express.static(path.join(__dirname, "public")));
 
-// Catch-all route for client-side routing
+// Catch-all route
 app.get("*", (_req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../dist/index.html"));
+    res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`); // Make sure backtick template literal has opening (
 });
