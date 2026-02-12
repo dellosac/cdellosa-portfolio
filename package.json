@@ -5,10 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -p tsconfig.server.json && vite build",
+        "build": "npx tsc -p tsconfig.server.json && vite build",
         "preview": "vite preview",
         "start": "node dist/server.js",
-        "server": "node dist/server.js",
         "server:dev": "tsx src/server.ts",
         "dev:full": "concurrently \"npm run dev\" \"npm run server:dev\""
     },
