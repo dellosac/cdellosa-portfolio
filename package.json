@@ -4,10 +4,10 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "start": "node dist/server.js",
         "dev": "vite",
-        "build": "tsc && vite build",
+        "build": "tsc -p tsconfig.server.json && vite build",
         "preview": "vite preview",
+        "start": "node dist/server.js",
         "server": "node dist/server.js",
         "server:dev": "tsx src/server.ts",
         "dev:full": "concurrently \"npm run dev\" \"npm run server:dev\""
@@ -32,7 +32,7 @@
         "@vitejs/plugin-react": "^4.0.0",
         "concurrently": "^9.2.1",
         "tsx": "^4.21.0",
-        "typescript": "^5.0.0",
+        "typescript": "^5.9.3",
         "vite": "^5.0.0"
     }
 }
