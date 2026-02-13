@@ -1,6 +1,6 @@
 ## Creative Systems: Make Twitter Easy (Threads) Research
 
-In this UX research experiment, we're testing different experiences to help our users easily create threaded Tweets. We have two different parameters with three and two options each we are testing:
+In this UX research experiment prototype, we're testing different experiences to help our users easily create threaded Tweets. We have two different parameters with three and two options each we are testing:
 
 - Parameter 1: Character count to trigger actions
     - A: Fast (5 characters)
