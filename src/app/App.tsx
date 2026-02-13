@@ -31,8 +31,13 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Prototype from "../pages/Prototype.js";
 import protoTypeData from "../data/prototypes.json" with { type: "json" };
 import Email from "../pages/Email.js";
+import GoogleAnalyticsTracker from "../utils/GoogleAnalyticsTracker";
+import ReactGA from "react-ga4";
 
 type View = "Home" | "Resume" | "Prototypes" | "Emails";
+
+// Google Analytics
+ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID); // replace with your Measurement ID
 
 function NavigationAndContent() {
     const navigate = useNavigate();
@@ -440,6 +445,7 @@ function NavigationAndContent() {
 function App() {
     return (
         <BrowserRouter>
+            <GoogleAnalyticsTracker />
             <Routes>
                 <Route path="/" element={<NavigationAndContent />} />
                 <Route path="/resume" element={<NavigationAndContent />} />
