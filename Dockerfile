@@ -10,6 +10,10 @@ RUN npm install
 # Copy source files
 COPY . .
 
+# Declare and set the build argument
+ARG VITE_GA_MEASUREMENT_ID
+ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID
+
 # Build the app
 RUN npm run build
 
@@ -18,17 +22,9 @@ FROM node:22-alpine AS production
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
-
-# Install production dependencies only
 RUN npm install --omit=dev
-
-# Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Expose port
 EXPOSE 3000
-
-# Start the server
 CMD ["node", "dist/server.js"]
