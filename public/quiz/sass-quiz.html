@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SASS Mastery Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141417;
+    --surface2: #1c1c22;
+    --border: #2a2a35;
+    --accent: #cf649a;
+    --accent2: #7c5cbf;
+    --accent3: #4ecdc4;
+    --text: #e8e8f0;
+    --text-muted: #7a7a90;
+    --correct: #4ecdc4;
+    --wrong: #ff6b6b;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(207,100,154,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(124,92,191,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 60% 30%, rgba(78,205,196,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(207,100,154,0.1);
+    border: 1px solid rgba(207,100,154,0.25);
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #e8e8f0 30%, var(--accent) 70%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  /* Progress */
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  /* Category badge */
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent3);
+    background: rgba(78,205,196,0.08);
+    border: 1px solid rgba(78,205,196,0.2);
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 36px 36px 28px;
+    margin-bottom: 16px;
+    animation: slideUp 0.35s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent), var(--accent3));
+    opacity: 0.6;
+  }
+
+  .question-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  /* Code block in question */
+  .question-text pre, pre.q-code {
+    background: #0a0a0c;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #c9d1d9;
+    overflow-x: auto;
+    margin: 14px 0 4px;
+    white-space: pre;
+  }
+
+  .kw { color: #ff79c6; }
+  .sel { color: #8be9fd; }
+  .val { color: #f1fa8c; }
+  .fn { color: #50fa7b; }
+  .cm { color: #6272a4; }
+
+  /* Options */
+  .options {
+    display: grid;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    font-family: var(--sans);
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(207,100,154,0.06);
+    transform: translateX(3px);
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(78,205,196,0.08);
+  }
+
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(255,107,107,0.08);
+  }
+
+  .option-letter {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    background: rgba(124,92,191,0.15);
+    border: 1px solid rgba(124,92,191,0.3);
+    border-radius: 3px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .option-btn.correct .option-letter { background: rgba(78,205,196,0.2); color: var(--correct); border-color: var(--correct); }
+  .option-btn.wrong .option-letter { background: rgba(255,107,107,0.2); color: var(--wrong); border-color: var(--wrong); }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin-top: 12px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .feedback.correct-fb {
+    display: block;
+    background: rgba(78,205,196,0.08);
+    border: 1px solid rgba(78,205,196,0.25);
+    color: var(--correct);
+  }
+
+  .feedback.wrong-fb {
+    display: block;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.25);
+    color: #ff9a9a;
+  }
+
+  /* Nav */
+  .nav-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+  /* Score screen */
+  #score-screen {
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 36px;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-number {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .score-denom {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .score-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .score-sub {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 14px;
+  }
+
+  .stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .stat-val.green { color: var(--correct); }
+  .stat-val.red { color: var(--wrong); }
+  .stat-val.purple { color: var(--accent2); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* Category breakdown */
+  .breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .breakdown h3 {
+    font-size: 0.75rem;
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .cat-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    width: 200px;
+    flex-shrink: 0;
+  }
+
+  .cat-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .cat-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 3px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .cat-score {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  @media (max-width: 600px) {
+    .question-card { padding: 24px 20px 20px; }
+    .stats-grid { grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .cat-name { width: 130px; }
+    h1 { letter-spacing: -0.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="container">
+
+  <header>
+    <div class="logo-tag">// advanced quiz</div>
+    <h1>SASS Mastery</h1>
+    <p class="subtitle">30 questions &nbsp;·&nbsp; multiple choice &nbsp;·&nbsp; all topics</p>
+  </header>
+
+  <div id="quiz-screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-meta">
+      <span id="progress-label">Question 1 of 30</span>
+      <span id="score-label">Score: 0</span>
+    </div>
+
+    <div id="category-badge" class="category-badge"></div>
+    <div class="question-card" id="question-card">
+      <div class="question-number" id="q-number"></div>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="prev-btn" onclick="navigate(-1)">← Prev</button>
+      <button class="btn btn-primary" id="next-btn" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+
+  <div id="score-screen">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+        <circle cx="80" cy="80" r="68" fill="none" stroke="url(#grad)" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="427" id="score-arc" stroke-dashoffset="427"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cbf"/>
+            <stop offset="100%" stop-color="#cf649a"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-ring-text">
+        <div class="score-number" id="final-score">0</div>
+        <div class="score-denom">/ 30</div>
+      </div>
+    </div>
+
+    <h2 class="score-title" id="result-title"></h2>
+    <p class="score-sub" id="result-sub"></p>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-val green" id="s-correct">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val red" id="s-wrong">0</div>
+        <div class="stat-label">Wrong</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val purple" id="s-pct">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <h3>// Score by Category</h3>
+      <div id="cat-breakdown"></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="restart()" style="width:100%">↺ &nbsp; Restart Quiz</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // Variables & Nesting (1-7)
+  {
+    cat: "Variables & Nesting",
+    q: "Which symbol is used to declare a variable in SASS?",
+    options: ["--", "@", "$", "#"],
+    answer: 2
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "What will happen if you declare <code>$color: red !default;</code> and <code>$color</code> was already defined earlier?",
+    options: ["It throws an error", "It overrides the existing value", "It keeps the original value", "It creates a new scoped variable"],
+    answer: 2
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "What is the maximum recommended nesting depth in SASS to keep code maintainable?",
+    options: ["2", "3", "5", "No limit"],
+    answer: 1
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "What does the <code>&</code> selector refer to inside a nested rule?",
+    options: ["The root element", "The parent selector", "A sibling element", "The universal selector"],
+    answer: 1
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "Given this code, what is the compiled CSS selector?",
+    code: `.card {\n  &--active {\n    color: blue;\n  }\n}`,
+    options: [".card .card--active", ".card--active", ".card .--active", ".card:active"],
+    answer: 1
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "Which of the following is a valid SASS variable interpolation inside a string?",
+    options: ['"Hello $(name)"', '"Hello {$name}"', '"Hello #{$name}"', '"Hello @{name}"'],
+    answer: 2
+  },
+  {
+    cat: "Variables & Nesting",
+    q: "SASS variables are scoped by default. If a variable is declared inside a selector block, where is it accessible?",
+    options: ["Globally throughout the file", "Only within that block and its children", "Only within that exact block", "Everywhere after the declaration"],
+    answer: 1
+  },
+  // Mixins & Functions (8-14)
+  {
+    cat: "Mixins & Functions",
+    q: "Which directive is used to <em>define</em> a mixin?",
+    options: ["@function", "@include", "@mixin", "@extend"],
+    answer: 2
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "Which directive is used to <em>call/use</em> a mixin?",
+    options: ["@mixin", "@use", "@include", "@apply"],
+    answer: 2
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "What is the key difference between a mixin and a function in SASS?",
+    options: ["Mixins return values; functions output CSS rules", "Functions return values; mixins output CSS rules", "They are identical in behavior", "Functions can accept arguments; mixins cannot"],
+    answer: 1
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "What does <code>@content</code> do inside a mixin?",
+    options: ["Prints the mixin name as a comment", "Allows the caller to pass a block of styles into the mixin", "Returns a CSS value", "Defines default content for the mixin"],
+    answer: 1
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "What is the output of this function?",
+    code: `@function double($n) {\n  @return $n * 2;\n}\n.box { width: double(10px); }`,
+    options: ["width: 10px", "width: 20px", "width: double(10px)", "Compilation error"],
+    answer: 1
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "How do you define a mixin with a default argument value?",
+    options: ["@mixin btn($size = 1rem)", "@mixin btn($size || 1rem)", "@mixin btn($size: 1rem)", "@mixin btn($size default 1rem)"],
+    answer: 2
+  },
+  {
+    cat: "Mixins & Functions",
+    q: "What does the <code>...</code> (arglist) syntax do in a mixin definition like <code>@mixin shadow($values...)</code>?",
+    options: ["It makes all arguments optional", "It accepts a variable number of arguments", "It spreads the mixin across multiple selectors", "It's invalid syntax"],
+    answer: 1
+  },
+  // Inheritance & Placeholders (15-20)
+  {
+    cat: "Inheritance & Placeholders",
+    q: "Which directive is used to inherit styles from another selector in SASS?",
+    options: ["@mixin", "@include", "@extend", "@import"],
+    answer: 2
+  },
+  {
+    cat: "Inheritance & Placeholders",
+    q: "What is a placeholder selector in SASS?",
+    options: ["A selector prefixed with #", "A selector prefixed with % that doesn't compile unless extended", "A selector prefixed with &", "A selector prefixed with *"],
+    answer: 1
+  },
+  {
+    cat: "Inheritance & Placeholders",
+    q: "What is the main advantage of using a <code>%placeholder</code> over a regular class with <code>@extend</code>?",
+    options: ["Placeholders compile to CSS even if unused", "Placeholders never produce output CSS unless they are extended", "Placeholders allow passing arguments", "Placeholders support nesting better than classes"],
+    answer: 1
+  },
+  {
+    cat: "Inheritance & Placeholders",
+    q: "What happens when you use <code>@extend</code> inside a media query on a selector defined <em>outside</em> of it?",
+    options: ["It works perfectly fine", "SASS throws a compilation error", "The styles are silently ignored", "It only works in SCSS syntax, not SASS syntax"],
+    answer: 1
+  },
+  {
+    cat: "Inheritance & Placeholders",
+    q: "Which of the following is true about <code>@extend</code> and the generated CSS?",
+    options: ["It duplicates all styles at the point of the extended selector", "It groups selectors together with a comma in the output CSS", "It creates a new class in the CSS output", "It has no effect on specificity"],
+    answer: 1
+  },
+  {
+    cat: "Inheritance & Placeholders",
+    q: "When should you prefer <code>@extend</code> over a mixin?",
+    options: ["When you need to pass dynamic values", "When you want to share static, unchanging styles without duplication", "When the styles involve media queries", "When the styles are used only once"],
+    answer: 1
+  },
+  // Control Flow & Loops (21-26)
+  {
+    cat: "Control Flow & Loops",
+    q: "Which directive is used for conditional logic in SASS?",
+    options: ["@when / @else", "@if / @else", "@check / @otherwise", "@cond / @alt"],
+    answer: 1
+  },
+  {
+    cat: "Control Flow & Loops",
+    q: "What does the <code>@each</code> directive do?",
+    options: ["Loops a fixed number of times", "Iterates over a list or map", "Checks a condition and loops", "Iterates over nested selectors"],
+    answer: 1
+  },
+  {
+    cat: "Control Flow & Loops",
+    q: "What is the correct syntax to loop from 1 to 5 using <code>@for</code>?",
+    options: ["@for $i from 1 to 6", "@for $i from 1 through 5", "@for $i in 1..5", "Both A and B"],
+    answer: 3
+  },
+  {
+    cat: "Control Flow & Loops",
+    q: "What is the difference between <code>@for ... to</code> and <code>@for ... through</code>?",
+    options: ["to is inclusive of the end value; through is exclusive", "through is inclusive of the end value; to is exclusive", "They are identical", "to only works with integers; through works with any value"],
+    answer: 1
+  },
+  {
+    cat: "Control Flow & Loops",
+    q: "Given this code, how many iterations will the loop run?",
+    code: `@for $i from 1 to 4 {\n  .item-#{$i} { width: $i * 10px; }\n}`,
+    options: ["4", "3", "5", "1"],
+    answer: 1
+  },
+  {
+    cat: "Control Flow & Loops",
+    q: "What is the correct syntax to iterate over a SASS map?",
+    options: ["@each $key, $value in $map", "@for $key, $value through $map", "@loop $key => $value in $map", "@each [$key: $value] in $map"],
+    answer: 0
+  },
+  // Advanced (27-30)
+  {
+    cat: "Advanced Techniques",
+    q: "What is the difference between <code>@import</code> and <code>@use</code> in modern SASS?",
+    options: ["@use allows circular dependencies; @import does not", "@use loads files with a namespace and only once; @import is deprecated and pollutes the global scope", "@import supports modules; @use does not", "There is no difference"],
+    answer: 1
+  },
+  {
+    cat: "Advanced Techniques",
+    q: "When using <code>@use</code>, how do you access a variable <code>$primary</code> from a file named <code>_colors.scss</code>?",
+    options: ["$primary", "colors.$primary", "@colors.primary", "$colors-primary"],
+    answer: 1
+  },
+  {
+    cat: "Advanced Techniques",
+    q: "What does the <code>@forward</code> directive do?",
+    options: ["Moves a file's output to another location", "Re-exports members from one module so other files can access them via @use", "Forwards CSS output to the browser immediately", "It's an alias for @import"],
+    answer: 1
+  },
+  {
+    cat: "Advanced Techniques",
+    q: "Which built-in SASS module would you use to manipulate colors programmatically (e.g., lighten, darken)?",
+    options: ["sass:math", "sass:string", "sass:color", "sass:map"],
+    answer: 2
+  }
+];
+
+const letters = ['A','B','C','D'];
+let current = 0;
+let userAnswers = new Array(questions.length).fill(null);
+let score = 0;
+
+function render() {
+  const q = questions[current];
+  const answered = userAnswers[current] !== null;
+
+  // Progress
+  const pct = (current / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('score-label').textContent = `Score: ${score}`;
+
+  // Category
+  document.getElementById('category-badge').textContent = '// ' + q.cat;
+
+  // Question
+  document.getElementById('q-number').textContent = `Q${String(current + 1).padStart(2,'0')}`;
+  const qText = document.getElementById('q-text');
+  let html = q.q;
+  if (q.code) {
+    html += `<pre class="q-code">${escHtml(q.code)}</pre>`;
+  }
+  qText.innerHTML = html;
+
+  // Options
+  const optContainer = document.getElementById('options');
+  optContainer.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (answered) {
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add('correct');
+      else if (i === userAnswers[current]) btn.classList.add('wrong');
+    }
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    if (!answered) btn.onclick = () => selectAnswer(i);
+    optContainer.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  if (answered) {
+    const correct = userAnswers[current] === q.answer;
+    fb.className = 'feedback ' + (correct ? 'correct-fb' : 'wrong-fb');
+    fb.innerHTML = correct
+      ? `✓ &nbsp;Correct! Well done.`
+      : `✗ &nbsp;Not quite. The correct answer is <strong>${letters[q.answer]}) ${q.options[q.answer]}</strong>`;
+  }
+
+  // Buttons
+  document.getElementById('prev-btn').disabled = current === 0;
+  const nextBtn = document.getElementById('next-btn');
+  if (current === questions.length - 1) {
+    nextBtn.textContent = answered ? 'See Results →' : 'Next →';
+    nextBtn.onclick = answered ? showResults : () => navigate(1);
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = () => navigate(1);
+  }
+  nextBtn.disabled = false;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function selectAnswer(i) {
+  if (userAnswers[current] !== null) return;
+  userAnswers[current] = i;
+  if (i === questions[current].answer) score++;
+  render();
+
+  // Auto-advance after 1.6s if not last question
+  if (current < questions.length - 1) {
+    setTimeout(() => { current++; animateCard(); render(); }, 1600);
+  }
+}
+
+function navigate(dir) {
+  const next = current + dir;
+  if (next < 0 || next > questions.length - 1) return;
+  current = next;
+  animateCard();
+  render();
+}
+
+function animateCard() {
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'slideUp 0.3s ease both';
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const ss = document.getElementById('score-screen');
+  ss.style.display = 'block';
+
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('s-correct').textContent = score;
+  document.getElementById('s-wrong').textContent = questions.length - score;
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('s-pct').textContent = pct + '%';
+
+  const titles = ['Keep Practicing!','Getting There!','Solid Work!','Great Job!','SASS Master!'];
+  const subs = [
+    'Review the docs and try again — you\'ll get there.',
+    'A few gaps to fill. Study up on the weak spots.',
+    'You know your SASS. A bit more polish and you\'re golden.',
+    'Sharp! Just a couple things to iron out.',
+    'You clearly know your SASS inside and out. 🎉'
+  ];
+  const tier = Math.min(4, Math.floor(pct / 20));
+  document.getElementById('result-title').textContent = titles[tier];
+  document.getElementById('result-sub').textContent = subs[tier];
+
+  // Animate ring
+  setTimeout(() => {
+    const arc = document.getElementById('score-arc');
+    const circumference = 427;
+    arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)';
+    arc.style.strokeDashoffset = circumference - (circumference * pct / 100);
+  }, 100);
+
+  // Category breakdown
+  const cats = {};
+  questions.forEach((q, i) => {
+    if (!cats[q.cat]) cats[q.cat] = { correct: 0, total: 0 };
+    cats[q.cat].total++;
+    if (userAnswers[i] === q.answer) cats[q.cat].correct++;
+  });
+
+  const bd = document.getElementById('cat-breakdown');
+  bd.innerHTML = '';
+  Object.entries(cats).forEach(([cat, data]) => {
+    const catPct = Math.round((data.correct / data.total) * 100);
+    bd.innerHTML += `
+      <div class="cat-row">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:0%" data-pct="${catPct}"></div></div>
+        <div class="cat-score">${data.correct}/${data.total}</div>
+      </div>`;
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.cat-bar-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 200);
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  userAnswers = new Array(questions.length).fill(null);
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

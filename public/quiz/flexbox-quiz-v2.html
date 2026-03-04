@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flexbox Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #1a1a1a;
+    --border: #2e2e2e;
+    --accent: #00ff88;
+    --accent2: #ff3c6e;
+    --text: #f0f0f0;
+    --muted: #666;
+    --correct: #00ff88;
+    --wrong: #ff3c6e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    max-width: 700px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s ease;
+    border-radius: 2px;
+  }
+
+  .quiz-container {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 16px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .code-snippet {
+    font-family: 'Space Mono', monospace;
+    background: #111;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 0.8rem;
+    color: #c9d1d9;
+    margin-bottom: 24px;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.7;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,255,136,0.05);
+    transform: translateX(4px);
+  }
+
+  .option-btn .key {
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 18px;
+  }
+
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(0,255,136,0.08);
+    color: var(--correct);
+  }
+
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(255,60,110,0.08);
+    color: var(--wrong);
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .feedback.correct-fb {
+    background: rgba(0,255,136,0.06);
+    border: 1px solid var(--correct);
+    color: var(--correct);
+  }
+
+  .feedback.wrong-fb {
+    background: rgba(255,60,110,0.06);
+    border: 1px solid var(--wrong);
+    color: var(--wrong);
+  }
+
+  .next-btn {
+    margin-top: 24px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .next-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+  .next-btn.show { display: inline-block; animation: fadeIn 0.2s ease; }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+
+  .score-card.show { display: block; }
+
+  .score-number {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -4px;
+    line-height: 1;
+    margin: 12px 0;
+  }
+
+  .score-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .score-msg {
+    margin: 24px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .restart-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-top: 8px;
+  }
+
+  .restart-btn:hover {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Flex<span>box</span></h1>
+<p class="subtitle">CSS Knowledge Quiz</p>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progressFill"></div>
+</div>
+
+<div class="quiz-container">
+  <div class="counter" id="counter"></div>
+  <div id="questionCard" class="question-card"></div>
+  <div id="scoreCard" class="score-card"></div>
+</div>
+
+<script>
+const questions = [
+  // --- BASICS ---
+  {
+    q: "Which CSS property do you use to enable flexbox on a container?",
+    code: null,
+    options: ["display: flex", "flexbox: true", "flex: enable", "layout: flex"],
+    answer: 0,
+    explanation: "display: flex turns an element into a flex container, making its direct children flex items."
+  },
+  {
+    q: "What is the default value of flex-direction?",
+    code: null,
+    options: ["column", "row-reverse", "row", "column-reverse"],
+    answer: 2,
+    explanation: "flex-direction defaults to 'row', meaning flex items are placed left to right along the main axis."
+  },
+  {
+    q: "Which property aligns flex items along the MAIN axis?",
+    code: null,
+    options: ["align-items", "align-content", "justify-content", "justify-items"],
+    answer: 2,
+    explanation: "justify-content controls alignment along the main axis. align-items handles the cross axis."
+  },
+  {
+    q: "Which property aligns flex items along the CROSS axis?",
+    code: null,
+    options: ["justify-content", "justify-self", "align-content", "align-items"],
+    answer: 3,
+    explanation: "align-items controls alignment along the cross axis (perpendicular to the main axis)."
+  },
+  {
+    q: "What is the default value of align-items?",
+    code: null,
+    options: ["center", "flex-start", "stretch", "baseline"],
+    answer: 2,
+    explanation: "align-items defaults to 'stretch', which causes flex items to fill the container's cross-axis height."
+  },
+  // --- FLEX DIRECTION & AXES ---
+  {
+    q: "With flex-direction: column, which axis becomes the main axis?",
+    code: null,
+    options: ["Horizontal (x-axis)", "Diagonal", "Vertical (y-axis)", "It depends on writing mode"],
+    answer: 2,
+    explanation: "When flex-direction is column, the vertical axis becomes the main axis, so justify-content controls vertical alignment."
+  },
+  {
+    q: "What does flex-direction: row-reverse do?",
+    code: null,
+    options: [
+      "Places items in a column from bottom to top",
+      "Places items in a row from right to left",
+      "Reverses the cross axis",
+      "Mirrors the flex container"
+    ],
+    answer: 1,
+    explanation: "row-reverse lays items out horizontally but starts from the right side, reversing their visual order."
+  },
+  {
+    q: "What does this declaration do?",
+    code: `.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}`,
+    options: [
+      "Centers children vertically only",
+      "Centers children horizontally only",
+      "Centers children both vertically and horizontally",
+      "Has no effect without a set height"
+    ],
+    answer: 2,
+    explanation: "align-items: center centers on the cross axis (vertical for row), justify-content: center centers on the main axis (horizontal for row)."
+  },
+  // --- FLEX-WRAP ---
+  {
+    q: "Which value of flex-wrap allows items to wrap onto multiple lines?",
+    code: null,
+    options: ["wrap-reverse", "nowrap", "wrap", "auto"],
+    answer: 2,
+    explanation: "flex-wrap: wrap allows items to wrap to the next line. The default is 'nowrap', which forces all items onto one line."
+  },
+  {
+    q: "What does flex-wrap: wrap-reverse do?",
+    code: null,
+    options: [
+      "Wraps items but in reverse order",
+      "Prevents wrapping entirely",
+      "Wraps items, but new lines are added above instead of below",
+      "Reverses flex-direction when wrapping"
+    ],
+    answer: 2,
+    explanation: "wrap-reverse wraps items just like 'wrap', but new rows are stacked in the opposite cross-axis direction — above the first row instead of below."
+  },
+  // --- FLEX-GROW, SHRINK, BASIS ---
+  {
+    q: "What does flex: 1 actually expand to?",
+    code: `.item { flex: 1; }`,
+    options: [
+      "flex-grow: 1; flex-shrink: 0; flex-basis: 0%",
+      "flex-grow: 1; flex-shrink: 1; flex-basis: 0%",
+      "flex-grow: 1; flex-shrink: 1; flex-basis: auto",
+      "flex-grow: 0; flex-shrink: 1; flex-basis: 0%"
+    ],
+    answer: 1,
+    explanation: "flex: 1 expands to flex-grow: 1, flex-shrink: 1, flex-basis: 0%. It allows the item to grow and shrink freely."
+  },
+  {
+    q: "What does flex-grow: 0 mean?",
+    code: null,
+    options: [
+      "The item will shrink to nothing",
+      "The item will not grow beyond its flex-basis",
+      "The item is removed from flex flow",
+      "The item takes up all available space"
+    ],
+    answer: 1,
+    explanation: "flex-grow: 0 (the default) means the item won't grow to fill extra space. It stays at its flex-basis size."
+  },
+  {
+    q: "What does flex-shrink: 0 do?",
+    code: null,
+    options: [
+      "The item grows to fill extra space",
+      "The item is hidden when space is tight",
+      "The item refuses to shrink below its flex-basis",
+      "The item collapses to zero width"
+    ],
+    answer: 2,
+    explanation: "flex-shrink: 0 prevents the item from shrinking. It will keep its size even if the container is too small, potentially causing overflow."
+  },
+  {
+    q: "What is flex-basis used for?",
+    code: null,
+    options: [
+      "Sets the minimum width of a flex item",
+      "Sets the initial size of a flex item before growing/shrinking",
+      "Sets the maximum size of a flex item",
+      "Defines the gap between flex items"
+    ],
+    answer: 1,
+    explanation: "flex-basis sets the initial main-axis size of a flex item before any growing or shrinking is applied."
+  },
+  {
+    q: "Two items have flex-grow: 1 and flex-grow: 3. There are 400px of free space. How is it distributed?",
+    code: null,
+    options: [
+      "Item 1 gets 200px, Item 2 gets 200px",
+      "Item 1 gets 100px, Item 2 gets 300px",
+      "Item 1 gets 133px, Item 2 gets 267px",
+      "Item 1 gets 400px, Item 2 gets 0px"
+    ],
+    answer: 1,
+    explanation: "flex-grow distributes free space proportionally. Total parts = 4. Item 1 gets 1/4 × 400 = 100px. Item 2 gets 3/4 × 400 = 300px."
+  },
+  // --- JUSTIFY-CONTENT VALUES ---
+  {
+    q: "Which justify-content value places equal space BETWEEN items but not on the edges?",
+    code: null,
+    options: ["space-around", "space-evenly", "space-between", "center"],
+    answer: 2,
+    explanation: "space-between puts equal gaps between items but no space at the start or end edges."
+  },
+  {
+    q: "Which justify-content value puts equal space around each item, including the edges?",
+    code: null,
+    options: ["space-between", "space-around", "space-evenly", "flex-end"],
+    answer: 1,
+    explanation: "space-around gives each item equal space on both sides. Edge items have half as much space as between items. Use space-evenly for truly equal spacing everywhere."
+  },
+  {
+    q: "What does justify-content: flex-end do in a row layout?",
+    code: null,
+    options: [
+      "Pushes items to the bottom",
+      "Pushes items to the right",
+      "Stretches items to fill the container",
+      "Pushes items to the top"
+    ],
+    answer: 1,
+    explanation: "In a row layout, flex-end pushes all items to the end of the main axis — the right side."
+  },
+  // --- ALIGN-ITEMS & ALIGN-SELF ---
+  {
+    q: "How do you override the alignment of a single flex item?",
+    code: null,
+    options: ["justify-self", "align-self", "self-align", "item-align"],
+    answer: 1,
+    explanation: "align-self overrides the container's align-items for an individual flex item."
+  },
+  {
+    q: "What does align-self: stretch do?",
+    code: null,
+    options: [
+      "Makes the item fill the full main-axis length",
+      "Makes the item fill the full cross-axis height of the container",
+      "Centers the item on both axes",
+      "Stretches the item's content"
+    ],
+    answer: 1,
+    explanation: "stretch makes the item expand to fill the container's cross-axis size. It's the default value for both align-items and align-self."
+  },
+  {
+    q: "What does align-items: baseline do?",
+    code: null,
+    options: [
+      "Aligns items to the bottom of the container",
+      "Aligns items along the first line of their text content",
+      "Resets alignment to the default",
+      "Centers items vertically"
+    ],
+    answer: 1,
+    explanation: "baseline aligns items so their text baselines line up. Useful when items have different font sizes."
+  },
+  // --- ALIGN-CONTENT ---
+  {
+    q: "What is the difference between align-items and align-content?",
+    code: null,
+    options: [
+      "They are identical",
+      "align-items aligns items within each line; align-content aligns multiple lines in the container",
+      "align-content only works on the main axis",
+      "align-items requires flex-wrap: wrap"
+    ],
+    answer: 1,
+    explanation: "align-items aligns items within each line. align-content aligns multiple lines relative to the container — it only has effect when items wrap."
+  },
+  {
+    q: "When does align-content have NO effect?",
+    code: null,
+    options: [
+      "When flex-direction is column",
+      "When there is only a single line of flex items",
+      "When justify-content is also set",
+      "When align-items is set to stretch"
+    ],
+    answer: 1,
+    explanation: "align-content only works when there are multiple lines (i.e., when flex-wrap is enabled and items wrap). It has no effect on a single-line container."
+  },
+  // --- ORDER ---
+  {
+    q: "What does the order property do?",
+    code: `.item-b { order: -1; }`,
+    options: [
+      "Removes the item from the flow",
+      "Changes the item's z-index",
+      "Controls the visual order of flex items without changing the DOM",
+      "Reverses the flex direction"
+    ],
+    answer: 2,
+    explanation: "order changes the visual order of flex items. Default is 0; lower values appear first. It doesn't change DOM order."
+  },
+  {
+    q: "What is the default value of the order property?",
+    code: null,
+    options: ["-1", "1", "0", "auto"],
+    answer: 2,
+    explanation: "All flex items have order: 0 by default. Items with the same order value appear in source order."
+  },
+  // --- GAP ---
+  {
+    q: "Which property adds space between flex items without affecting outer edges?",
+    code: null,
+    options: ["margin", "padding", "gap", "spacing"],
+    answer: 2,
+    explanation: "gap (or row-gap / column-gap) adds space between flex items only, not between items and the container edges."
+  },
+  {
+    q: "What does this code produce?",
+    code: `.container {
+  display: flex;
+  gap: 20px 10px;
+}`,
+    options: [
+      "20px gap on all sides",
+      "20px row gap and 10px column gap",
+      "10px row gap and 20px column gap",
+      "20px padding inside items"
+    ],
+    answer: 1,
+    explanation: "When gap has two values, the first is row-gap and the second is column-gap. So: 20px between rows, 10px between columns."
+  },
+  // --- DISPLAY: INLINE-FLEX ---
+  {
+    q: "What is the difference between display: flex and display: inline-flex?",
+    code: null,
+    options: [
+      "inline-flex disables wrapping",
+      "flex creates a block-level container; inline-flex creates an inline-level container",
+      "inline-flex is for text only",
+      "They are identical in modern browsers"
+    ],
+    answer: 1,
+    explanation: "display: flex creates a block-level flex container (takes full width). display: inline-flex creates an inline container that only takes up as much space as its content."
+  },
+  // --- TRICKY / ADVANCED ---
+  {
+    q: "What happens to flex items that are absolutely positioned?",
+    code: null,
+    options: [
+      "They still participate in flex layout normally",
+      "They are removed from the flex flow and don't affect other items",
+      "They cause the flex container to collapse",
+      "They inherit flex-grow from the container"
+    ],
+    answer: 1,
+    explanation: "Absolutely positioned flex items are taken out of the normal flex flow. They don't affect the size or positioning of other flex items."
+  },
+  {
+    q: "Which property would you set on an item to make it NOT shrink when the container is too small?",
+    code: null,
+    options: ["flex-grow: 0", "min-width: 0", "flex-shrink: 0", "flex-basis: auto"],
+    answer: 2,
+    explanation: "flex-shrink: 0 prevents an item from shrinking below its flex-basis. The item will overflow the container rather than compress."
+  },
+  {
+    q: "What does this code do?",
+    code: `.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 400px;
+}`,
+    options: [
+      "Arranges items horizontally with space between them",
+      "Stacks items vertically with equal space between them across 400px",
+      "Centers items vertically in a 400px column",
+      "Wraps items across columns"
+    ],
+    answer: 1,
+    explanation: "With flex-direction: column, the main axis is vertical. justify-content: space-between distributes items evenly from top to bottom within the 400px container."
+  },
+  {
+    q: "A flex item has min-width: 200px and flex-shrink: 1. What happens when the container is 100px wide?",
+    code: null,
+    options: [
+      "The item shrinks to 100px",
+      "The item shrinks to 0px",
+      "The item respects min-width and stays at 200px, overflowing",
+      "The item is hidden"
+    ],
+    answer: 2,
+    explanation: "min-width takes precedence over flex-shrink. Even with flex-shrink: 1, an item will not shrink below its min-width, causing overflow if necessary."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+const keys = ['A', 'B', 'C', 'D'];
+
+function render() {
+  const card = document.getElementById('questionCard');
+  const scoreCard = document.getElementById('scoreCard');
+  const counter = document.getElementById('counter');
+  const fill = document.getElementById('progressFill');
+
+  if (current >= questions.length) {
+    card.style.display = 'none';
+    counter.style.display = 'none';
+    showScore();
+    return;
+  }
+
+  card.style.display = 'block';
+  scoreCard.classList.remove('show');
+  counter.textContent = `Question ${current + 1} / ${questions.length}`;
+  fill.style.width = `${(current / questions.length) * 100}%`;
+
+  const q = questions[current];
+  answered = false;
+
+  card.innerHTML = `
+    <div class="q-meta">Question ${current + 1}</div>
+    <div class="question-text">${q.q}</div>
+    ${q.code ? `<div class="code-snippet">${q.code}</div>` : ''}
+    <div class="options">
+      ${q.options.map((opt, i) => `
+        <button class="option-btn" onclick="select(${i})">
+          <span class="key">${keys[i]}</span>${opt}
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="next()">
+      ${current < questions.length - 1 ? 'Next Question →' : 'See Results →'}
+    </button>
+  `;
+}
+
+function select(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  const feedback = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+
+  btns.forEach(b => b.disabled = true);
+
+  if (idx === q.answer) {
+    btns[idx].classList.add('correct');
+    score++;
+    feedback.className = 'feedback correct-fb show';
+    feedback.textContent = '✓ Correct! ' + q.explanation;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    feedback.className = 'feedback wrong-fb show';
+    feedback.textContent = '✗ Not quite. ' + q.explanation;
+  }
+
+  nextBtn.classList.add('show');
+}
+
+function next() {
+  current++;
+  render();
+}
+
+function showScore() {
+  const fill = document.getElementById('progressFill');
+  fill.style.width = '100%';
+
+  const pct = Math.round((score / questions.length) * 100);
+  let msg = '';
+  if (pct === 100) msg = '🏆 Perfect score! You\'re a flexbox master.';
+  else if (pct >= 80) msg = '🎉 Great job! You know flexbox well.';
+  else if (pct >= 60) msg = '📚 Not bad! A bit more practice and you\'ll nail it.';
+  else msg = '💪 Keep studying — flexbox will click soon!';
+
+  const scoreCard = document.getElementById('scoreCard');
+  scoreCard.innerHTML = `
+    <p class="score-label">Your Score</p>
+    <div class="score-number">${score}<span style="font-size:2rem;color:var(--muted)">/${questions.length}</span></div>
+    <p class="score-label">${pct}% correct</p>
+    <p class="score-msg">${msg}</p>
+    <button class="restart-btn" onclick="restart()">Try Again</button>
+  `;
+  scoreCard.classList.add('show');
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  document.getElementById('questionCard').style.display = 'block';
+  document.getElementById('counter').style.display = 'block';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

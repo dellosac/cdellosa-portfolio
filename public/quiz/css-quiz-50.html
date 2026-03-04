@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Knowledge Test — 50 Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222d;
+    --border: #2e2e3d;
+    --accent: #7c6af7;
+    --accent2: #f76a8a;
+    --correct: #4ade80;
+    --wrong: #f87171;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+  }
+
+  .header p {
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .topic-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .topic-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface2);
+  }
+
+  .quiz-container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .progress-bar-wrap {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 6px;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 0.4rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .score-badge span { color: var(--accent); font-weight: 700; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin: 2.5rem 0 1rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--accent2);
+    padding-left: 0.75rem;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.25rem;
+    transition: border-color 0.2s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-card:hover { border-color: #3e3e52; }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .q-topic {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(124, 106, 247, 0.15);
+    color: var(--accent);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 500;
+  }
+
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.55;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+  }
+
+  .q-text code {
+    font-family: 'Space Mono', monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 0.1em 0.4em;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: #c9b8ff;
+  }
+
+  .options {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    font-size: 0.97rem;
+  }
+
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #1e1e2a;
+  }
+
+  .option .key {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    background: var(--border);
+    color: var(--muted);
+    border-radius: 5px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .option.correct {
+    border-color: var(--correct);
+    background: rgba(74, 222, 128, 0.08);
+  }
+  .option.correct .key { background: var(--correct); color: #000; }
+
+  .option.wrong {
+    border-color: var(--wrong);
+    background: rgba(248, 113, 113, 0.08);
+  }
+  .option.wrong .key { background: var(--wrong); color: #000; }
+
+  .option.disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 0.9rem;
+    font-size: 0.88rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(74,222,128,0.1); color: var(--correct); border: 1px solid rgba(74,222,128,0.25); }
+  .feedback.wrong-fb { background: rgba(248,113,113,0.1); color: #fca5a5; border: 1px solid rgba(248,113,113,0.25); }
+
+  .results {
+    display: none;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-top: 2rem;
+  }
+
+  .results.show { display: block; animation: fadeUp 0.4s ease; }
+
+  .results .big-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .results .out-of { color: var(--muted); font-size: 1.1rem; margin: 0.5rem 0 1.5rem; }
+  .results .grade { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .results .message { color: var(--muted); margin-bottom: 2rem; }
+
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, var(--accent), #5a4fd8);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .submit-area {
+    text-align: center;
+    margin: 2.5rem 0 1rem;
+  }
+
+  #submit-btn {
+    padding: 1rem 3rem;
+    font-size: 1.05rem;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat { text-align: center; }
+  .stat .val { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; }
+  .stat .val.c { color: var(--correct); }
+  .stat .val.w { color: var(--wrong); }
+  .stat .lbl { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="header">
+    <h1>CSS Knowledge Test</h1>
+    <p>50 questions across all core CSS topics</p>
+    <div class="topic-tags">
+      <span class="topic-tag">Fundamentals</span>
+      <span class="topic-tag">Selectors</span>
+      <span class="topic-tag">Box Model</span>
+      <span class="topic-tag">Flexbox</span>
+      <span class="topic-tag">Grid</span>
+      <span class="topic-tag">Typography</span>
+      <span class="topic-tag">Animations</span>
+      <span class="topic-tag">Responsive</span>
+      <span class="topic-tag">Modern CSS</span>
+      <span class="topic-tag">Cascade & Inheritance</span>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="score-badge">Score: <span id="liveScore">0</span> / <span id="liveTotal">0</span> answered</div>
+
+  <div id="quiz"></div>
+
+  <div class="submit-area">
+    <button class="btn" id="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="big-score" id="finalScore"></div>
+    <div class="out-of" id="outOf"></div>
+    <div class="grade" id="grade"></div>
+    <div class="message" id="message"></div>
+    <div class="stats-row">
+      <div class="stat"><div class="val c" id="correctCount"></div><div class="lbl">Correct</div></div>
+      <div class="stat"><div class="val w" id="wrongCount"></div><div class="lbl">Wrong</div></div>
+      <div class="stat"><div class="val" id="skipCount" style="color:var(--muted)"></div><div class="lbl">Skipped</div></div>
+    </div>
+    <br><br>
+    <button class="btn" onclick="resetQuiz()">Try Again</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // ── FUNDAMENTALS ──────────────────────────────────────────────
+  {
+    topic: "Fundamentals",
+    q: "What does CSS stand for?",
+    opts: ["Creative Style Sheets", "Cascading Style Sheets", "Computer Style Syntax", "Colorful Styling System"],
+    ans: 1,
+    exp: "CSS stands for Cascading Style Sheets — the 'cascading' refers to how styles are applied in priority order."
+  },
+  {
+    topic: "Fundamentals",
+    q: "What is the default value of the <code>position</code> property?",
+    opts: ["relative", "fixed", "absolute", "static"],
+    ans: 3,
+    exp: "The default value of position is static. Elements with static positioning are in the normal document flow."
+  },
+  {
+    topic: "Fundamentals",
+    q: "What does <code>box-sizing: border-box</code> do?",
+    opts: [
+      "Adds a border to every element",
+      "Makes width include padding and border",
+      "Removes the default margin from boxes",
+      "Centers the element in its container"
+    ],
+    ans: 1,
+    exp: "border-box makes the element's width and height include padding and border, making layout math much more intuitive."
+  },
+  {
+    topic: "Fundamentals",
+    q: "Which CSS property controls the space inside an element's border?",
+    opts: ["margin", "padding", "spacing", "gap"],
+    ans: 1,
+    exp: "Padding controls the space between an element's content and its border. Margin controls space outside the border."
+  },
+  {
+    topic: "Fundamentals",
+    q: "What does <code>z-index</code> control?",
+    opts: ["Zoom level of the element", "Stacking order of positioned elements", "Z-axis 3D transform depth", "Visibility of the element"],
+    ans: 1,
+    exp: "z-index controls the stacking order along the z-axis. Higher values appear in front. It only works on positioned elements (not static)."
+  },
+  {
+    topic: "Fundamentals",
+    q: "Which CSS unit is relative to the font size of the root element?",
+    opts: ["em", "rem", "vh", "px"],
+    ans: 1,
+    exp: "rem (root em) is relative to the font size of the <html> element. em is relative to the current element's font size."
+  },
+  {
+    topic: "Fundamentals",
+    q: "What does <code>opacity: 0</code> do?",
+    opts: [
+      "Removes the element from layout",
+      "Makes the element invisible but it still takes up space",
+      "Same as display: none",
+      "Hides the element's background only"
+    ],
+    ans: 1,
+    exp: "opacity: 0 makes an element fully transparent but it still occupies space in the layout. display: none removes it entirely."
+  },
+  {
+    topic: "Fundamentals",
+    q: "What does <code>visibility: hidden</code> differ from <code>display: none</code>?",
+    opts: [
+      "They are identical",
+      "visibility: hidden hides but keeps layout space; display: none removes from flow",
+      "display: none keeps layout space; visibility: hidden removes it",
+      "visibility: hidden also permanently hides child elements"
+    ],
+    ans: 1,
+    exp: "visibility: hidden hides the element but preserves its space. display: none removes it from the flow entirely."
+  },
+
+  // ── SELECTORS & COMBINATORS ───────────────────────────────────
+  {
+    topic: "Selectors",
+    q: "Which selector has the highest specificity?",
+    opts: ["Element selector (e.g. <code>p</code>)", "Class selector (e.g. <code>.box</code>)", "ID selector (e.g. <code>#main</code>)", "Universal selector (<code>*</code>)"],
+    ans: 2,
+    exp: "ID selectors have the highest specificity of the four options. Inline styles beat IDs, and !important overrides everything."
+  },
+  {
+    topic: "Selectors",
+    q: "What does the <code>></code> combinator do?",
+    opts: [
+      "Selects all descendants",
+      "Selects only direct children",
+      "Selects the immediately following sibling",
+      "Selects all following siblings"
+    ],
+    ans: 1,
+    exp: "The child combinator > selects only direct children. div > p targets only p elements that are direct children of a div, not deeper descendants."
+  },
+  {
+    topic: "Selectors",
+    q: "What does the <code>+</code> combinator select?",
+    opts: [
+      "All siblings after an element",
+      "The immediately following sibling element",
+      "All child elements",
+      "The parent element"
+    ],
+    ans: 1,
+    exp: "The adjacent sibling combinator + selects the element immediately following the specified element — they must share the same parent."
+  },
+  {
+    topic: "Selectors",
+    q: "Which selector targets an <code>input</code> element with <code>type=\"email\"</code>?",
+    opts: ["input.email", "input[type=email]", "input:email", "#email"],
+    ans: 1,
+    exp: "Attribute selectors use square brackets: input[type=\"email\"] or input[type=email]. They're great for targeting HTML attributes without adding classes."
+  },
+  {
+    topic: "Selectors",
+    q: "What does <code>:nth-child(2n+1)</code> select?",
+    opts: ["Every second child", "The second child only", "Every odd-numbered child", "Every third child"],
+    ans: 2,
+    exp: "2n+1 targets odd-numbered children: 1st, 3rd, 5th, etc. This is equivalent to :nth-child(odd)."
+  },
+  {
+    topic: "Selectors",
+    q: "Which pseudo-class applies when a user hovers over an element?",
+    opts: [":active", ":focus", ":hover", ":visited"],
+    ans: 2,
+    exp: ":hover applies styles when the pointer is over an element. :active applies while it's being clicked."
+  },
+  {
+    topic: "Selectors",
+    q: "What is the <code>~</code> combinator called?",
+    opts: ["Adjacent sibling", "General sibling", "Descendant", "Child"],
+    ans: 1,
+    exp: "~ is the general sibling combinator. It selects all siblings after the specified element, not just the immediately adjacent one."
+  },
+
+  // ── CASCADE & INHERITANCE ─────────────────────────────────────
+  {
+    topic: "Cascade & Inheritance",
+    q: "What does <code>!important</code> do in CSS?",
+    opts: [
+      "Marks a comment as critical",
+      "Overrides all other declarations for that property",
+      "Sets the highest z-index",
+      "Makes a property required"
+    ],
+    ans: 1,
+    exp: "!important overrides all other declarations for that property, regardless of specificity. It should be used sparingly as it makes debugging difficult."
+  },
+  {
+    topic: "Cascade & Inheritance",
+    q: "Which keyword resets a property to its inherited value, or the browser default if not inherited?",
+    opts: ["reset", "default", "unset", "none"],
+    ans: 2,
+    exp: "unset resets to the inherited value if the property naturally inherits, or to its initial value if it doesn't. It's useful for removing all custom styling."
+  },
+  {
+    topic: "Cascade & Inheritance",
+    q: "Which of these CSS properties is inherited by default?",
+    opts: ["border", "padding", "color", "margin"],
+    ans: 2,
+    exp: "color is inherited — child elements get the parent's color unless overridden. Border, padding, and margin are not inherited."
+  },
+  {
+    topic: "Cascade & Inheritance",
+    q: "What does the <code>initial</code> keyword do?",
+    opts: [
+      "Resets to the inherited value",
+      "Resets a property to its CSS specification default",
+      "Resets to the browser's user-agent stylesheet value",
+      "Removes the property entirely"
+    ],
+    ans: 1,
+    exp: "initial resets a property to its CSS specification default value (e.g., initial for display is inline, not the browser's default for that element)."
+  },
+
+  // ── BOX MODEL ─────────────────────────────────────────────────
+  {
+    topic: "Box Model",
+    q: "Which property shorthand sets margin with the TRBL order?",
+    opts: [
+      "<code>margin: top right bottom left</code>",
+      "<code>margin: all 10px</code>",
+      "<code>margins: 10px</code>",
+      "<code>margin-all: 10px</code>"
+    ],
+    ans: 0,
+    exp: "margin shorthand follows the TRBL order: top, right, bottom, left. One value sets all four sides equally."
+  },
+  {
+    topic: "Box Model",
+    q: "Which value of <code>overflow</code> adds a scrollbar only when content overflows?",
+    opts: ["hidden", "scroll", "visible", "auto"],
+    ans: 3,
+    exp: "overflow: auto adds a scrollbar only when needed. overflow: scroll always shows scrollbars even if content fits."
+  },
+  {
+    topic: "Box Model",
+    q: "Which CSS property adds a shadow behind an element's box?",
+    opts: ["text-shadow", "box-shadow", "filter: shadow()", "drop-shadow"],
+    ans: 1,
+    exp: "box-shadow adds a shadow behind the element's box. Its syntax is: offset-x offset-y blur spread color. text-shadow is for text only."
+  },
+
+  // ── FLEXBOX ───────────────────────────────────────────────────
+  {
+    topic: "Flexbox",
+    q: "What value of <code>display</code> makes an element a flex container?",
+    opts: ["block", "flex", "inline", "grid"],
+    ans: 1,
+    exp: "Setting display: flex makes an element a flex container, enabling Flexbox layout for its children."
+  },
+  {
+    topic: "Flexbox",
+    q: "Which property aligns flex items along the main axis?",
+    opts: ["align-items", "align-content", "justify-content", "flex-direction"],
+    ans: 2,
+    exp: "justify-content aligns items along the main axis. align-items aligns them on the cross axis."
+  },
+  {
+    topic: "Flexbox",
+    q: "What is the default value of <code>flex-direction</code>?",
+    opts: ["column", "row-reverse", "row", "column-reverse"],
+    ans: 2,
+    exp: "The default flex-direction is row, which lays items out horizontally left to right."
+  },
+  {
+    topic: "Flexbox",
+    q: "Which value of <code>align-items</code> stretches flex children to fill the container height?",
+    opts: ["center", "flex-start", "baseline", "stretch"],
+    ans: 3,
+    exp: "stretch is the default value of align-items — it makes flex children stretch to fill the container's cross-axis size."
+  },
+  {
+    topic: "Flexbox",
+    q: "What does <code>flex: 1</code> mean on a flex child?",
+    opts: [
+      "The item takes exactly 1px of space",
+      "The item grows and shrinks to fill available space equally",
+      "The item is the first in the order",
+      "The item has 1 unit of padding"
+    ],
+    ans: 1,
+    exp: "flex: 1 is shorthand for flex-grow: 1, flex-shrink: 1, flex-basis: 0. The item will grow to fill available space and shrink if needed."
+  },
+  {
+    topic: "Flexbox",
+    q: "Which property controls whether flex items wrap onto multiple lines?",
+    opts: ["flex-direction", "flex-wrap", "align-content", "flex-flow"],
+    ans: 1,
+    exp: "flex-wrap controls wrapping. The default is nowrap (all items on one line). flex-wrap: wrap allows items to flow to the next line."
+  },
+
+  // ── GRID ──────────────────────────────────────────────────────
+  {
+    topic: "Grid",
+    q: "Which property is used to create a CSS Grid container?",
+    opts: ["display: grid", "layout: grid", "position: grid", "grid: true"],
+    ans: 0,
+    exp: "display: grid turns an element into a grid container, enabling CSS Grid layout for its direct children."
+  },
+  {
+    topic: "Grid",
+    q: "What does <code>grid-template-columns: repeat(3, 1fr)</code> create?",
+    opts: [
+      "3 rows of equal height",
+      "3 columns of equal width",
+      "A 3×3 grid",
+      "3 columns where only the first is flexible"
+    ],
+    ans: 1,
+    exp: "repeat(3, 1fr) creates 3 equal-width columns. 1fr means 1 fraction of the available space."
+  },
+  {
+    topic: "Grid",
+    q: "What does <code>grid-column: 1 / 3</code> do to a grid item?",
+    opts: [
+      "Places the item in column 1 only",
+      "Spans the item from column line 1 to line 3 (covering 2 columns)",
+      "Creates 3 new columns",
+      "Sets the column gap to 3px"
+    ],
+    ans: 1,
+    exp: "grid-column: 1 / 3 places the item starting at column line 1 and ending at line 3, spanning across 2 column tracks."
+  },
+  {
+    topic: "Grid",
+    q: "What is the difference between <code>auto-fill</code> and <code>auto-fit</code> in <code>repeat()</code>?",
+    opts: [
+      "They are identical",
+      "auto-fill creates empty tracks; auto-fit collapses empty tracks to 0",
+      "auto-fit creates empty tracks; auto-fill collapses empty tracks to 0",
+      "auto-fill only works with fixed units"
+    ],
+    ans: 1,
+    exp: "auto-fill keeps empty tracks taking up space. auto-fit collapses empty tracks so filled items can grow to fill the space. The difference is visible when items don't fill the full row."
+  },
+  {
+    topic: "Grid",
+    q: "What does <code>minmax(200px, 1fr)</code> do inside a grid definition?",
+    opts: [
+      "Creates a column that's always 200px wide",
+      "Creates a column at least 200px wide that can grow to fill available space",
+      "Limits the column to a maximum of 200px",
+      "Sets the column gap between 200px and 1fr"
+    ],
+    ans: 1,
+    exp: "minmax(min, max) sets a range for the track size — at least 200px but can grow up to 1fr of available space. Very common in responsive grids."
+  },
+
+  // ── TYPOGRAPHY ────────────────────────────────────────────────
+  {
+    topic: "Typography",
+    q: "Which CSS property makes text italic?",
+    opts: ["font-weight", "text-style", "font-style", "text-transform"],
+    ans: 2,
+    exp: "font-style: italic makes text italic. font-weight controls boldness, not style."
+  },
+  {
+    topic: "Typography",
+    q: "What does <code>line-height: 1.5</code> mean?",
+    opts: [
+      "1.5px between lines",
+      "Line height is 1.5 times the element's font size",
+      "150% of the parent's line height",
+      "1.5rem fixed line spacing"
+    ],
+    ans: 1,
+    exp: "A unitless line-height value is a multiplier of the element's own font size. 1.5 means 1.5 × font-size. This is the recommended way to set line-height."
+  },
+  {
+    topic: "Typography",
+    q: "Which property controls the space between individual characters?",
+    opts: ["word-spacing", "line-height", "letter-spacing", "text-indent"],
+    ans: 2,
+    exp: "letter-spacing adds space between individual characters (tracking). word-spacing adds space between words."
+  },
+  {
+    topic: "Typography",
+    q: "Which value of <code>text-overflow</code> shows an ellipsis (...) when text is clipped?",
+    opts: ["clip", "ellipsis", "hidden", "truncate"],
+    ans: 1,
+    exp: "text-overflow: ellipsis shows ... when text overflows. It requires overflow: hidden and white-space: nowrap to work."
+  },
+  {
+    topic: "Typography",
+    q: "Which CSS property prevents text from wrapping to the next line?",
+    opts: ["text-align: nowrap", "white-space: nowrap", "overflow: hidden", "word-break: keep-all"],
+    ans: 1,
+    exp: "white-space: nowrap prevents text from wrapping. It forces the text to stay on a single line."
+  },
+  {
+    topic: "Typography",
+    q: "Which pseudo-element styles the first line of a block of text?",
+    opts: ["::first-child", "::first-letter", "::first-line", ":line(1)"],
+    ans: 2,
+    exp: "::first-line targets the first rendered line of a block element. It only supports a subset of CSS properties like color, font, and text-decoration."
+  },
+
+  // ── PSEUDO-ELEMENTS ───────────────────────────────────────────
+  {
+    topic: "Pseudo-elements",
+    q: "Which pseudo-element adds content before an element without modifying the HTML?",
+    opts: [":before", "::before", "::first", ":pre"],
+    ans: 1,
+    exp: "::before (double colon is the modern standard) inserts generated content before the element's content, paired with the content property."
+  },
+  {
+    topic: "Pseudo-elements",
+    q: "Which pseudo-element styles text that a user has highlighted/selected?",
+    opts: ["::highlight", "::marked", "::selection", ":focus"],
+    ans: 2,
+    exp: "::selection styles the portion of text a user has selected with their cursor. You can customise background and text color."
+  },
+  {
+    topic: "Pseudo-elements",
+    q: "What CSS property is required for <code>::before</code> and <code>::after</code> to be visible?",
+    opts: ["display: block", "visibility: visible", "content", "position: absolute"],
+    ans: 2,
+    exp: "The content property is required — even content: '' (empty string) works. Without it, the pseudo-element won't render at all."
+  },
+
+  // ── TRANSITIONS & ANIMATIONS ──────────────────────────────────
+  {
+    topic: "Animations",
+    q: "Which property defines the speed curve of a CSS transition?",
+    opts: ["transition-delay", "transition-duration", "transition-timing-function", "animation-fill-mode"],
+    ans: 2,
+    exp: "transition-timing-function controls the speed curve (e.g., ease, linear, ease-in-out, cubic-bezier)."
+  },
+  {
+    topic: "Animations",
+    q: "What is the correct way to define a CSS animation sequence?",
+    opts: [
+      "<code>@animation name { from {} to {} }</code>",
+      "<code>@keyframes name { from {} to {} }</code>",
+      "<code>animation-frames: name { 0% {} 100% {} }</code>",
+      "<code>:keyframes name { start {} end {} }</code>"
+    ],
+    ans: 1,
+    exp: "@keyframes defines the animation sequence with named stages. You then apply it with the animation property on an element."
+  },
+  {
+    topic: "Animations",
+    q: "What does <code>animation-fill-mode: forwards</code> do?",
+    opts: [
+      "Makes the animation play forward (not reverse)",
+      "The element retains the styles from the last keyframe after the animation ends",
+      "The animation fills the element's container",
+      "The animation plays once and then hides the element"
+    ],
+    ans: 1,
+    exp: "forwards means after the animation ends, the element keeps the styles from the final keyframe instead of reverting to its original styles."
+  },
+  {
+    topic: "Animations",
+    q: "What is the key difference between a CSS transition and a CSS animation?",
+    opts: [
+      "Transitions use JavaScript; animations use CSS",
+      "Transitions require a state change to trigger; animations run automatically",
+      "Animations are only for transforms; transitions work on all properties",
+      "There is no functional difference"
+    ],
+    ans: 1,
+    exp: "Transitions need a trigger (like :hover or a class change) to interpolate between two states. Animations run on their own via @keyframes without needing a state change."
+  },
+  {
+    topic: "Animations",
+    q: "Which value of <code>animation-iteration-count</code> makes an animation loop forever?",
+    opts: ["loop", "repeat", "infinite", "-1"],
+    ans: 2,
+    exp: "animation-iteration-count: infinite makes the animation loop indefinitely. You can also use a number like 3 to play it a fixed number of times."
+  },
+
+  // ── RESPONSIVE & MODERN CSS ───────────────────────────────────
+  {
+    topic: "Responsive",
+    q: "What is the purpose of the <code>@media</code> rule?",
+    opts: [
+      "Import media files",
+      "Apply styles based on device/viewport conditions",
+      "Define animation keyframes",
+      "Link to an audio stylesheet"
+    ],
+    ans: 1,
+    exp: "@media rules apply styles conditionally based on viewport size, orientation, resolution, and other device features."
+  },
+  {
+    topic: "Responsive",
+    q: "What is the mobile-first approach in responsive design?",
+    opts: [
+      "Designing only for mobile and ignoring desktop",
+      "Writing base styles for small screens, then using min-width media queries to add styles for larger screens",
+      "Writing base styles for desktop, then using max-width queries for smaller screens",
+      "Using viewport units for every measurement"
+    ],
+    ans: 1,
+    exp: "Mobile-first means your base CSS targets small screens, and you progressively enhance with min-width media queries as the screen gets larger. This tends to produce simpler, more performant CSS."
+  },
+  {
+    topic: "Responsive",
+    q: "What unit represents 1% of the viewport height?",
+    opts: ["vw", "vh", "vmin", "%"],
+    ans: 1,
+    exp: "vh stands for viewport height. 1vh = 1% of the viewport's height. vw is viewport width, and vmin is the smaller of the two."
+  },
+  {
+    topic: "Modern CSS",
+    q: "What is the correct syntax for a CSS variable?",
+    opts: ["$primary: blue;", "--primary: blue;", "@primary: blue;", "var(primary): blue;"],
+    ans: 1,
+    exp: "CSS custom properties (variables) are declared with a double dash prefix: --primary: blue; and used with var(--primary)."
+  },
+  {
+    topic: "Modern CSS",
+    q: "What does the <code>clamp()</code> function do?",
+    opts: [
+      "Clamps an element to its container",
+      "Returns a value clamped between a minimum and maximum, scaling fluidly in between",
+      "Clips overflowing content",
+      "Rounds a value to the nearest integer"
+    ],
+    ans: 1,
+    exp: "clamp(min, preferred, max) returns the preferred value, but never below min or above max. It's ideal for fluid typography: clamp(1rem, 2.5vw, 2rem)."
+  },
+  {
+    topic: "Modern CSS",
+    q: "What does <code>transform: translateX(50px)</code> do?",
+    opts: [
+      "Scales the element by 50px",
+      "Moves the element 50px to the right without affecting layout",
+      "Rotates the element 50 degrees",
+      "Moves the element's left edge to 50px"
+    ],
+    ans: 1,
+    exp: "translateX moves an element along the X axis visually without affecting its space in the document flow."
+  },
+  {
+    topic: "Modern CSS",
+    q: "What does <code>grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))</code> achieve?",
+    opts: [
+      "Always creates exactly 4 columns",
+      "Creates as many 250px+ columns as fit, expanding to fill the row",
+      "Creates a fixed 250px column and one flexible column",
+      "Only works if you have more than 4 items"
+    ],
+    ans: 1,
+    exp: "This is a classic responsive grid pattern — it creates as many columns as can fit at 250px minimum, and they grow to fill the available space. No media queries needed."
+  },
+  {
+    topic: "Modern CSS",
+    q: "Which modern CSS property is used for logical spacing that adapts to text direction (LTR/RTL)?",
+    opts: ["margin-left", "margin-inline-start", "padding-horizontal", "text-align: start"],
+    ans: 1,
+    exp: "margin-inline-start is a logical property — it maps to margin-left in LTR languages and margin-right in RTL. Logical properties make internationalisation much easier."
+  }
+];
+
+let answered = {};
+let submitted = false;
+
+function renderQuiz() {
+  const container = document.getElementById('quiz');
+  container.innerHTML = '';
+  let lastTopic = null;
+
+  questions.forEach((q, i) => {
+    if (q.topic !== lastTopic) {
+      const label = document.createElement('div');
+      label.className = 'section-label';
+      label.textContent = q.topic;
+      container.appendChild(label);
+      lastTopic = q.topic;
+    }
+
+    const labels = ['A','B','C','D'];
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.style.animationDelay = (i * 0.02) + 's';
+    card.innerHTML = `
+      <div class="q-number">Question ${i+1} of ${questions.length} <span class="q-topic">${q.topic}</span></div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-${i}">
+        ${q.opts.map((opt, j) => `
+          <div class="option" id="opt-${i}-${j}" onclick="selectOption(${i}, ${j})">
+            <span class="key">${labels[j]}</span>
+            <span>${opt}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="feedback" id="fb-${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  if (submitted) return;
+  if (answered[qIdx] !== undefined) return;
+
+  answered[qIdx] = optIdx;
+  const q = questions[qIdx];
+  const opts = document.getElementById('opts-' + qIdx);
+  const fb = document.getElementById('fb-' + qIdx);
+
+  Array.from(opts.children).forEach(o => o.classList.add('disabled'));
+
+  if (optIdx === q.ans) {
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('correct');
+    fb.className = 'feedback show correct-fb';
+    fb.innerHTML = '✓ Correct! ' + q.exp;
+  } else {
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('wrong');
+    document.getElementById(`opt-${qIdx}-${q.ans}`).classList.add('correct');
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = '✗ Incorrect. ' + q.exp;
+  }
+
+  updateLiveScore();
+  updateProgress();
+}
+
+function updateLiveScore() {
+  let correct = Object.entries(answered).filter(([k,v]) => questions[k].ans === v).length;
+  document.getElementById('liveScore').textContent = correct;
+  document.getElementById('liveTotal').textContent = Object.keys(answered).length;
+}
+
+function updateProgress() {
+  const pct = (Object.keys(answered).length / questions.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function submitQuiz() {
+  submitted = true;
+  document.getElementById('submit-btn').disabled = true;
+
+  let correct = 0, wrong = 0, skipped = 0;
+  questions.forEach((q, i) => {
+    if (answered[i] === undefined) {
+      skipped++;
+      const opts = document.getElementById('opts-' + i);
+      const fb = document.getElementById('fb-' + i);
+      Array.from(opts.children).forEach(o => o.classList.add('disabled'));
+      document.getElementById(`opt-${i}-${q.ans}`).classList.add('correct');
+      fb.className = 'feedback show wrong-fb';
+      fb.innerHTML = '— Not answered. ' + q.exp;
+    } else if (answered[i] === q.ans) {
+      correct++;
+    } else {
+      wrong++;
+    }
+  });
+
+  const pct = Math.round((correct / questions.length) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('outOf').textContent = correct + ' out of ' + questions.length + ' correct';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('skipCount').textContent = skipped;
+
+  let grade, message;
+  if (pct >= 90) { grade = 'CSS Expert 🎉'; message = 'Outstanding! You have a deep mastery of CSS.'; }
+  else if (pct >= 75) { grade = 'Advanced 💪'; message = 'Great work! Just a few gaps to fill in.'; }
+  else if (pct >= 55) { grade = 'Intermediate 📚'; message = 'Solid foundation! Review the missed topics and you\'ll be there.'; }
+  else if (pct >= 35) { grade = 'Beginner 🌱'; message = 'You\'re getting started! Keep practicing with real projects.'; }
+  else { grade = 'Needs Practice 🔧'; message = 'Don\'t worry — CSS takes time. Go through the explanations above!'; }
+
+  document.getElementById('grade').textContent = grade;
+  document.getElementById('message').textContent = message;
+
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateProgress();
+}
+
+function resetQuiz() {
+  answered = {};
+  submitted = false;
+  document.getElementById('liveScore').textContent = '0';
+  document.getElementById('liveTotal').textContent = '0';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('submit-btn').disabled = false;
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+{
+    "emails": [
+        {
+            "name": "Activity Digest List",
+            "filename": "activity_digest_list.png"
+        },
+        {
+            "name": "Activity Digest With Headline Change",
+            "filename": "activity_digest_with_headline_change.png"
+        },
+        {
+            "name": "Add Email Notification Email",
+            "filename": "add_email_notification_email.png"
+        },
+        {
+            "name": "Appeal Approval",
+            "filename": "appeal_approval.png"
+        },
+        {
+            "name": "Appeal Denied",
+            "filename": "appeal_denied.png"
+        },
+        {
+            "name": "Appeal Submission",
+            "filename": "appeal_submission.png"
+        },
+        {
+            "name": "Automated Self Harm",
+            "filename": "automated_self_harm.png"
+        },
+        {
+            "name": "Brand Safety Violation",
+            "filename": "brand_safety_violation.png"
+        },
+        {
+            "name": "Bystander Abuse No Vio",
+            "filename": "bystander_abuse_no_vio.png"
+        },
+        {
+            "name": "Consumermktg Email New Lonely Birds",
+            "filename": "consumermktg_email_new_lonely_birds.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Address Book",
+            "filename": "consumermktg_email_new_nux_2021_address_book.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Download T4",
+            "filename": "consumermktg_email_new_nux_2021_download_t4.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Edit Profile T1",
+            "filename": "consumermktg_email_new_nux_2021_edit_profile_t1.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Edit Profile T2",
+            "filename": "consumermktg_email_new_nux_2021_edit_profile_t2.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Edit Profile",
+            "filename": "consumermktg_email_new_nux_2021_edit_profile.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux 2021 Welcome",
+            "filename": "consumermktg_email_new_nux_2021_welcome.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux Like Email",
+            "filename": "consumermktg_email_new_nux_like_email.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux Reply Email",
+            "filename": "consumermktg_email_new_nux_reply_email.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux Safety Email",
+            "filename": "consumermktg_email_new_nux_safety_email.png"
+        },
+        {
+            "name": "Consumermktg Email New Nux Welcome Email",
+            "filename": "consumermktg_email_new_nux_welcome_email.png"
+        },
+        {
+            "name": "Contributor Added",
+            "filename": "contributor_added.png"
+        },
+        {
+            "name": "Contributor Invite",
+            "filename": "contributor_invite.png"
+        },
+        {
+            "name": "Debadge Email",
+            "filename": "debadge_email.png"
+        },
+        {
+            "name": "Debadge Imminent Warning Email",
+            "filename": "debadge_imminent_warning_email.png"
+        },
+        {
+            "name": "Debadge Remediated Email",
+            "filename": "debadge_remediated_email.png"
+        },
+        {
+            "name": "Debadge Upcoming Warning Email",
+            "filename": "debadge_upcoming_warning_email.png"
+        },
+        {
+            "name": "Dev Portal Academic Petition Approved",
+            "filename": "dev_portal_academic_petition_approved.png"
+        },
+        {
+            "name": "Dev Portal Account Verification",
+            "filename": "dev_portal_account_verification.png"
+        },
+        {
+            "name": "Dev Portal Action 1",
+            "filename": "dev_portal_action_1.png"
+        },
+        {
+            "name": "Dev Portal Action 3",
+            "filename": "dev_portal_action_3.png"
+        },
+        {
+            "name": "Dev Portal Action 5 Admin Left Clear Billing Others",
+            "filename": "dev_portal_action_5_admin_left_clear_billing_others.png"
+        },
+        {
+            "name": "Dev Portal Action 5 Admin Left Clear Billing Self",
+            "filename": "dev_portal_action_5_admin_left_clear_billing_self.png"
+        },
+        {
+            "name": "Dev Portal Application Approved",
+            "filename": "dev_portal_application_approved.png"
+        },
+        {
+            "name": "Dev Portal Application Rejected",
+            "filename": "dev_portal_application_rejected.png"
+        },
+        {
+            "name": "Dev Portal Enrollment Downgrade",
+            "filename": "dev_portal_enrollment_downgrade.png"
+        },
+        {
+            "name": "Dev Portal Invitation",
+            "filename": "dev_portal_invitation.png"
+        },
+        {
+            "name": "Dev Portal Rules Deleted",
+            "filename": "dev_portal_rules_deleted.png"
+        },
+        {
+            "name": "Dev Portal Rules Warning",
+            "filename": "dev_portal_rules_warning.png"
+        },
+        {
+            "name": "Dev Portal Standard Petition Approved",
+            "filename": "dev_portal_standard_petition_approved.png"
+        },
+        {
+            "name": "Dm Join Conversation Email",
+            "filename": "dm_join_conversation_email.png"
+        },
+        {
+            "name": "Dm Message Email",
+            "filename": "dm_message_email.png"
+        },
+        {
+            "name": "Email Confirm Init",
+            "filename": "email_confirm_init.png"
+        },
+        {
+            "name": "Email Confirmation",
+            "filename": "email_confirmation.png"
+        },
+        {
+            "name": "Existing User Verify Email",
+            "filename": "existing_user_verify_email.png"
+        },
+        {
+            "name": "Gcp Email",
+            "filename": "gcp_email.png"
+        },
+        {
+            "name": "Mtt Nsfw Auto Close",
+            "filename": "mtt_nsfw_auto_close.png"
+        },
+        {
+            "name": "Offboarding With Remediation",
+            "filename": "offboarding_with_remediation.png"
+        },
+        {
+            "name": "Onboarding Verify Email",
+            "filename": "onboarding_verify_email.png"
+        },
+        {
+            "name": "Onep Safety Abuse Auto Close Pre Verified",
+            "filename": "onep_safety_abuse_auto_close_pre_verified.png"
+        },
+        {
+            "name": "Onep Safety Abuse Auto Close Reactive Tos Low Reporter Score",
+            "filename": "onep_safety_abuse_auto_close_reactive_tos_low_reporter_score.png"
+        },
+        {
+            "name": "Onep Safety Abuse Auto Close Reactive Tos Not Actionable",
+            "filename": "onep_safety_abuse_auto_close_reactive_tos_not_actionable.png"
+        },
+        {
+            "name": "Onep Safety Abuse Creation Generic",
+            "filename": "onep_safety_abuse_creation_generic.png"
+        },
+        {
+            "name": "Onep Safety Abuse Creation Verified",
+            "filename": "onep_safety_abuse_creation_verified.png"
+        },
+        {
+            "name": "Onep Safety Abuse Resolution Violation",
+            "filename": "onep_safety_abuse_resolution_violation.png"
+        },
+        {
+            "name": "Onep Safety Ncn Creation Generic",
+            "filename": "onep_safety_ncn_creation_generic.png"
+        },
+        {
+            "name": "Onep Safety Ncn Creation Verified",
+            "filename": "onep_safety_ncn_creation_verified.png"
+        },
+        {
+            "name": "Onep Safety Pi Creation Generic",
+            "filename": "onep_safety_pi_creation_generic.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Auto Close Pre Verified",
+            "filename": "onep_safety_violent_threats_auto_close_pre_verified.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Auto Close Reactive Tos Low Reporter Score",
+            "filename": "onep_safety_violent_threats_auto_close_reactive_tos_low_reporter_score.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Auto Close Reactive Tos Not Actionable V2",
+            "filename": "onep_safety_violent_threats_auto_close_reactive_tos_not_actionable_v2.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Creation Generic",
+            "filename": "onep_safety_violent_threats_creation_generic.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Creation Verified",
+            "filename": "onep_safety_violent_threats_creation_verified.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Resolution No Action",
+            "filename": "onep_safety_violent_threats_resolution_no_action.png"
+        },
+        {
+            "name": "Onep Safety Violent Threats Resolution Violation",
+            "filename": "onep_safety_violent_threats_resolution_violation.png"
+        },
+        {
+            "name": "Open Verification",
+            "filename": "open_verification.png"
+        },
+        {
+            "name": "Password Reset Email",
+            "filename": "password_reset_email.png"
+        },
+        {
+            "name": "Payment Notification",
+            "filename": "payment_notification.png"
+        },
+        {
+            "name": "Phone Verification Email Confirm Device",
+            "filename": "phone_verification_email_confirm_device.png"
+        },
+        {
+            "name": "Reactivation Complete",
+            "filename": "reactivation_complete.png"
+        },
+        {
+            "name": "Reporter De Reported Content Hate Speech",
+            "filename": "reporter_de_reported_content_hate_speech.png"
+        },
+        {
+            "name": "Reporter De Reported Content Not Actionable",
+            "filename": "reporter_de_reported_content_not_actionable.png"
+        },
+        {
+            "name": "Reporter Fr Reported Content Cwc",
+            "filename": "reporter_fr_reported_content_cwc.png"
+        },
+        {
+            "name": "Reporter Fr Reported Content Ok",
+            "filename": "reporter_fr_reported_content_ok.png"
+        },
+        {
+            "name": "Reporter Sensitive Media Reports Mtt",
+            "filename": "reporter_sensitive_media_reports_mtt.png"
+        },
+        {
+            "name": "Resend Confirmation Email",
+            "filename": "resend_confirmation_email.png"
+        },
+        {
+            "name": "Self Harm",
+            "filename": "self_harm.png"
+        },
+        {
+            "name": "Suspension Email V2",
+            "filename": "suspension_email_v2.png"
+        },
+        {
+            "name": "Suspension Ipi Copyright",
+            "filename": "suspension_ipi_copyright.png"
+        },
+        {
+            "name": "Suspension Site Integrity",
+            "filename": "suspension_site_integrity.png"
+        },
+        {
+            "name": "Two Factor Auth Unenrollment Email",
+            "filename": "two_factor_auth_unenrollment_email.png"
+        },
+        {
+            "name": "U13 Restoration Erasure Complete",
+            "filename": "u13_restoration_erasure_complete.png"
+        },
+        {
+            "name": "Update Email Notification",
+            "filename": "update_email_notification.png"
+        },
+        {
+            "name": "User Mailer Default",
+            "filename": "user_mailer_default.png"
+        },
+        {
+            "name": "Verification Application Approved Email",
+            "filename": "verification_application_approved_email.png"
+        },
+        {
+            "name": "Verification Application Submitted Email",
+            "filename": "verification_application_submitted_email.png"
+        },
+        {
+            "name": "Violator De Reported Content Defamation V2",
+            "filename": "violator_de_reported_content_defamation_v2.png"
+        },
+        {
+            "name": "Violator De Reported Content Hate Speech V2",
+            "filename": "violator_de_reported_content_hate_speech_v2.png"
+        },
+        {
+            "name": "Violator De Reported Content Not Actionable",
+            "filename": "violator_de_reported_content_not_actionable.png"
+        },
+        {
+            "name": "Violator Fr Reported Account Cwc",
+            "filename": "violator_fr_reported_account_cwc.png"
+        },
+        {
+            "name": "Violator Fr Reported Content Bounce",
+            "filename": "violator_fr_reported_content_bounce.png"
+        },
+        {
+            "name": "Violator Fr Reported Tweets Cwc",
+            "filename": "violator_fr_reported_tweets_cwc.png"
+        },
+        {
+            "name": "Violence Reporting",
+            "filename": "violence_reporting.png"
+        },
+        {
+            "name": "Your Advertiser List",
+            "filename": "your_advertiser_list.png"
+        },
+        {
+            "name": "Your Twitter Data",
+            "filename": "your_twitter_data.png"
+        }
+    ]
+}

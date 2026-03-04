@@ -1,6 +1,6 @@
 ## Creative Systems: Motion Design Language Research
 
-In this UX research experiment prototype, we're testing different motion design experiences for our users. We have two different parameters with four options each we are testing:
+In this UX research experiment prototype, we tested different motion design experiences for our users. We have two different parameters with four options each we are testing:
 
 - Parameter 1: Lottie Options
     - A: Ease

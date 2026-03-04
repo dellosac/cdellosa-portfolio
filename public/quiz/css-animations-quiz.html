@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Animations Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ffffff;
+    --surface2: #f0ebe0;
+    --border: #e0d8cc;
+    --ink: #1a1612;
+    --muted: #8a7f72;
+    --accent: #e8470a;
+    --accent2: #1a6ef5;
+    --correct: #1a8a4a;
+    --correct-bg: #edf7f1;
+    --wrong: #cc2200;
+    --wrong-bg: #fdf0ee;
+    --tag-bg: #fff3ed;
+    --tag-color: #e8470a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 3rem 1rem 4rem;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .quiz-container {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    margin-bottom: 3rem;
+  }
+
+  .header-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .header-eyebrow::after {
+    content: '';
+    height: 1px;
+    flex: 1;
+    background: var(--accent);
+    opacity: 0.3;
+  }
+
+  .header h1 {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--ink);
+  }
+
+  .header h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 400;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  /* Animated demo dots */
+  .motion-demo {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+    align-items: center;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .dot:nth-child(1) { animation: bounce-dot 1.2s ease-in-out infinite; }
+  .dot:nth-child(2) { animation: bounce-dot 1.2s ease-in-out 0.2s infinite; }
+  .dot:nth-child(3) { animation: bounce-dot 1.2s ease-in-out 0.4s infinite; }
+  .dot:nth-child(4) { background: var(--accent2); animation: spin-dot 2s linear infinite; }
+  .dot:nth-child(5) { background: var(--ink); animation: pulse-dot 1.5s ease-in-out infinite; }
+
+  @keyframes bounce-dot {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes spin-dot {
+    to { transform: rotate(360deg) scale(1.3); border-radius: 2px; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+
+  .motion-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-left: 0.5rem;
+  }
+
+  /* ── PROGRESS ── */
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245, 240, 232, 0.9);
+    backdrop-filter: blur(12px);
+    padding: 0.85rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: 0%;
+  }
+
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .progress-text strong { color: var(--accent); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2.5rem 0 1.25rem;
+  }
+
+  .section-label-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .section-label-line {
+    height: 1px;
+    flex: 1;
+    background: var(--border);
+  }
+
+  /* ── QUESTION CARDS ── */
+  .question-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    animation: slideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .question-card:hover { border-color: #c8c0b4; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .q-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 1.1rem;
+    color: var(--ink);
+  }
+
+  .q-text code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #f5f0e0;
+    border: 1px solid var(--border);
+    padding: 0.1em 0.45em;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: grid; gap: 0.5rem; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #fff8f5;
+    transform: translateX(3px);
+  }
+
+  .option .key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    background: var(--border);
+    color: var(--muted);
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .option.correct {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .option.correct .key { background: var(--correct); color: #fff; }
+
+  .option.wrong {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .option.wrong .key { background: var(--wrong); color: #fff; }
+  .option.disabled { cursor: default; transform: none !important; }
+
+  /* ── FEEDBACK ── */
+  .feedback {
+    margin-top: 0.85rem;
+    font-size: 0.86rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    display: none;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .feedback code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: rgba(0,0,0,0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .feedback.show { display: block; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .feedback.correct-fb {
+    background: var(--correct-bg);
+    color: #145c33;
+    border: 1px solid rgba(26, 138, 74, 0.25);
+  }
+  .feedback.wrong-fb {
+    background: var(--wrong-bg);
+    color: #8a1a00;
+    border: 1px solid rgba(204, 34, 0, 0.2);
+  }
+
+  /* ── SUBMIT ── */
+  .submit-area {
+    text-align: center;
+    margin: 3rem 0 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2.5rem;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:hover { background: var(--accent); transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { background: var(--muted); cursor: default; transform: none; }
+
+  /* ── RESULTS ── */
+  .results {
+    display: none;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-top: 2rem;
+    text-align: center;
+  }
+
+  .results.show { display: block; animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  .results-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .big-score {
+    font-size: 7rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -4px;
+    color: var(--accent);
+  }
+
+  .out-of {
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 0.5rem 0 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .grade {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .message {
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 1.5rem 0 2.5rem;
+    padding: 1.5rem;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+
+  .stat .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    display: block;
+  }
+
+  .stat .val.c { color: var(--correct); }
+  .stat .val.w { color: var(--wrong); }
+  .stat .val.s { color: var(--muted); }
+  .stat .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="header">
+    <div class="header-eyebrow">CSS Deep Dive · 30 Questions</div>
+    <h1>CSS <em>Animations</em><br>& Transitions</h1>
+    <p class="header-sub">From @keyframes and timing functions to performance and advanced techniques — test everything you know about motion in CSS.</p>
+    <div class="motion-demo">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <span class="motion-label">Live CSS animations above ↑</span>
+    </div>
+  </div>
+
+  <div class="sticky-bar">
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+      <div class="progress-text">✓ <strong id="liveScore">0</strong> correct &nbsp;·&nbsp; <span id="liveTotal">0</span>/30 answered</div>
+    </div>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="submit-area">
+    <button class="btn" id="submit-btn" onclick="submitQuiz()">Submit &amp; See Results →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-eyebrow">Quiz Complete</div>
+    <div class="big-score" id="finalScore"></div>
+    <div class="out-of" id="outOf"></div>
+    <div class="grade" id="grade"></div>
+    <div class="message" id="message"></div>
+    <div class="stats-row">
+      <div class="stat"><span class="val c" id="correctCount">0</span><div class="lbl">Correct</div></div>
+      <div class="stat"><span class="val w" id="wrongCount">0</span><div class="lbl">Wrong</div></div>
+      <div class="stat"><span class="val s" id="skipCount">0</span><div class="lbl">Skipped</div></div>
+    </div>
+    <button class="btn" onclick="resetQuiz()">Try Again ↺</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+
+  // ── TRANSITIONS ───────────────────────────────────────────────
+  {
+    topic: "Transitions",
+    q: "What is the key difference between a CSS transition and a CSS animation?",
+    opts: [
+      "Transitions use JavaScript; animations are pure CSS",
+      "Transitions need a trigger (like :hover) to run; animations run automatically via @keyframes",
+      "Animations can only loop; transitions play once",
+      "There is no functional difference — they are aliases"
+    ],
+    ans: 1,
+    exp: "Transitions interpolate between two states when a change is triggered (e.g. a class being added or :hover). Animations run on their own via @keyframes and don't need a state change."
+  },
+  {
+    topic: "Transitions",
+    q: "Which property controls how long a transition takes to complete?",
+    opts: ["transition-delay", "transition-timing-function", "transition-duration", "transition-speed"],
+    ans: 2,
+    exp: "transition-duration sets how long the transition lasts (e.g. 0.3s or 300ms). transition-delay sets how long to wait before it starts."
+  },
+  {
+    topic: "Transitions",
+    q: "What does <code>transition-timing-function: ease-in-out</code> mean?",
+    opts: [
+      "Starts fast, ends fast, slow in the middle",
+      "Starts slow, speeds up, then slows down again at the end",
+      "Constant speed throughout",
+      "Starts at full speed and decelerates only at the end"
+    ],
+    ans: 1,
+    exp: "ease-in-out starts slowly, accelerates through the middle, then decelerates again at the end. It feels very natural for UI motion."
+  },
+  {
+    topic: "Transitions",
+    q: "Which of these is a valid <code>transition</code> shorthand?",
+    opts: [
+      "<code>transition: background 0.3s ease 0.1s;</code>",
+      "<code>transition: 0.3s background ease 0.1s;</code>",
+      "<code>transition: ease background 0.3s;</code>",
+      "<code>transition: background ease;</code>"
+    ],
+    ans: 0,
+    exp: "The transition shorthand order is: property | duration | timing-function | delay. So: transition: background 0.3s ease 0.1s is correct."
+  },
+  {
+    topic: "Transitions",
+    q: "What happens if you set <code>transition-property: all</code>?",
+    opts: [
+      "Only color and opacity are transitioned",
+      "Every animatable property will transition when it changes",
+      "It is invalid — you must specify a property name",
+      "All properties transition to their initial values"
+    ],
+    ans: 1,
+    exp: "transition-property: all causes every animatable CSS property to transition when changed. While convenient, it can cause unexpected animations and is less performant than specifying individual properties."
+  },
+  {
+    topic: "Transitions",
+    q: "Which CSS properties are the most performant to animate or transition?",
+    opts: [
+      "width and height",
+      "margin and padding",
+      "transform and opacity",
+      "background-color and font-size"
+    ],
+    ans: 2,
+    exp: "transform and opacity are handled by the GPU compositor and don't trigger layout or paint — making them the smoothest properties to animate. Animating width, margin etc. forces the browser to recalculate layout."
+  },
+
+  // ── @KEYFRAMES ────────────────────────────────────────────────
+  {
+    topic: "@keyframes",
+    q: "What is the correct syntax to define a CSS keyframe animation named 'slide'?",
+    opts: [
+      "<code>@animation slide { from {} to {} }</code>",
+      "<code>@keyframes slide { from {} to {} }</code>",
+      "<code>keyframes slide { 0% {} 100% {} }</code>",
+      "<code>@frames slide { start {} end {} }</code>"
+    ],
+    ans: 1,
+    exp: "@keyframes is the correct at-rule for defining animation sequences. You can use from/to keywords or percentage values like 0% and 100%."
+  },
+  {
+    topic: "@keyframes",
+    q: "Can you use percentage values instead of <code>from</code> and <code>to</code> in @keyframes?",
+    opts: [
+      "No — only from and to are valid",
+      "Yes — percentages allow you to define intermediate steps",
+      "Yes — but only if you use all 100 values",
+      "Only in Chrome, not in other browsers"
+    ],
+    ans: 1,
+    exp: "Percentages let you define multiple midpoints: 0% { } 50% { } 100% { }. from is just an alias for 0% and to is an alias for 100%."
+  },
+  {
+    topic: "@keyframes",
+    q: "What happens if you only define a <code>to</code> keyframe (no <code>from</code>)?",
+    opts: [
+      "The animation won't work at all",
+      "The browser uses the element's current computed styles as the starting point",
+      "The element starts from all-zero values",
+      "The browser copies the 'to' values to 'from' automatically"
+    ],
+    ans: 1,
+    exp: "If you omit from (or 0%), the browser uses the element's existing styles as the starting state. This can be very useful for keeping code concise."
+  },
+  {
+    topic: "@keyframes",
+    q: "Can multiple keyframe percentages share the same styles?",
+    opts: [
+      "No — every percentage must be unique",
+      "Yes — you can comma-separate them: <code>0%, 100% { opacity: 0; }</code>",
+      "Yes — but only 0% and 100% can be combined",
+      "No — you must repeat the declaration block"
+    ],
+    ans: 1,
+    exp: "You can group keyframe selectors: 0%, 100% { opacity: 0; } applies the same styles to both the start and end. Very handy for ping-pong effects."
+  },
+
+  // ── ANIMATION PROPERTIES ──────────────────────────────────────
+  {
+    topic: "Animation Properties",
+    q: "Which property applies a defined @keyframes animation to an element?",
+    opts: ["animation-keyframes", "animation-name", "animation-apply", "keyframe-name"],
+    ans: 1,
+    exp: "animation-name references the name you gave in @keyframes. Without it, the animation won't run. You can also use the animation shorthand."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What does <code>animation-iteration-count: infinite</code> do?",
+    opts: [
+      "Plays the animation exactly 1000 times",
+      "Plays the animation indefinitely until stopped",
+      "Plays the animation as fast as possible",
+      "It is invalid — use animation-repeat: loop instead"
+    ],
+    ans: 1,
+    exp: "infinite makes the animation loop forever. You can also use a number like 3 to play exactly 3 times, or 2.5 to play 2.5 times."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What does <code>animation-direction: alternate</code> do?",
+    opts: [
+      "Plays the animation in reverse only",
+      "Plays forward on odd iterations, backward on even iterations",
+      "Alternates between two different animations",
+      "Randomly alternates direction each iteration"
+    ],
+    ans: 1,
+    exp: "alternate plays the animation forward on odd runs and backward on even runs — creating a smooth ping-pong effect. Great for pulsing or bouncing animations."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What does <code>animation-fill-mode: forwards</code> do?",
+    opts: [
+      "Makes the animation play in the forward direction",
+      "The element keeps the styles from the last keyframe after the animation ends",
+      "The animation fills the element's parent container",
+      "The element snaps to its original position when the animation ends"
+    ],
+    ans: 1,
+    exp: "forwards means after the animation finishes, the element retains the styles from the final keyframe rather than snapping back to its original styles."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What is the difference between <code>animation-fill-mode: backwards</code> and <code>forwards</code>?",
+    opts: [
+      "backwards plays the animation in reverse",
+      "backwards applies the first keyframe's styles during the delay period; forwards keeps the last keyframe after completion",
+      "They are identical",
+      "backwards only works with animation-delay"
+    ],
+    ans: 1,
+    exp: "backwards applies the from (0%) keyframe styles during any animation-delay, so there's no flash of the element's original styles before the animation starts. forwards retains the to (100%) styles after completion."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What does <code>animation-play-state: paused</code> do?",
+    opts: [
+      "Stops and resets the animation to the beginning",
+      "Pauses the animation at its current position",
+      "Removes the animation entirely",
+      "Slows the animation to 50% speed"
+    ],
+    ans: 1,
+    exp: "animation-play-state: paused freezes the animation at its current frame. Setting it back to running resumes from the same point. Very useful for pause-on-hover effects."
+  },
+  {
+    topic: "Animation Properties",
+    q: "What is the correct order for the <code>animation</code> shorthand?",
+    opts: [
+      "name | timing-function | duration | delay | iteration-count | direction | fill-mode",
+      "name | duration | timing-function | delay | iteration-count | direction | fill-mode",
+      "duration | name | delay | timing-function | iteration-count",
+      "name | duration | delay | iteration-count | direction"
+    ],
+    ans: 1,
+    exp: "The full animation shorthand order is: name | duration | timing-function | delay | iteration-count | direction | fill-mode | play-state. Duration must come before delay."
+  },
+  {
+    topic: "Animation Properties",
+    q: "How do you apply multiple animations to a single element?",
+    opts: [
+      "You can only apply one animation per element",
+      "Use multiple animation properties: <code>animation1: ...; animation2: ...;</code>",
+      "Comma-separate them in the <code>animation</code> property",
+      "Nest one @keyframes inside another"
+    ],
+    ans: 2,
+    exp: "Multiple animations are comma-separated: animation: spin 1s linear infinite, fade 2s ease forwards; Each animation runs independently with its own settings."
+  },
+
+  // ── TIMING FUNCTIONS ──────────────────────────────────────────
+  {
+    topic: "Timing Functions",
+    q: "What does <code>animation-timing-function: linear</code> produce?",
+    opts: [
+      "The animation accelerates and decelerates",
+      "The animation moves at a constant speed throughout",
+      "The animation starts fast and ends slow",
+      "The animation uses straight-line paths only"
+    ],
+    ans: 1,
+    exp: "linear produces a constant speed with no acceleration or deceleration. It feels mechanical but is useful for things like spinning loaders or scrolling tickers."
+  },
+  {
+    topic: "Timing Functions",
+    q: "What does <code>cubic-bezier()</code> allow you to do?",
+    opts: [
+      "Draw bezier curves in CSS",
+      "Define a completely custom speed curve for an animation",
+      "Animate along a curved path",
+      "Create 3D cubic transformations"
+    ],
+    ans: 1,
+    exp: "cubic-bezier(x1, y1, x2, y2) lets you define any custom easing curve. Tools like cubic-bezier.com let you visually create and preview these curves."
+  },
+  {
+    topic: "Timing Functions",
+    q: "What does <code>animation-timing-function: steps(4, end)</code> do?",
+    opts: [
+      "Plays the animation 4 times",
+      "Divides the animation into 4 discrete jumps with no interpolation between them",
+      "Adds 4 seconds of delay",
+      "Eases in over 4 frames"
+    ],
+    ans: 1,
+    exp: "steps() creates a stepped (non-interpolated) animation — great for sprite sheet animations or typewriter effects. steps(4, end) makes 4 discrete jumps, changing at the end of each interval."
+  },
+  {
+    topic: "Timing Functions",
+    q: "Which timing function starts slowly and then accelerates?",
+    opts: ["ease-out", "ease-in", "ease-in-out", "linear"],
+    ans: 1,
+    exp: "ease-in starts slow and then speeds up. ease-out does the opposite (starts fast, slows at end). ease-in-out does both — slow start and slow end."
+  },
+
+  // ── TRANSFORMS ────────────────────────────────────────────────
+  {
+    topic: "Transforms",
+    q: "Why is <code>transform</code> preferred over changing <code>left</code>/<code>top</code> for animations?",
+    opts: [
+      "transform has more browser support",
+      "transform is composited by the GPU and doesn't trigger layout recalculation",
+      "left/top don't work inside @keyframes",
+      "transform animations are always faster because they skip paint"
+    ],
+    ans: 1,
+    exp: "Changing left/top triggers layout, which is expensive. transform is handled by the compositor thread and doesn't cause layout or paint — resulting in smooth 60fps animations."
+  },
+  {
+    topic: "Transforms",
+    q: "What does <code>transform-origin</code> affect in an animation?",
+    opts: [
+      "The starting position of the transform",
+      "The point around which transforms like rotate and scale are applied",
+      "The origin point for animation keyframes",
+      "Which axis the transform operates on"
+    ],
+    ans: 1,
+    exp: "transform-origin sets the anchor point for transforms. By default it's center center (50% 50%). Changing it to top left, for example, makes rotations pivot from the top-left corner."
+  },
+  {
+    topic: "Transforms",
+    q: "What is the result of <code>transform: rotate(45deg) scale(1.5)</code>?",
+    opts: [
+      "Only the last transform (scale) is applied",
+      "The element is rotated 45 degrees AND scaled to 1.5× — transforms stack",
+      "The transforms cancel each other out",
+      "This syntax is invalid — each needs its own property"
+    ],
+    ans: 1,
+    exp: "Multiple transform functions are space-separated in one transform property and all apply together. Note: order matters — rotate then scale is different from scale then rotate."
+  },
+  {
+    topic: "Transforms",
+    q: "What does <code>will-change: transform</code> do?",
+    opts: [
+      "Prevents the element from being transformed",
+      "Hints to the browser to promote the element to its own compositor layer in advance",
+      "Forces hardware acceleration on all child elements",
+      "Locks the transform property so it can't be changed by JavaScript"
+    ],
+    ans: 1,
+    exp: "will-change hints to the browser that this property is about to change, allowing it to optimise in advance (like promoting to a GPU layer). Use it sparingly — only where you see real performance issues."
+  },
+
+  // ── ADVANCED & PRACTICAL ──────────────────────────────────────
+  {
+    topic: "Advanced",
+    q: "What does <code>animation-delay: -1s</code> (a negative delay) do?",
+    opts: [
+      "It's invalid — delays must be positive",
+      "The animation starts immediately, 1 second into its cycle",
+      "The animation plays 1 second faster",
+      "The animation waits 1 second before starting"
+    ],
+    ans: 1,
+    exp: "A negative delay makes the animation begin immediately but partway through its cycle. animation-delay: -1s on a 3s animation starts it at the 1-second mark. Great for staggered effects."
+  },
+  {
+    topic: "Advanced",
+    q: "How can you create a staggered animation effect on a list of items using CSS only?",
+    opts: [
+      "Use animation-stagger property",
+      "Use incrementing animation-delay values on each item",
+      "Apply different @keyframes to each item",
+      "You need JavaScript to stagger animations"
+    ],
+    ans: 1,
+    exp: "Give each item an increasing animation-delay: .item:nth-child(1) { animation-delay: 0s; } .item:nth-child(2) { animation-delay: 0.1s; } etc. CSS custom properties make this cleaner."
+  },
+  {
+    topic: "Advanced",
+    q: "What does the <code>@media (prefers-reduced-motion: reduce)</code> query do?",
+    opts: [
+      "Reduces the file size of CSS animations",
+      "Detects if the user has requested less motion in their OS settings",
+      "Limits animations to 3 seconds maximum",
+      "Disables all CSS animations globally"
+    ],
+    ans: 1,
+    exp: "prefers-reduced-motion detects the OS-level accessibility setting where users request less motion (common for vestibular disorders). You should wrap non-essential animations in a check for this and disable or simplify them."
+  },
+  {
+    topic: "Advanced",
+    q: "What property makes an element's animation run on the GPU compositor thread?",
+    opts: [
+      "animation-mode: gpu",
+      "Animating transform or opacity (compositor-only properties)",
+      "will-change: compositor",
+      "hardware-acceleration: on"
+    ],
+    ans: 1,
+    exp: "Animating transform and opacity automatically triggers GPU compositing in modern browsers. will-change can promote an element early, but the real key is sticking to compositor-safe properties."
+  },
+  {
+    topic: "Advanced",
+    q: "Which CSS property can be used to pause an animation when the user hovers over an element?",
+    opts: [
+      "<code>.el:hover { animation: paused; }</code>",
+      "<code>.el:hover { animation-play-state: paused; }</code>",
+      "<code>.el:hover { animation-duration: 0; }</code>",
+      "<code>.el:hover { transition: none; }</code>"
+    ],
+    ans: 1,
+    exp: "animation-play-state: paused freezes the animation at its current frame on hover. Setting it back to running (the default) resumes it seamlessly."
+  },
+  {
+    topic: "Advanced",
+    q: "What is a CSS animation 'fill mode' and why does it matter?",
+    opts: [
+      "It controls how the animation fills the element's background",
+      "It determines what styles the element has before and after the animation plays",
+      "It sets the color fill for SVG animations",
+      "It controls whether the animation runs in forward or reverse fill order"
+    ],
+    ans: 1,
+    exp: "fill-mode controls the element's styles outside the active animation period. none (default) — element reverts; forwards — keeps last frame; backwards — applies first frame during delay; both — does both."
+  }
+];
+
+let answered = {};
+let submitted = false;
+
+function renderQuiz() {
+  const container = document.getElementById('quiz');
+  container.innerHTML = '';
+  let lastTopic = null;
+
+  questions.forEach((q, i) => {
+    if (q.topic !== lastTopic) {
+      const sep = document.createElement('div');
+      sep.className = 'section-label';
+      sep.innerHTML = `<div class="section-label-line"></div><div class="section-label-text">${q.topic}</div><div class="section-label-line"></div>`;
+      container.appendChild(sep);
+      lastTopic = q.topic;
+    }
+
+    const labels = ['A','B','C','D'];
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.style.animationDelay = (i * 0.025) + 's';
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">Q${i+1}</span>
+        <span class="q-tag">${q.topic}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-${i}">
+        ${q.opts.map((opt, j) => `
+          <div class="option" id="opt-${i}-${j}" onclick="selectOption(${i}, ${j})">
+            <span class="key">${labels[j]}</span>
+            <span>${opt}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="feedback" id="fb-${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qIdx, optIdx) {
+  if (submitted || answered[qIdx] !== undefined) return;
+  answered[qIdx] = optIdx;
+  const q = questions[qIdx];
+  const opts = document.getElementById('opts-' + qIdx);
+  const fb = document.getElementById('fb-' + qIdx);
+
+  Array.from(opts.children).forEach(o => o.classList.add('disabled'));
+
+  if (optIdx === q.ans) {
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('correct');
+    fb.className = 'feedback show correct-fb';
+    fb.innerHTML = '✓ Correct! ' + q.exp;
+  } else {
+    document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('wrong');
+    document.getElementById(`opt-${qIdx}-${q.ans}`).classList.add('correct');
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = '✗ Not quite. ' + q.exp;
+  }
+
+  updateStats();
+}
+
+function updateStats() {
+  const correct = Object.entries(answered).filter(([k, v]) => questions[k].ans === v).length;
+  const total = Object.keys(answered).length;
+  document.getElementById('liveScore').textContent = correct;
+  document.getElementById('liveTotal').textContent = total;
+  document.getElementById('progressBar').style.width = (total / questions.length * 100) + '%';
+}
+
+function submitQuiz() {
+  submitted = true;
+  document.getElementById('submit-btn').disabled = true;
+
+  let correct = 0, wrong = 0, skipped = 0;
+  questions.forEach((q, i) => {
+    if (answered[i] === undefined) {
+      skipped++;
+      const opts = document.getElementById('opts-' + i);
+      const fb = document.getElementById('fb-' + i);
+      Array.from(opts.children).forEach(o => o.classList.add('disabled'));
+      document.getElementById(`opt-${i}-${q.ans}`).classList.add('correct');
+      fb.className = 'feedback show wrong-fb';
+      fb.innerHTML = '— Skipped. ' + q.exp;
+    } else if (answered[i] === q.ans) {
+      correct++;
+    } else {
+      wrong++;
+    }
+  });
+
+  const pct = Math.round((correct / questions.length) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+  document.getElementById('outOf').textContent = correct + ' / ' + questions.length + ' correct';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('skipCount').textContent = skipped;
+
+  let grade, message;
+  if (pct >= 90) { grade = 'Animation Master 🎬'; message = 'Exceptional. You have a deep understanding of CSS motion.'; }
+  else if (pct >= 75) { grade = 'Advanced ✨'; message = 'Really strong — just a few edge cases to nail down.'; }
+  else if (pct >= 55) { grade = 'Intermediate 📐'; message = 'Good foundation! Review fill-mode, timing functions, and performance.'; }
+  else if (pct >= 35) { grade = 'Getting There 🌱'; message = 'Keep at it — go through the explanations and try again.'; }
+  else { grade = 'Needs Practice 🔧'; message = 'CSS animations have a lot of depth — read the explanations and revisit!'; }
+
+  document.getElementById('grade').textContent = grade;
+  document.getElementById('message').textContent = message;
+
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('progressBar').style.width = '100%';
+}
+
+function resetQuiz() {
+  answered = {};
+  submitted = false;
+  document.getElementById('liveScore').textContent = '0';
+  document.getElementById('liveTotal').textContent = '0';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('submit-btn').disabled = false;
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

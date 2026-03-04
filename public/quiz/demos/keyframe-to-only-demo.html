@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Keyframe Demo — 'to' only</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #ffffff;
+    --border: #e0d8cc;
+    --ink: #1a1612;
+    --muted: #8a7f72;
+    --accent: #e8470a;
+    --blue: #1a6ef5;
+    --green: #1a8a4a;
+    --code-bg: #1a1612;
+    --code-text: #f5f0e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 em { font-style: normal; color: var(--accent); }
+
+  .intro {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── DEMO PANELS ── */
+  .demos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 540px) { .demos { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 0.9rem 1.1rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .panel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .panel-dot.orange { background: var(--accent); }
+  .panel-dot.blue   { background: var(--blue); }
+
+  .panel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .panel-title.orange { color: var(--accent); }
+  .panel-title.blue   { color: var(--blue); }
+
+  .stage {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #faf8f4;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle grid in stage */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.5;
+  }
+
+  .box {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── BOX A: only 'to' keyframe ── */
+  /* Element starts naturally: blue, no rotation, full opacity */
+  .box-a {
+    background: var(--blue);
+    animation: to-only 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes to-only {
+    /* NO 'from' — browser uses the element's current computed styles */
+    to {
+      transform: rotate(180deg) scale(0.5);
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+  }
+
+  /* ── BOX B: both 'from' and 'to' keyframes ── */
+  .box-b {
+    background: var(--green);
+    animation: from-and-to 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes from-and-to {
+    from {
+      /* Explicitly the same as element's default — to show the comparison */
+      transform: rotate(0deg) scale(1);
+      background: var(--green);
+      border-radius: 10px;
+      opacity: 1;
+    }
+    to {
+      transform: rotate(180deg) scale(0.5);
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+  }
+
+  .panel-info {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .panel-info strong { color: var(--ink); }
+
+  /* ── CODE BLOCKS ── */
+  .code-section {
+    margin-bottom: 1rem;
+  }
+
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .code-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  pre {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--code-text);
+  }
+
+  .c-comment  { color: #6b7280; }
+  .c-keyword  { color: #f59e0b; }
+  .c-selector { color: #60a5fa; }
+  .c-prop     { color: #86efac; }
+  .c-value    { color: #f9a8d4; }
+  .c-punct    { color: #9ca3af; }
+  .c-highlight { background: rgba(232,71,10,0.2); border-radius: 3px; padding: 0 3px; }
+
+  /* ── INSIGHT BOX ── */
+  .insight {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .insight-title {
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ── USE CASE BOX ── */
+  .use-case {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .use-case-header {
+    padding: 0.75rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .use-case-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: #faf8f4;
+    min-height: 100px;
+  }
+
+  /* Typewriter demo using steps() + to-only */
+  .typewriter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .typewriter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+    /* No 'from' — starts at current width (0) */
+    animation: type-it 2s steps(14, end) infinite alternate;
+    border-right: 2px solid var(--accent);
+  }
+
+  @keyframes type-it {
+    /* No 'from' needed — 0 width is already set on the element */
+    to { width: 9.5rem; }
+  }
+
+  /* Fade-up notification using to-only */
+  .notification {
+    background: var(--ink);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    transform: translateY(20px);
+    opacity: 0;
+    /* No 'from' — uses the element's current styles (translateY 20px, opacity 0) */
+    animation: fade-up 1.5s ease-out infinite alternate;
+  }
+
+  @keyframes fade-up {
+    /* No 'from' — browser reads translateY(20px) and opacity: 0 from the element */
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .use-case-info {
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.5;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .use-case-info strong { color: var(--ink); display: block; margin-bottom: 0.2rem; }
+
+  @media (max-width: 540px) { .use-case-info { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">CSS Animations · Live Demo</div>
+  <h1>The <em>'to' only</em><br>keyframe trick</h1>
+  <p class="intro">
+    // When you omit 'from', the browser uses the element's<br>
+    // current computed styles as the starting point automatically.
+  </p>
+
+  <!-- LIVE DEMOS -->
+  <div class="demos">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-dot orange"></div>
+        <div class="panel-title orange">to only</div>
+      </div>
+      <div class="stage">
+        <div class="box box-a">to only</div>
+      </div>
+      <div class="panel-info">
+        <strong>No 'from' defined.</strong><br>
+        Starts from the element's own styles:<br>blue · square · full size · opacity 1
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-dot blue"></div>
+        <div class="panel-title blue">from + to</div>
+      </div>
+      <div class="stage">
+        <div class="box box-b">from + to</div>
+      </div>
+      <div class="panel-info">
+        <strong>Both keyframes defined.</strong><br>
+        Explicit start: green · square · full size · opacity 1
+      </div>
+    </div>
+  </div>
+
+  <!-- Notice they look identical — that's the point -->
+  <div class="insight">
+    <div class="insight-title">👆 Notice anything?</div>
+    Both boxes animate identically — because the element's own styles
+    already match what an explicit <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">from</code> would have defined.
+    The browser just reads them automatically when <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">from</code> is missing.
+  </div>
+
+  <!-- CODE: to only -->
+  <div class="code-section">
+    <div class="code-label">The 'to only' keyframe (left box)</div>
+    <pre><span class="c-comment">/* The element itself defines the start state */</span>
+<span class="c-selector">.box-a</span> <span class="c-punct">{</span>
+  <span class="c-prop">background</span><span class="c-punct">:</span> <span class="c-value">blue</span><span class="c-punct">;</span>        <span class="c-comment">/* ← browser reads this as 'from' */</span>
+  <span class="c-prop">border-radius</span><span class="c-punct">:</span> <span class="c-value">10px</span><span class="c-punct">;</span>  <span class="c-comment">/* ← and this */</span>
+  <span class="c-prop">opacity</span><span class="c-punct">:</span> <span class="c-value">1</span><span class="c-punct">;</span>           <span class="c-comment">/* ← and this */</span>
+  <span class="c-prop">animation</span><span class="c-punct">:</span> <span class="c-value">to-only 2s ease-in-out infinite alternate</span><span class="c-punct">;</span>
+<span class="c-punct">}</span>
+
+<span class="c-keyword">@keyframes</span> <span class="c-selector">to-only</span> <span class="c-punct">{</span>
+  <span class="c-comment">/* No 'from' here — omitted intentionally */</span>
+  <span class="c-keyword c-highlight">to</span> <span class="c-punct">{</span>
+    <span class="c-prop">transform</span><span class="c-punct">:</span> <span class="c-value">rotate(180deg) scale(0.5)</span><span class="c-punct">;</span>
+    <span class="c-prop">background</span><span class="c-punct">:</span> <span class="c-value">orange</span><span class="c-punct">;</span>
+    <span class="c-prop">border-radius</span><span class="c-punct">:</span> <span class="c-value">50%</span><span class="c-punct">;</span>
+    <span class="c-prop">opacity</span><span class="c-punct">:</span> <span class="c-value">0.3</span><span class="c-punct">;</span>
+  <span class="c-punct">}</span>
+<span class="c-punct">}</span></pre>
+  </div>
+
+  <!-- CODE: from + to -->
+  <div class="code-section">
+    <div class="code-label">The explicit from + to version (right box)</div>
+    <pre><span class="c-selector">.box-b</span> <span class="c-punct">{</span>
+  <span class="c-prop">background</span><span class="c-punct">:</span> <span class="c-value">green</span><span class="c-punct">;</span>
+  <span class="c-prop">animation</span><span class="c-punct">:</span> <span class="c-value">from-and-to 2s ease-in-out infinite alternate</span><span class="c-punct">;</span>
+<span class="c-punct">}</span>
+
+<span class="c-keyword">@keyframes</span> <span class="c-selector">from-and-to</span> <span class="c-punct">{</span>
+  <span class="c-keyword">from</span> <span class="c-punct">{</span>                         <span class="c-comment">/* explicit start */</span>
+    <span class="c-prop">transform</span><span class="c-punct">:</span> <span class="c-value">rotate(0deg) scale(1)</span><span class="c-punct">;</span>
+    <span class="c-prop">background</span><span class="c-punct">:</span> <span class="c-value">green</span><span class="c-punct">;</span>
+    <span class="c-prop">border-radius</span><span class="c-punct">:</span> <span class="c-value">10px</span><span class="c-punct">;</span>
+    <span class="c-prop">opacity</span><span class="c-punct">:</span> <span class="c-value">1</span><span class="c-punct">;</span>
+  <span class="c-punct">}</span>
+  <span class="c-keyword">to</span> <span class="c-punct">{</span>                           <span class="c-comment">/* same end state */</span>
+    <span class="c-prop">transform</span><span class="c-punct">:</span> <span class="c-value">rotate(180deg) scale(0.5)</span><span class="c-punct">;</span>
+    <span class="c-prop">background</span><span class="c-punct">:</span> <span class="c-value">orange</span><span class="c-punct">;</span>
+    <span class="c-prop">border-radius</span><span class="c-punct">:</span> <span class="c-value">50%</span><span class="c-punct">;</span>
+    <span class="c-prop">opacity</span><span class="c-punct">:</span> <span class="c-value">0.3</span><span class="c-punct">;</span>
+  <span class="c-punct">}</span>
+<span class="c-punct">}</span></pre>
+  </div>
+
+  <!-- REAL WORLD USE CASES -->
+  <div class="use-case">
+    <div class="use-case-header">Real-world examples where 'to only' shines</div>
+    <div class="use-case-stage">
+      <div class="typewriter-wrap">
+        <div class="typewriter">Hello, World!</div>
+      </div>
+      <div class="notification">✓ Message sent!</div>
+    </div>
+    <div class="use-case-info">
+      <div>
+        <strong>Typewriter effect</strong>
+        Element starts at <code style="background:rgba(0,0,0,0.07);padding:0 3px;border-radius:3px;">width: 0</code> naturally.
+        @keyframes only needs <code style="background:rgba(0,0,0,0.07);padding:0 3px;border-radius:3px;">to { width: full }</code> — the zero start is already there.
+      </div>
+      <div>
+        <strong>Fade-up notification</strong>
+        Element sits at <code style="background:rgba(0,0,0,0.07);padding:0 3px;border-radius:3px;">opacity: 0; translateY(20px)</code>.
+        Animation only defines <code style="background:rgba(0,0,0,0.07);padding:0 3px;border-radius:3px;">to</code> — the hidden state is the natural starting point.
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="insight-title">⚠️ One thing to watch out for</div>
+    If you use <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">animation-fill-mode: backwards</code> or
+    <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">both</code>, the browser applies the
+    <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">from</code> frame during the delay.
+    With no <code style="background:rgba(0,0,0,0.1);padding:0 4px;border-radius:3px;">from</code> defined, it just uses the element's
+    existing styles — which is usually exactly what you want anyway.
+  </div>
+
+</div>
+</body>
+</html>
