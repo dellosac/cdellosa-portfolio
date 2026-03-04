@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -31,6 +32,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Prototype from "../pages/Prototype.js";
 import protoTypeData from "../data/prototypes.json" with { type: "json" };
 import Email from "../pages/Email.js";
+import Background from "../components/Background.js";
 import GoogleAnalyticsTracker from "../utils/GoogleAnalyticsTracker";
 import ReactGA from "react-ga4";
 
@@ -107,6 +109,13 @@ function NavigationAndContent() {
         }
     };
 
+    const viewColors: Record<View, string> = {
+        Home: "#ffffff",
+        Resume: "#e3f2fd",
+        Prototypes: "#ede7f6",
+        Emails: "#fff8e1",
+    };
+
     // Filter out Desktop only prototypes in mobile version of website
     const mobileOnlyPrototypes = prototypes.filter(
         (prototype) => prototype.isMobile,
@@ -115,7 +124,7 @@ function NavigationAndContent() {
     const isDesktop = useMediaQuery("(min-width: 1150px)");
 
     return (
-        <>
+        <Background view={view}>
             {/** Desktop View */}
             {isDesktop && (
                 <Container
@@ -137,6 +146,7 @@ function NavigationAndContent() {
                                     border: 1,
                                     borderColor: "#ababab",
                                     borderRadius: 2,
+                                    backgroundColor: "#ffffff",
                                 }}
                             >
                                 <CardHeader
@@ -280,6 +290,7 @@ function NavigationAndContent() {
                                         border: 1,
                                         borderColor: "#ababab",
                                         borderRadius: 2,
+                                        backgroundColor: "#ffffff",
                                     }}
                                 >
                                     <Resume fileUrl="/resume.pdf" />
@@ -298,6 +309,7 @@ function NavigationAndContent() {
                                         border: 1,
                                         borderColor: "#ababab",
                                         borderRadius: 2,
+                                        backgroundColor: "#ffffff",
                                     }}
                                 >
                                     <Prototype {...currentPrototype} />
@@ -316,6 +328,7 @@ function NavigationAndContent() {
                                         border: 1,
                                         borderColor: "#ababab",
                                         borderRadius: 2,
+                                        backgroundColor: "#ffffff",
                                     }}
                                 >
                                     <Email isOpen />
@@ -438,7 +451,7 @@ function NavigationAndContent() {
                     <Email isOpen={view === "Emails"} />
                 </Container>
             )}
-        </>
+        </Background>
     );
 }
 
