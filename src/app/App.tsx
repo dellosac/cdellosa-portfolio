@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -29,10 +28,11 @@ import AppShortcutIcon from "@mui/icons-material/AppShortcut";
 import LaptopMacIcon from "@mui/icons-material/LaptopMac";
 import Resume from "../pages/Resume.js";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Prototype from "../pages/Prototype.js";
 import protoTypeData from "../data/prototypes.json" with { type: "json" };
-import Email from "../pages/Email.js";
 import Background from "../components/Background.js";
+import Email from "../pages/Email.js";
+import Prototype from "../pages/Prototype.js";
+import Quizzes from "../pages/Quizzes.js";
 import GoogleAnalyticsTracker from "../utils/GoogleAnalyticsTracker";
 import ReactGA from "react-ga4";
 
@@ -467,6 +467,7 @@ function App() {
                     element={<NavigationAndContent />}
                 />
                 <Route path="/emails" element={<NavigationAndContent />} />
+                <Route path="/quiz" element={<Quizzes />} />
             </Routes>
         </BrowserRouter>
     );

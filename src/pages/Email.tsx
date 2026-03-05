@@ -109,11 +109,10 @@ function Email({ isOpen }: EmailProps) {
                             }}
                         >
                             {/**
-
-                            */}
                             <Typography variant="body2" fontWeight="bold">
                                 {currentEmail.name}
                             </Typography>
+                            */}
                             <ButtonGroup
                                 variant="outlined"
                                 aria-label="Email navigation"
