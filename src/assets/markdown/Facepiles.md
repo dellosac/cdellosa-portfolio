@@ -1,4 +1,4 @@
-## Creative Systems: Facepiles Research
+## Facepiles
 
 This prototype tests the inclusion of face piles (user profile avatars in a circle) that appear in real-time when users engage with a post. We have three different parameters with two options each we are testing:
 

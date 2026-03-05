@@ -1,4 +1,4 @@
-## Creative Systems: Make Posting Easy (Threads) Research
+## Message Threads
 
 This prototype tests different experiences to help our users easily create threaded posts. We have two different parameters with three and two options each we are testing:
 

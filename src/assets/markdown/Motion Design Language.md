@@ -1,4 +1,4 @@
-## Creative Systems: Motion Design Language Research
+## Motion Design Language
 
 This prototype tests different motion design experiences for our users. We have two different parameters with four options each we are testing:
 
