@@ -1,6 +1,6 @@
 ## Motion Design Language
 
-This prototype tests different motion design experiences for our users. We have two different parameters with four options each we are testing:
+This prototype tests different motion design experiences for our users. There are two different parameters with four options each:
 
 - Parameter 1: Lottie Options
     - A: Ease

@@ -1,6 +1,6 @@
 ## Message Threads
 
-This prototype tests different experiences to help our users easily create threaded posts. We have two different parameters with three and two options each we are testing:
+This prototype tests different experiences to help our users easily create threaded posts. There are two different parameters with three and two options each:
 
 - Parameter 1: Character count to trigger actions
     - A: Fast (5 characters)
