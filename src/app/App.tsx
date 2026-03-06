@@ -26,6 +26,9 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import AppShortcutIcon from "@mui/icons-material/AppShortcut";
 import LaptopMacIcon from "@mui/icons-material/LaptopMac";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import QuizOutlinedIcon from "@mui/icons-material/QuizOutlined";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import Resume from "../pages/Resume.js";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import protoTypeData from "../data/prototypes.json" with { type: "json" };
@@ -35,8 +38,9 @@ import Prototype from "../pages/Prototype.js";
 import Quizzes from "../pages/Quizzes.js";
 import GoogleAnalyticsTracker from "../utils/GoogleAnalyticsTracker";
 import ReactGA from "react-ga4";
+import Scoreboard from "../pages/Scoreboard.js";
 
-type View = "Home" | "Resume" | "Prototypes" | "Emails";
+type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
 
 // Google Analytics
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID); // replace with your Measurement ID
@@ -50,6 +54,7 @@ function NavigationAndContent() {
 
     // Set states for navigation buttons
     const [open, setOpen] = useState(false);
+    const [openFunStuff, setOpenFunStuff] = useState(false);
     const [view, setView] = useState<View>("Home");
     const [currentPrototype, setCurrentPrototype] = useState(prototypes[0]);
 
@@ -73,6 +78,9 @@ function NavigationAndContent() {
             }
         } else if (path.includes("/emails")) {
             setView("Emails");
+        } else if (path.includes("/funstuff")) {
+            setView("Fun Stuff");
+            setOpenFunStuff(true);
         } else {
             setView("Home");
         }
@@ -90,11 +98,14 @@ function NavigationAndContent() {
     // Toggles Prototypes Button
     const handleClick = () => {
         setOpen(!open);
+        setOpenFunStuff(false);
     };
 
     // Change Views based on URL
     const changeView = (newView: View, prototype?: (typeof prototypes)[0]) => {
         setView(newView);
+        if (newView !== "Prototypes") setOpen(false);
+        setOpenFunStuff(false);
 
         if (newView === "Resume") {
             navigate("/resume");
@@ -114,6 +125,7 @@ function NavigationAndContent() {
         Resume: "#e3f2fd",
         Prototypes: "#ede7f6",
         Emails: "#fff8e1",
+        "Fun Stuff": "#000000",
     };
 
     // Filter out Desktop only prototypes in mobile version of website
@@ -122,9 +134,14 @@ function NavigationAndContent() {
     );
 
     const isDesktop = useMediaQuery("(min-width: 1150px)");
+    const backgroundView = open
+        ? "Prototypes"
+        : openFunStuff
+          ? "Fun Stuff"
+          : view;
 
     return (
-        <Background view={view}>
+        <Background view={backgroundView}>
             {/** Desktop View */}
             {isDesktop && (
                 <Container
@@ -187,7 +204,11 @@ function NavigationAndContent() {
                                     {/** Resume Button */}
                                     <ListItemButton
                                         onClick={() => changeView("Resume")}
-                                        selected={view === "Resume"}
+                                        selected={
+                                            view === "Resume" &&
+                                            !open &&
+                                            !openFunStuff
+                                        }
                                     >
                                         <ListItemIcon>
                                             <FeedOutlinedIcon />
@@ -215,7 +236,13 @@ function NavigationAndContent() {
                                         <ListItemText primary="GitHub" />
                                     </ListItemButton>
                                     {/** Prototypes Button */}
-                                    <ListItemButton onClick={handleClick}>
+                                    <ListItemButton
+                                        onClick={handleClick}
+                                        selected={
+                                            (open || view === "Prototypes") &&
+                                            !openFunStuff
+                                        }
+                                    >
                                         <ListItemIcon>
                                             <TipsAndUpdatesOutlinedIcon />
                                         </ListItemIcon>
@@ -267,13 +294,66 @@ function NavigationAndContent() {
                                     {/** Emails Button */}
                                     <ListItemButton
                                         onClick={() => changeView("Emails")}
-                                        selected={view === "Emails"}
+                                        selected={
+                                            view === "Emails" &&
+                                            !open &&
+                                            !openFunStuff
+                                        }
                                     >
                                         <ListItemIcon>
                                             <EmailOutlinedIcon />
                                         </ListItemIcon>
                                         <ListItemText primary="Email Template Examples" />
                                     </ListItemButton>
+                                    {/** Fun Stuff Button */}
+                                    <ListItemButton
+                                        onClick={() => {
+                                            const next = !openFunStuff;
+                                            setOpenFunStuff(next);
+                                            setOpen(false);
+                                            setView(next ? "Fun Stuff" : "Home");
+                                            navigate(next ? "/funstuff" : "/");
+                                        }}
+                                        selected={openFunStuff}
+                                    >
+                                        <ListItemIcon>
+                                            <AutoAwesomeIcon />
+                                        </ListItemIcon>
+                                        <ListItemText primary="Fun Stuff" />
+                                        {openFunStuff ? (
+                                            <ExpandLess />
+                                        ) : (
+                                            <ExpandMore />
+                                        )}
+                                    </ListItemButton>
+                                    <Collapse
+                                        in={openFunStuff}
+                                        timeout="auto"
+                                        unmountOnExit
+                                    >
+                                        <List component="div" disablePadding>
+                                            <ListItemButton
+                                                sx={{ pl: 4 }}
+                                                href="/scoreboard"
+                                                target="_blank"
+                                            >
+                                                <ListItemIcon>
+                                                    <SportsBasketballIcon />
+                                                </ListItemIcon>
+                                                <ListItemText primary="NBA Scoreboard" />
+                                            </ListItemButton>
+                                            <ListItemButton
+                                                sx={{ pl: 4 }}
+                                                href="/quiz"
+                                                target="_blank"
+                                            >
+                                                <ListItemIcon>
+                                                    <QuizOutlinedIcon />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Quizzes for Devs" />
+                                            </ListItemButton>
+                                        </List>
+                                    </Collapse>
                                 </List>
                             </Container>
                         </Grow>
@@ -381,28 +461,34 @@ function NavigationAndContent() {
                         aria-labelledby="nested-list-subheader"
                     >
                         {/** Resume Button */}
-                        <ListItemButton href="/resume.pdf">
+                        <ListItemButton
+                            href="/resume.pdf"
+                            selected={view === "Resume" && !open && !openFunStuff}
+                        >
                             <ListItemIcon>
                                 <FeedOutlinedIcon />
                             </ListItemIcon>
                             <ListItemText primary="Resume" />
                         </ListItemButton>
                         {/** LinkedIn Button */}
-                        <ListItemButton href="https://www.linkedin.com/in/christopher-dellosa-905a737/">
+                        <ListItemButton href="https://www.linkedin.com/in/christopher-dellosa-905a737/" target="_blank">
                             <ListItemIcon>
                                 <LinkedInIcon />
                             </ListItemIcon>
                             <ListItemText primary="LinkedIn" />
                         </ListItemButton>
                         {/** GitHub Button */}
-                        <ListItemButton href="https://github.com/dellosac">
+                        <ListItemButton href="https://github.com/dellosac" target="_blank">
                             <ListItemIcon>
                                 <GitHubIcon />
                             </ListItemIcon>
                             <ListItemText primary="GitHub" />
                         </ListItemButton>
                         {/** Prototypes Button */}
-                        <ListItemButton onClick={handleClick}>
+                        <ListItemButton
+                            onClick={handleClick}
+                            selected={(open || view === "Prototypes") && !openFunStuff}
+                        >
                             <ListItemIcon>
                                 <TipsAndUpdatesOutlinedIcon />
                             </ListItemIcon>
@@ -411,28 +497,17 @@ function NavigationAndContent() {
                         </ListItemButton>
                         {/** Expanded Prototype Buttons */}
                         <Collapse in={open} timeout="auto" unmountOnExit>
-                            {/** Loop through Prototypes in prototypes.json */}
                             {mobileOnlyPrototypes.map((prototype, index) => (
-                                <List
-                                    component="div"
-                                    disablePadding
-                                    key={index}
-                                >
-                                    <ListItemButton
-                                        sx={{ pl: 4 }}
-                                        href={prototype.url}
-                                    >
+                                <List component="div" disablePadding key={index}>
+                                    <ListItemButton sx={{ pl: 4 }} href={prototype.url}>
                                         <ListItemIcon>
-                                            {/** Show either Mobile or Desktop Icon depending on prototype */}
                                             {prototype.isMobile ? (
                                                 <AppShortcutIcon />
                                             ) : (
                                                 <LaptopMacIcon />
                                             )}
                                         </ListItemIcon>
-                                        <ListItemText
-                                            primary={prototype.name}
-                                        />
+                                        <ListItemText primary={prototype.name} />
                                     </ListItemButton>
                                 </List>
                             ))}
@@ -440,13 +515,46 @@ function NavigationAndContent() {
                         {/** Emails Button */}
                         <ListItemButton
                             onClick={() => changeView("Emails")}
-                            selected={view === "Emails"}
+                            selected={view === "Emails" && !open && !openFunStuff}
                         >
                             <ListItemIcon>
                                 <EmailOutlinedIcon />
                             </ListItemIcon>
                             <ListItemText primary="Email Template Examples" />
                         </ListItemButton>
+                        {/** Fun Stuff Button */}
+                        <ListItemButton
+                            onClick={() => {
+                                const next = !openFunStuff;
+                                setOpenFunStuff(next);
+                                setOpen(false);
+                                setView(next ? "Fun Stuff" : "Home");
+                                navigate(next ? "/funstuff" : "/");
+                            }}
+                            selected={openFunStuff}
+                        >
+                            <ListItemIcon>
+                                <AutoAwesomeIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Fun Stuff" />
+                            {openFunStuff ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                        <Collapse in={openFunStuff} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                                <ListItemButton sx={{ pl: 4 }} href="/scoreboard" target="_blank">
+                                    <ListItemIcon>
+                                        <SportsBasketballIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="NBA Scoreboard" />
+                                </ListItemButton>
+                                <ListItemButton sx={{ pl: 4 }} href="/quiz" target="_blank">
+                                    <ListItemIcon>
+                                        <QuizOutlinedIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Quizzes for Devs" />
+                                </ListItemButton>
+                            </List>
+                        </Collapse>
                     </List>
                     <Email isOpen={view === "Emails"} />
                 </Container>
@@ -467,7 +575,9 @@ function App() {
                     element={<NavigationAndContent />}
                 />
                 <Route path="/emails" element={<NavigationAndContent />} />
+                <Route path="/funstuff" element={<NavigationAndContent />} />
                 <Route path="/quiz" element={<Quizzes />} />
+                <Route path="/scoreboard" element={<Scoreboard />} />
             </Routes>
         </BrowserRouter>
     );

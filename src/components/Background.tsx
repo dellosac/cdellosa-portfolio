@@ -2,13 +2,14 @@ import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { ReactNode } from "react";
 
-type View = "Home" | "Resume" | "Prototypes" | "Emails";
+type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
 
 const viewIndex: Record<View, number> = {
     Home: 0,
     Resume: 1,
     Prototypes: 2,
     Emails: 3,
+    "Fun Stuff": 4,
 };
 
 interface BackgroundProps {
@@ -32,7 +33,7 @@ function Background({ view, children }: BackgroundProps) {
                 <Box
                     sx={{
                         display: "grid",
-                        gridTemplateRows: "repeat(4, 100vh)",
+                        gridTemplateRows: "repeat(5, 100vh)",
                         width: "100%",
                         transform: `translateY(-${viewIndex[view] * 100}vh)`,
                         transition: "transform 0.2s ease",
@@ -42,6 +43,19 @@ function Background({ view, children }: BackgroundProps) {
                     <Box sx={{ backgroundColor: "#fff8e1" }}></Box>
                     <Box sx={{ backgroundColor: "#e3f2fd" }}></Box>
                     <Box sx={{ backgroundColor: "#ede7f6" }}></Box>
+                    <Box
+                        sx={{
+                            animation: "funStuffBg 2s ease-in-out infinite",
+                            "@keyframes funStuffBg": {
+                                "0%": { backgroundColor: "#e8f5e9" },
+                                "20%": { backgroundColor: "#fce4ec" },
+                                "40%": { backgroundColor: "#fff8e1" },
+                                "60%": { backgroundColor: "#e3f2fd" },
+                                "80%": { backgroundColor: "#ede7f6" },
+                                "100%": { backgroundColor: "#e8f5e9" },
+                            },
+                        }}
+                    ></Box>
                 </Box>
                 <Typography
                     sx={{
@@ -87,6 +101,21 @@ function Background({ view, children }: BackgroundProps) {
                     }}
                 >
                     Emails
+                </Typography>
+                <Typography
+                    sx={{
+                        fontSize: "300px",
+                        fontWeight: "bold",
+                        letterSpacing: "-20px",
+                        position: "absolute",
+                        top: "462vh",
+                        width: "100%",
+                        transform: `translateY(-${viewIndex[view] * 100}vh)`,
+                        transition: "transform .5s ease, opacity .5s ease",
+                        opacity: view === "Fun Stuff" ? 0.25 : 0,
+                    }}
+                >
+                    Fun Stuff
                 </Typography>
             </Box>
             {/* Content on top */}

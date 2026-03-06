@@ -22,7 +22,7 @@ function Quizzes() {
                 component="nav"
                 aria-labelledby="nested-list-subheader"
             >
-                {quizzes.map((quiz) => (
+                {quizzes.map((quiz: any) => (
                     <ListItemButton
                         key={quiz.href}
                         component="a"
