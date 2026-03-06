@@ -1,6 +1,7 @@
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import { ReactNode } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
 
@@ -18,6 +19,20 @@ interface BackgroundProps {
 }
 
 function Background({ view, children }: BackgroundProps) {
+    const isDesktop = useMediaQuery("(min-width: 1150px)");
+
+    const backgroundTestCss = {
+        fontSize: `${isDesktop ? "300px" : "100px"}`,
+        fontWeight: "bold",
+        letterSpacing: `${isDesktop ? "-20px" : "-6px"}`,
+        position: "absolute",
+        width: "100%",
+        transform: `translateY(-${viewIndex[view] * 100}vh)`,
+        transition: "transform .5s ease, opacity .5s ease",
+        whiteSpace: "nowrap",
+    };
+    const backgroundTextOffset: number = isDesktop ? 67 : 89;
+
     return (
         <Box sx={{ minHeight: "100vh", position: "relative" }}>
             {/* Animated background layer */}
@@ -59,60 +74,36 @@ function Background({ view, children }: BackgroundProps) {
                 </Box>
                 <Typography
                     sx={{
-                        fontSize: "300px",
-                        fontWeight: "bold",
-                        letterSpacing: "-20px",
-                        position: "absolute",
-                        top: "162vh",
-                        width: "100%",
-                        transform: `translateY(-${viewIndex[view] * 100}vh)`,
-                        transition: "transform .5s ease, opacity .5s ease",
+                        top: `${100 + backgroundTextOffset}vh`,
                         opacity: view === "Resume" ? 0.25 : 0,
+                        ...backgroundTestCss,
                     }}
                 >
                     Resume
                 </Typography>
                 <Typography
                     sx={{
-                        fontSize: "300px",
-                        fontWeight: "bold",
-                        letterSpacing: "-20px",
-                        position: "absolute",
-                        top: "262vh",
-                        width: "100%",
-                        transform: `translateY(-${viewIndex[view] * 100}vh)`,
-                        transition: "transform .5s ease, opacity .5s ease",
+                        top: `${200 + backgroundTextOffset}vh`,
                         opacity: view === "Prototypes" ? 0.25 : 0,
+                        ...backgroundTestCss,
                     }}
                 >
                     Prototypes
                 </Typography>
                 <Typography
                     sx={{
-                        fontSize: "300px",
-                        fontWeight: "bold",
-                        letterSpacing: "-20px",
-                        position: "absolute",
-                        top: "362vh",
-                        width: "100%",
-                        transform: `translateY(-${viewIndex[view] * 100}vh)`,
-                        transition: "transform .5s ease, opacity .5s ease",
+                        top: `${300 + backgroundTextOffset}vh`,
                         opacity: view === "Emails" ? 0.25 : 0,
+                        ...backgroundTestCss,
                     }}
                 >
                     Emails
                 </Typography>
                 <Typography
                     sx={{
-                        fontSize: "300px",
-                        fontWeight: "bold",
-                        letterSpacing: "-20px",
-                        position: "absolute",
-                        top: "462vh",
-                        width: "100%",
-                        transform: `translateY(-${viewIndex[view] * 100}vh)`,
-                        transition: "transform .5s ease, opacity .5s ease",
+                        top: `${400 + backgroundTextOffset}vh`,
                         opacity: view === "Fun Stuff" ? 0.25 : 0,
+                        ...backgroundTestCss,
                     }}
                 >
                     Fun Stuff
