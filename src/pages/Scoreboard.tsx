@@ -11,6 +11,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const theme = createTheme({
     typography: { fontFamily: "Lalezar, sans-serif" },
@@ -50,6 +51,9 @@ function Scoreboard() {
     const [error, setError] = useState<string | null>(null);
     const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
     const selectedGame = games.find((g) => g.id === selectedGameId) ?? null;
+
+    const isDesktop = useMediaQuery("(min-width: 667px)");
+    const isMobileHorizontal = useMediaQuery("(max-height: 430px)");
 
     useEffect(() => {
         document.body.style.backgroundColor = "black";
@@ -264,163 +268,226 @@ function Scoreboard() {
                     </List>
                 </Container>
 
-                <Dialog
-                    fullScreen
-                    open={!!selectedGame}
-                    onClose={() => {
-                        setSelectedGameId(null);
-                        document.exitFullscreen?.();
-                    }}
-                    slotProps={{ paper: { sx: modalStyles } }}
-                >
-                    <IconButton
-                        onClick={() => {
+                {/** Desktop Modal View */}
+                {isDesktop && (
+                    <Dialog
+                        fullScreen
+                        open={!!selectedGame}
+                        onClose={() => {
                             setSelectedGameId(null);
                             document.exitFullscreen?.();
                         }}
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            color: "white",
-                            opacity: 0,
-                            zIndex: 1,
-                            transition: "opacity 0.3s ease",
-                            "&:hover": { opacity: 1 },
-                        }}
+                        slotProps={{ paper: { sx: modalStyles } }}
                     >
-                        <CloseIcon />
-                    </IconButton>
-                    <DialogContent
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            p: 0,
-                            height: "100%",
-                        }}
-                    >
-                        <Box
+                        <IconButton
+                            onClick={() => {
+                                setSelectedGameId(null);
+                                document.exitFullscreen?.();
+                            }}
                             sx={{
-                                display: "flex",
-                                flex: 1,
-                                width: "100%",
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                color: "white",
+                                opacity: 0,
+                                zIndex: 1,
+                                transition: "opacity 0.3s ease",
+                                "&:hover": { opacity: 1 },
                             }}
                         >
-                            {selectedGame &&
-                                [
-                                    selectedGame.competitors.find(
-                                        (c) => c.homeAway === "away",
-                                    )!,
-                                    selectedGame.competitors.find(
-                                        (c) => c.homeAway === "home",
-                                    )!,
-                                ].map((team) => (
-                                    <Box
-                                        key={team.homeAway}
-                                        sx={{
-                                            flex: 1,
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            gap: 2,
-                                            bgcolor: `#${team.team.color}`,
-                                            paddingTop: "50px",
-                                            opacity:
-                                                selectedGame.statusState ===
-                                                    "post" && !team.winner
-                                                    ? 0.75
-                                                    : 1,
-                                        }}
-                                    >
-                                        <Box
-                                            component="img"
-                                            src={team.team.logo}
-                                            alt={team.team.abbreviation}
-                                            sx={{
-                                                width: "50%",
-                                                height: "50%",
-                                                objectFit: "contain",
-                                            }}
-                                        />
-                                        <Typography
-                                            variant="h2"
-                                            textAlign="center"
-                                            lineHeight={1}
-                                            sx={{
-                                                textShadow: "0px 6px #000000",
-                                            }}
-                                        >
-                                            {team.team.name.toUpperCase()}
-                                        </Typography>
-                                        <Typography
-                                            variant="h1"
-                                            fontSize={375}
-                                            lineHeight={1}
-                                            sx={{
-                                                textShadow: "0px 15px #000000",
-                                            }}
-                                        >
-                                            {team.score}
-                                        </Typography>
-                                    </Box>
-                                ))}
-                        </Box>
-                        {selectedGame && (
+                            <CloseIcon />
+                        </IconButton>
+                        <DialogContent
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                p: 0,
+                                height: "100%",
+                            }}
+                        >
                             <Box
                                 sx={{
-                                    position: "absolute",
-                                    bottom: 0,
-                                    left: "50%",
-                                    transform: "translateX(-50%)",
+                                    display: "flex",
+                                    flex: 1,
+                                    width: "100%",
                                 }}
-                                className="details"
                             >
-                                {selectedGame.statusState === "pre" ? (
-                                    <Box
-                                        sx={{
-                                            backgroundColor: "#000000",
-                                            padding: "7px 30px 0px 30px",
-                                            marginBottom: "130px",
-                                            border: "5px solid #ffffff",
-                                            borderRadius: "20px",
-                                            boxShadow: "0px 10px #000000",
-                                            width: "225px",
-                                        }}
-                                    >
-                                        {new Date(
-                                            selectedGame.date,
-                                        ).toLocaleTimeString(undefined, {
-                                            hour: "numeric",
-                                            minute: "2-digit",
-                                        })}
-                                    </Box>
-                                ) : selectedGame.statusState === "in" ? (
-                                    <Box>
-                                        <Box>
-                                            <Typography
-                                                variant="h1"
-                                                color="#ffffff"
-                                                textAlign="center"
-                                                lineHeight={0.6}
+                                {selectedGame &&
+                                    [
+                                        selectedGame.competitors.find(
+                                            (c) => c.homeAway === "away",
+                                        )!,
+                                        selectedGame.competitors.find(
+                                            (c) => c.homeAway === "home",
+                                        )!,
+                                    ].map((team) => (
+                                        <Box
+                                            key={team.homeAway}
+                                            sx={{
+                                                flex: 1,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: 2,
+                                                bgcolor: `#${team.team.color}`,
+                                                paddingTop: "50px",
+                                                opacity:
+                                                    selectedGame.statusState ===
+                                                        "post" && !team.winner
+                                                        ? 0.75
+                                                        : 1,
+                                            }}
+                                        >
+                                            <Box
+                                                component="img"
+                                                src={team.team.logo}
+                                                alt={team.team.abbreviation}
                                                 sx={{
-                                                    py: 2,
+                                                    width: isMobileHorizontal
+                                                        ? "30%"
+                                                        : "50%",
+                                                    height: isMobileHorizontal
+                                                        ? "30%"
+                                                        : "50%",
+                                                    objectFit: "contain",
+                                                }}
+                                            />
+                                            <Typography
+                                                variant={
+                                                    isMobileHorizontal
+                                                        ? "h3"
+                                                        : "h2"
+                                                }
+                                                textAlign="center"
+                                                lineHeight={1}
+                                                sx={{
                                                     textShadow:
-                                                        "0px 10px #000000",
+                                                        "0px 6px #000000",
                                                 }}
                                             >
-                                                Q{selectedGame.period}
+                                                {team.team.name.toUpperCase()}
+                                            </Typography>
+                                            <Typography
+                                                variant="h1"
+                                                fontSize={
+                                                    isMobileHorizontal
+                                                        ? 150
+                                                        : 375
+                                                }
+                                                lineHeight={1}
+                                                sx={{
+                                                    textShadow:
+                                                        "0px 15px #000000",
+                                                }}
+                                            >
+                                                {team.score}
                                             </Typography>
                                         </Box>
+                                    ))}
+                            </Box>
+                            {selectedGame && (
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        bottom: 0,
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                    }}
+                                    className="details"
+                                >
+                                    {selectedGame.statusState === "pre" ? (
                                         <Box
                                             sx={{
                                                 backgroundColor: "#000000",
-                                                padding: "8px 30px 0px 30px",
-                                                marginBottom: "130px",
+                                                padding: "7px 30px 0px 30px",
+                                                marginBottom: isMobileHorizontal
+                                                    ? "80vh"
+                                                    : "130px",
                                                 border: "5px solid #ffffff",
                                                 borderRadius: "20px",
                                                 boxShadow: "0px 10px #000000",
                                                 width: "225px",
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h4"
+                                                color="white"
+                                                textAlign="center"
+                                                lineHeight={0.3}
+                                                sx={{
+                                                    py: 2,
+                                                }}
+                                            >
+                                                {new Date(
+                                                    selectedGame.date,
+                                                ).toLocaleTimeString(
+                                                    undefined,
+                                                    {
+                                                        hour: "numeric",
+                                                        minute: "2-digit",
+                                                    },
+                                                )}
+                                            </Typography>
+                                        </Box>
+                                    ) : selectedGame.statusState === "in" ? (
+                                        <Box>
+                                            <Box>
+                                                <Typography
+                                                    variant="h1"
+                                                    color="#ffffff"
+                                                    textAlign="center"
+                                                    lineHeight={0.6}
+                                                    sx={{
+                                                        py: 2,
+                                                        textShadow:
+                                                            "0px 10px #000000",
+                                                    }}
+                                                >
+                                                    Q{selectedGame.period}
+                                                </Typography>
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: "#000000",
+                                                    padding:
+                                                        "8px 30px 0px 30px",
+                                                    marginBottom:
+                                                        isMobileHorizontal
+                                                            ? "80vh"
+                                                            : "130px",
+                                                    border: "5px solid #ffffff",
+                                                    borderRadius: "20px",
+                                                    boxShadow:
+                                                        "0px 10px #000000",
+                                                    width: "225px",
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="h2"
+                                                    color="white"
+                                                    textAlign="center"
+                                                    lineHeight={0.5}
+                                                    sx={{
+                                                        py: 2,
+                                                    }}
+                                                >
+                                                    {selectedGame.displayClock}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                backgroundColor: "#000000",
+                                                padding: "8px 30px 0px 30px",
+                                                marginBottom: isMobileHorizontal
+                                                    ? "80vh"
+                                                    : "130px",
+                                                border: "5px solid #ffffff",
+                                                borderRadius: "20px",
+                                                boxShadow: "0px 10px #000000",
+                                                width: "200px",
                                             }}
                                         >
                                             <Typography
@@ -432,39 +499,238 @@ function Scoreboard() {
                                                     py: 2,
                                                 }}
                                             >
-                                                {selectedGame.displayClock}
+                                                {selectedGame.statusDescription}
                                             </Typography>
                                         </Box>
-                                    </Box>
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            backgroundColor: "#000000",
-                                            padding: "8px 30px 0px 30px",
-                                            marginBottom: "130px",
-                                            border: "5px solid #ffffff",
-                                            borderRadius: "20px",
-                                            boxShadow: "0px 10px #000000",
-                                            width: "200px",
-                                        }}
-                                    >
-                                        <Typography
-                                            variant="h2"
-                                            color="white"
-                                            textAlign="center"
-                                            lineHeight={0.5}
+                                    )}
+                                </Box>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
+
+                {/** Mobile Modal View */}
+                {!isDesktop && (
+                    <Dialog
+                        fullScreen
+                        open={!!selectedGame}
+                        onClose={() => {
+                            setSelectedGameId(null);
+                            document.exitFullscreen?.();
+                        }}
+                        slotProps={{ paper: { sx: modalStyles } }}
+                    >
+                        <IconButton
+                            onClick={() => {
+                                setSelectedGameId(null);
+                                document.exitFullscreen?.();
+                            }}
+                            sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                color: "white",
+                                opacity: 0,
+                                zIndex: 1,
+                                transition: "opacity 0.3s ease",
+                                "&:hover": { opacity: 1 },
+                            }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                        <DialogContent
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                p: 0,
+                                height: "100%",
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    flex: 1,
+                                    width: "100%",
+                                }}
+                            >
+                                {selectedGame &&
+                                    [
+                                        selectedGame.competitors.find(
+                                            (c) => c.homeAway === "away",
+                                        )!,
+                                        selectedGame.competitors.find(
+                                            (c) => c.homeAway === "home",
+                                        )!,
+                                    ].map((team) => (
+                                        <Box
+                                            key={team.homeAway}
                                             sx={{
-                                                py: 2,
+                                                flex: 1,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                gap: 2,
+                                                bgcolor: `#${team.team.color}`,
+                                                paddingTop: "50px",
+                                                opacity:
+                                                    selectedGame.statusState ===
+                                                        "post" && !team.winner
+                                                        ? 0.75
+                                                        : 1,
                                             }}
                                         >
-                                            {selectedGame.statusDescription}
-                                        </Typography>
-                                    </Box>
-                                )}
+                                            <Box
+                                                component="img"
+                                                src={team.team.logo}
+                                                alt={team.team.abbreviation}
+                                                sx={{
+                                                    width: "20%",
+                                                    height: "20%",
+                                                    objectFit: "contain",
+                                                }}
+                                            />
+                                            <Typography
+                                                variant="h4"
+                                                textAlign="center"
+                                                lineHeight={0.5}
+                                                sx={{
+                                                    textShadow:
+                                                        "0px 6px #000000",
+                                                }}
+                                            >
+                                                {team.team.name.toUpperCase()}
+                                            </Typography>
+                                            <Typography
+                                                variant="h1"
+                                                fontSize={150}
+                                                lineHeight={1}
+                                                sx={{
+                                                    textShadow:
+                                                        "0px 15px #000000",
+                                                }}
+                                            >
+                                                {team.score}
+                                            </Typography>
+                                        </Box>
+                                    ))}
                             </Box>
-                        )}
-                    </DialogContent>
-                </Dialog>
+                            {selectedGame && (
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        top: "50%",
+                                        left: "50%",
+                                        transform: "translate(-50%, -50%)",
+                                    }}
+                                    className="details"
+                                >
+                                    {selectedGame.statusState === "pre" ? (
+                                        <Box
+                                            sx={{
+                                                backgroundColor: "#000000",
+                                                padding: "7px 30px 0px 30px",
+                                                // marginBottom: "130px",
+                                                border: "5px solid #ffffff",
+                                                borderRadius: "20px",
+                                                boxShadow: "0px 10px #000000",
+                                                width: "225px",
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h4"
+                                                color="white"
+                                                textAlign="center"
+                                                lineHeight={0.3}
+                                                sx={{
+                                                    py: 2,
+                                                }}
+                                            >
+                                                {new Date(
+                                                    selectedGame.date,
+                                                ).toLocaleTimeString(
+                                                    undefined,
+                                                    {
+                                                        hour: "numeric",
+                                                        minute: "2-digit",
+                                                    },
+                                                )}
+                                            </Typography>
+                                        </Box>
+                                    ) : selectedGame.statusState === "in" ? (
+                                        <Box>
+                                            <Box>
+                                                <Typography
+                                                    variant="h1"
+                                                    color="#ffffff"
+                                                    textAlign="center"
+                                                    lineHeight={0.6}
+                                                    sx={{
+                                                        py: 2,
+                                                        textShadow:
+                                                            "0px 10px #000000",
+                                                    }}
+                                                >
+                                                    Q{selectedGame.period}
+                                                </Typography>
+                                            </Box>
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: "#000000",
+                                                    padding:
+                                                        "8px 30px 0px 30px",
+                                                    marginBottom: "130px",
+                                                    border: "5px solid #ffffff",
+                                                    borderRadius: "20px",
+                                                    boxShadow:
+                                                        "0px 10px #000000",
+                                                    width: "225px",
+                                                }}
+                                            >
+                                                <Typography
+                                                    variant="h2"
+                                                    color="white"
+                                                    textAlign="center"
+                                                    lineHeight={0.5}
+                                                    sx={{
+                                                        py: 2,
+                                                    }}
+                                                >
+                                                    {selectedGame.displayClock}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                backgroundColor: "#000000",
+                                                padding: "8px 30px 0px 30px",
+                                                marginBottom: "130px",
+                                                border: "5px solid #ffffff",
+                                                borderRadius: "20px",
+                                                boxShadow: "0px 10px #000000",
+                                                width: "200px",
+                                            }}
+                                        >
+                                            <Typography
+                                                variant="h2"
+                                                color="white"
+                                                textAlign="center"
+                                                lineHeight={0.5}
+                                                sx={{
+                                                    py: 2,
+                                                }}
+                                            >
+                                                {selectedGame.statusDescription}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
             </>
         </ThemeProvider>
     );
