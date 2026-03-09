@@ -78,15 +78,13 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
     const token = await getSpotifyToken();
     const headers = { Authorization: `Bearer ${token}` };
 
-    const searchUrl = new URL("https://api.spotify.com/v1/search");
-    searchUrl.searchParams.set("q", `artist:"funk leblanc"`);
-    searchUrl.searchParams.set("type", "track");
-    searchUrl.searchParams.set("limit", "10");
-    searchUrl.searchParams.set("market", "US");
-
-    const [artistRes, searchRes, monthlyListeners] = await Promise.all([
+    // Fetch artist info, their albums, and monthly listeners in parallel
+    const [artistRes, albumsRes, monthlyListeners] = await Promise.all([
         fetch(`https://api.spotify.com/v1/artists/${ARTIST_ID}`, { headers }),
-        fetch(searchUrl.toString(), { headers }),
+        fetch(
+            `https://api.spotify.com/v1/artists/${ARTIST_ID}/albums?include_groups=single,album&market=US&limit=10`,
+            { headers }
+        ),
         getMonthlyListeners(ARTIST_ID),
     ]);
 
@@ -94,27 +92,40 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
         name: string;
         images: { url: string }[];
     };
-    const search = (await searchRes.json()) as {
-        tracks: {
-            items: {
-                id: string;
-                name: string;
-                duration_ms: number;
-                artists: { id: string }[];
-                album: { name: string; images: { url: string }[] };
-            }[];
-        };
+    const albums = (await albumsRes.json()) as {
+        items: { id: string; name: string; images: { url: string }[] }[];
     };
 
-    const topTracks = search.tracks.items
-        .filter((t) => t.artists.some((a) => a.id === ARTIST_ID))
+    // Fetch tracks for each album in parallel, take first track of each
+    const albumTracks = await Promise.all(
+        albums.items.map((album) =>
+            fetch(
+                `https://api.spotify.com/v1/albums/${album.id}/tracks?market=US&limit=1`,
+                { headers }
+            )
+                .then((r) => r.json())
+                .then(
+                    (data: {
+                        items: { id: string; name: string; duration_ms: number }[];
+                    }) => ({
+                        albumId: album.id,
+                        albumName: album.name,
+                        albumImage: album.images[0]?.url ?? null,
+                        track: data.items[0] ?? null,
+                    })
+                )
+        )
+    );
+
+    const topTracks = albumTracks
+        .filter((a) => a.track !== null)
         .slice(0, 10)
-        .map((t) => ({
-            id: t.id,
-            name: t.name,
-            album: t.album.name,
-            albumImage: t.album.images[0]?.url ?? null,
-            durationMs: t.duration_ms,
+        .map((a) => ({
+            id: a.track!.id,
+            name: a.track!.name,
+            album: a.albumName,
+            albumImage: a.albumImage,
+            durationMs: a.track!.duration_ms,
         }));
 
     return {
@@ -124,6 +135,17 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
         topTracks,
     };
 }
+
+// Debug: see raw Spotify API response without saving
+app.get("/api/spotify/debug", async (_req: Request, res: Response) => {
+    try {
+        const data = await fetchSpotifyData();
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: String(err) });
+    }
+});
 
 // ── API routes ───────────────────────────────────────────────────────────────
 
