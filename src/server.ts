@@ -171,6 +171,28 @@ app.post("/api/spotify/snapshot", async (_req: Request, res: Response) => {
     }
 });
 
+// DB diagnostic: shows row counts and latest snapshot
+app.get("/api/spotify/db-status", async (_req: Request, res: Response) => {
+    const db = getPool();
+    if (!db) return res.status(503).json({ error: "Database not configured" });
+    try {
+        const [snapshots, tracks, latest] = await Promise.all([
+            db.query("SELECT COUNT(*) FROM spotify_snapshots"),
+            db.query("SELECT COUNT(*) FROM spotify_tracks"),
+            db.query(
+                "SELECT * FROM spotify_snapshots ORDER BY captured_at DESC LIMIT 1"
+            ),
+        ]);
+        res.json({
+            snapshotCount: parseInt(snapshots.rows[0].count),
+            trackCount: parseInt(tracks.rows[0].count),
+            latestSnapshot: latest.rows[0] ?? null,
+        });
+    } catch (err) {
+        res.status(500).json({ error: String(err) });
+    }
+});
+
 // Read historical snapshots
 app.get("/api/spotify/history", async (_req: Request, res: Response) => {
     const db = getPool();
