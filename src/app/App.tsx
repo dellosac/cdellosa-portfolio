@@ -39,6 +39,7 @@ import Quizzes from "../pages/Quizzes.js";
 import GoogleAnalyticsTracker from "../utils/GoogleAnalyticsTracker";
 import ReactGA from "react-ga4";
 import Scoreboard from "../pages/Scoreboard.js";
+import Spotify from "../pages/Spotify.js";
 
 type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
 
@@ -311,7 +312,9 @@ function NavigationAndContent() {
                                             const next = !openFunStuff;
                                             setOpenFunStuff(next);
                                             setOpen(false);
-                                            setView(next ? "Fun Stuff" : "Home");
+                                            setView(
+                                                next ? "Fun Stuff" : "Home",
+                                            );
                                             navigate(next ? "/funstuff" : "/");
                                         }}
                                         selected={openFunStuff}
@@ -463,7 +466,9 @@ function NavigationAndContent() {
                         {/** Resume Button */}
                         <ListItemButton
                             href="/resume.pdf"
-                            selected={view === "Resume" && !open && !openFunStuff}
+                            selected={
+                                view === "Resume" && !open && !openFunStuff
+                            }
                         >
                             <ListItemIcon>
                                 <FeedOutlinedIcon />
@@ -471,14 +476,20 @@ function NavigationAndContent() {
                             <ListItemText primary="Resume" />
                         </ListItemButton>
                         {/** LinkedIn Button */}
-                        <ListItemButton href="https://www.linkedin.com/in/christopher-dellosa-905a737/" target="_blank">
+                        <ListItemButton
+                            href="https://www.linkedin.com/in/christopher-dellosa-905a737/"
+                            target="_blank"
+                        >
                             <ListItemIcon>
                                 <LinkedInIcon />
                             </ListItemIcon>
                             <ListItemText primary="LinkedIn" />
                         </ListItemButton>
                         {/** GitHub Button */}
-                        <ListItemButton href="https://github.com/dellosac" target="_blank">
+                        <ListItemButton
+                            href="https://github.com/dellosac"
+                            target="_blank"
+                        >
                             <ListItemIcon>
                                 <GitHubIcon />
                             </ListItemIcon>
@@ -487,7 +498,9 @@ function NavigationAndContent() {
                         {/** Prototypes Button */}
                         <ListItemButton
                             onClick={handleClick}
-                            selected={(open || view === "Prototypes") && !openFunStuff}
+                            selected={
+                                (open || view === "Prototypes") && !openFunStuff
+                            }
                         >
                             <ListItemIcon>
                                 <TipsAndUpdatesOutlinedIcon />
@@ -498,8 +511,15 @@ function NavigationAndContent() {
                         {/** Expanded Prototype Buttons */}
                         <Collapse in={open} timeout="auto" unmountOnExit>
                             {mobileOnlyPrototypes.map((prototype, index) => (
-                                <List component="div" disablePadding key={index}>
-                                    <ListItemButton sx={{ pl: 4 }} href={prototype.url}>
+                                <List
+                                    component="div"
+                                    disablePadding
+                                    key={index}
+                                >
+                                    <ListItemButton
+                                        sx={{ pl: 4 }}
+                                        href={prototype.url}
+                                    >
                                         <ListItemIcon>
                                             {prototype.isMobile ? (
                                                 <AppShortcutIcon />
@@ -507,7 +527,9 @@ function NavigationAndContent() {
                                                 <LaptopMacIcon />
                                             )}
                                         </ListItemIcon>
-                                        <ListItemText primary={prototype.name} />
+                                        <ListItemText
+                                            primary={prototype.name}
+                                        />
                                     </ListItemButton>
                                 </List>
                             ))}
@@ -515,7 +537,9 @@ function NavigationAndContent() {
                         {/** Emails Button */}
                         <ListItemButton
                             onClick={() => changeView("Emails")}
-                            selected={view === "Emails" && !open && !openFunStuff}
+                            selected={
+                                view === "Emails" && !open && !openFunStuff
+                            }
                         >
                             <ListItemIcon>
                                 <EmailOutlinedIcon />
@@ -539,15 +563,27 @@ function NavigationAndContent() {
                             <ListItemText primary="Fun Stuff" />
                             {openFunStuff ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
-                        <Collapse in={openFunStuff} timeout="auto" unmountOnExit>
+                        <Collapse
+                            in={openFunStuff}
+                            timeout="auto"
+                            unmountOnExit
+                        >
                             <List component="div" disablePadding>
-                                <ListItemButton sx={{ pl: 4 }} href="/scoreboard" target="_blank">
+                                <ListItemButton
+                                    sx={{ pl: 4 }}
+                                    href="/scoreboard"
+                                    target="_blank"
+                                >
                                     <ListItemIcon>
                                         <SportsBasketballIcon />
                                     </ListItemIcon>
                                     <ListItemText primary="NBA Scoreboard" />
                                 </ListItemButton>
-                                <ListItemButton sx={{ pl: 4 }} href="/quiz" target="_blank">
+                                <ListItemButton
+                                    sx={{ pl: 4 }}
+                                    href="/quiz"
+                                    target="_blank"
+                                >
                                     <ListItemIcon>
                                         <QuizOutlinedIcon />
                                     </ListItemIcon>
@@ -578,6 +614,7 @@ function App() {
                 <Route path="/funstuff" element={<NavigationAndContent />} />
                 <Route path="/quiz" element={<Quizzes />} />
                 <Route path="/scoreboard" element={<Scoreboard />} />
+                <Route path="/spotify" element={<Spotify />} />
             </Routes>
         </BrowserRouter>
     );

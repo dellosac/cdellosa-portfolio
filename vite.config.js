@@ -51,4 +51,9 @@ export default defineConfig({
         outDir: "dist/public",
         emptyOutDir: true,
     },
+    server: {
+        proxy: {
+            "/api": "http://localhost:3000",
+        },
+    },
 });
