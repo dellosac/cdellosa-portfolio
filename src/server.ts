@@ -248,7 +248,11 @@ app.get("*", (_req: Request, res: Response) => {
 // ── Start ────────────────────────────────────────────────────────────────────
 
 async function start() {
-    await initDb();
+    try {
+        await initDb();
+    } catch (err) {
+        console.warn("DB init failed (will retry on next use):", (err as Error).message);
+    }
 
     // Daily at midnight UTC
     cron.schedule("0 0 * * *", async () => {
