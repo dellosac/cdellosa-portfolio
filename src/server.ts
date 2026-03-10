@@ -50,11 +50,14 @@ async function getMonthlyListeners(artistId: string): Promise<number | null> {
             headers: { "User-Agent": "facebookexternalhit/1.1" },
         });
         const html = await res.text();
-        // Matches "50.4K monthly listeners" or "1,234,567 monthly listeners"
-        const match = html.match(
+        // Try exact number from embedded JSON first
+        const jsonMatch = html.match(/"monthlyListeners":(\d+)/);
+        if (jsonMatch) return parseInt(jsonMatch[1], 10);
+        // Fall back to og:description abbreviated number e.g. "50.4K"
+        const ogMatch = html.match(
             /content="[^"]*?·\s*([\d.,]+[KMB]?)\s*monthly listeners/i
         );
-        if (match) return parseAbbreviatedNumber(match[1]);
+        if (ogMatch) return parseAbbreviatedNumber(ogMatch[1]);
     } catch {
         // ignore
     }

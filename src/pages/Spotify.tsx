@@ -16,6 +16,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
+import { LineChart } from "@mui/x-charts/LineChart";
 
 interface Track {
     id: string;
@@ -184,8 +185,33 @@ function HistoryTab() {
 
     const snap = snapshots[selected];
 
+    const chartData = [...snapshots].reverse().filter((s) => s.monthly_listeners !== null);
+
     return (
         <>
+            {/* Listeners over time chart */}
+            {chartData.length > 1 && (
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                        Monthly Listeners Over Time
+                    </Typography>
+                    <LineChart
+                        xAxis={[{
+                            data: chartData.map((s) => new Date(s.captured_at)),
+                            scaleType: "time",
+                            tickMinStep: 3600 * 1000 * 24,
+                        }]}
+                        series={[{
+                            data: chartData.map((s) => s.monthly_listeners as number),
+                            label: "Monthly Listeners",
+                            showMark: chartData.length <= 30,
+                        }]}
+                        height={220}
+                        margin={{ left: 70, right: 20, top: 20, bottom: 40 }}
+                    />
+                </Box>
+            )}
+
             {/* Snapshot selector */}
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                 {snapshots.length} snapshot{snapshots.length !== 1 ? "s" : ""} captured

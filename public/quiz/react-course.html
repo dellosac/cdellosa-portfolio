@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Build React: From Zero to Wordle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0c0f;
+    --surface: #13151a;
+    --surface2: #1c1f27;
+    --border: #2a2d38;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #fb923c;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --correct: #6ee7b7;
+    --present: #fbbf24;
+    --absent: #374151;
+    --code-bg: #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-logo .tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .sidebar-logo h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .sidebar-logo h1 span { color: var(--accent); }
+
+  .progress-bar-wrap {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .nav-section {
+    padding: 16px 12px 8px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 1px 0;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(110, 231, 183, 0.08);
+    color: var(--accent);
+    border-color: rgba(110, 231, 183, 0.2);
+  }
+
+  .nav-item.completed { color: var(--accent); }
+  .nav-item.completed .nav-num { background: var(--accent); color: var(--bg); }
+
+  .nav-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+
+  .nav-item.active .nav-num {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+
+  /* MAIN CONTENT */
+  .main { flex: 1; overflow-y: auto; }
+
+  .lesson {
+    display: none;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 40px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .lesson.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* LESSON HEADER */
+  .lesson-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .lesson-badge {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+
+  .badge-setup { color: var(--accent2); border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.06); }
+  .badge-structure { color: var(--accent3); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.06); }
+  .badge-routing { color: var(--accent2); border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.06); }
+  .badge-wordle { color: var(--correct); border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.06); }
+
+  .lesson-num {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .lesson h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .lesson h2 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .lesson-intro {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 36px;
+    max-width: 620px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* SECTION HEADERS */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* PROSE */
+  .prose {
+    font-size: 14px;
+    line-height: 1.85;
+    color: #c4c9d4;
+    margin-bottom: 24px;
+  }
+
+  .prose strong { color: var(--text); font-weight: 600; }
+  .prose code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    font-size: 13px;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-filename {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .code-filename .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .code-lang {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+    line-height: 1.7;
+    color: #abb2bf;
+  }
+
+  .code-body .kw { color: #c678dd; }
+  .code-body .fn { color: #61afef; }
+  .code-body .str { color: #98c379; }
+  .code-body .cm { color: #5c6370; font-style: italic; }
+  .code-body .jsx { color: #e06c75; }
+  .code-body .num { color: #d19a66; }
+  .code-body .var { color: #e5c07b; }
+  .code-body .prop { color: #56b6c2; }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 20px 0;
+    font-size: 13px;
+    line-height: 1.7;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .callout.tip {
+    background: rgba(110, 231, 183, 0.06);
+    border: 1px solid rgba(110, 231, 183, 0.2);
+    color: #a7f3d0;
+  }
+
+  .callout.info {
+    background: rgba(129, 140, 248, 0.06);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    color: #c7d2fe;
+  }
+
+  .callout.warning {
+    background: rgba(251, 191, 36, 0.06);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    color: #fde68a;
+  }
+
+  /* FOLDER TREE */
+  .folder-tree {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-size: 13px;
+    line-height: 2;
+    margin: 20px 0;
+  }
+
+  .folder-tree .folder { color: var(--accent2); }
+  .folder-tree .file { color: #abb2bf; }
+  .folder-tree .desc { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .folder-tree .indent1 { padding-left: 20px; }
+  .folder-tree .indent2 { padding-left: 40px; }
+  .folder-tree .indent3 { padding-left: 60px; }
+
+  /* WORDLE PREVIEW */
+  .wordle-grid {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 6px;
+    width: 220px;
+    margin: 24px auto;
+  }
+
+  .wordle-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .wordle-tile {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+
+  .wordle-tile.correct { background: var(--correct); border-color: var(--correct); color: #0b0c0f; }
+  .wordle-tile.present { background: var(--present); border-color: var(--present); color: #0b0c0f; }
+  .wordle-tile.absent { background: var(--absent); border-color: var(--absent); }
+
+  /* STEP CARDS */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .step-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+
+  .step-card:hover { border-color: var(--accent); }
+
+  .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(110, 231, 183, 0.1);
+    border: 1px solid rgba(110, 231, 183, 0.3);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .step-content p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* NAV BUTTONS */
+  .lesson-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover { background: #34d399; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+
+  /* HERO */
+  .hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 36px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 .highlight { color: var(--accent); }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 28px;
+  }
+
+  .hero-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* INLINE TERMINAL */
+  .terminal {
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .terminal-bar {
+    background: #1a1a1a;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .terminal-body {
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #aaa;
+  }
+
+  .terminal-body .prompt { color: #6ee7b7; }
+  .terminal-body .cmd { color: #fff; }
+  .terminal-body .output { color: #666; }
+
+  /* CONCEPT CARDS */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .concept-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .concept-card .icon { font-size: 20px; margin-bottom: 8px; }
+
+  .concept-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .concept-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .lesson { padding: 24px 20px; }
+    .hero { padding: 32px 20px 24px; }
+    .hero h1 { font-size: 32px; }
+    .concept-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">// Course</div>
+    <h1>Build React: <span>Zero to Wordle</span></h1>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      <span>Progress</span>
+      <span id="progress-text">0 / 6</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <div class="nav-section">// Lessons</div>
+
+  <div class="nav-item active" onclick="goTo(0)" id="nav-0">
+    <div class="nav-num">0</div> Introduction
+  </div>
+  <div class="nav-item" onclick="goTo(1)" id="nav-1">
+    <div class="nav-num">1</div> Setup & Express
+  </div>
+  <div class="nav-item" onclick="goTo(2)" id="nav-2">
+    <div class="nav-num">2</div> Folder Structure
+  </div>
+  <div class="nav-item" onclick="goTo(3)" id="nav-3">
+    <div class="nav-num">3</div> React Routing
+  </div>
+  <div class="nav-item" onclick="goTo(4)" id="nav-4">
+    <div class="nav-num">4</div> Wordle: Game Logic
+  </div>
+  <div class="nav-item" onclick="goTo(5)" id="nav-5">
+    <div class="nav-num">5</div> Wordle: UI & Polish
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main">
+
+  <!-- LESSON 0: INTRO -->
+  <div class="lesson active" id="lesson-0">
+    <div class="hero">
+      <div class="hero-eyebrow">React Fundamentals Course</div>
+      <h1>From <span class="highlight">zero</span> to<br>Wordle clone.</h1>
+      <p>A hands-on course that walks you through setting up a React project, organizing your code, adding routing, and building a fully working Wordle game.</p>
+      <div class="hero-chips">
+        <span class="chip">React 18</span>
+        <span class="chip">React Router v6</span>
+        <span class="chip">Express.js</span>
+        <span class="chip">Vite</span>
+        <span class="chip">Wordle Clone</span>
+      </div>
+    </div>
+
+    <div style="max-width:820px;margin:0 auto;padding:40px 40px 0;">
+
+      <div class="section-title">What you'll build</div>
+
+      <div class="wordle-grid">
+        <div class="wordle-row">
+          <div class="wordle-tile correct">R</div>
+          <div class="wordle-tile absent">E</div>
+          <div class="wordle-tile present">A</div>
+          <div class="wordle-tile absent">C</div>
+          <div class="wordle-tile correct">T</div>
+        </div>
+        <div class="wordle-row">
+          <div class="wordle-tile correct">W</div>
+          <div class="wordle-tile correct">O</div>
+          <div class="wordle-tile correct">R</div>
+          <div class="wordle-tile correct">D</div>
+          <div class="wordle-tile correct">S</div>
+        </div>
+        <div class="wordle-row"><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div></div>
+        <div class="wordle-row"><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div></div>
+        <div class="wordle-row"><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div></div>
+        <div class="wordle-row"><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div><div class="wordle-tile"></div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title">Course overview</div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="icon">⚙️</div>
+          <h4>Lesson 1: Setup & Express</h4>
+          <p>Install Node, Vite, and Express. Wire up a backend API to serve your word list.</p>
+        </div>
+        <div class="concept-card">
+          <div class="icon">📁</div>
+          <h4>Lesson 2: Folder Structure</h4>
+          <p>Learn the standard React folder layout that scales from side projects to enterprise apps.</p>
+        </div>
+        <div class="concept-card">
+          <div class="icon">🔀</div>
+          <h4>Lesson 3: React Routing</h4>
+          <p>Add React Router v6, create pages, navigate between them, and handle 404s.</p>
+        </div>
+        <div class="concept-card">
+          <div class="icon">🟩</div>
+          <h4>Lessons 4 & 5: Wordle</h4>
+          <p>Build the full Wordle clone with state, game logic, keyboard input, and animated tiles.</p>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">💡</span>
+        <div><strong>Prerequisites:</strong> Basic JavaScript knowledge. You should know what a function, array, and object are. No React experience needed!</div>
+      </div>
+
+      <div class="lesson-nav">
+        <div></div>
+        <button class="btn btn-primary" onclick="goTo(1)">Start Course →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LESSON 1: SETUP & EXPRESS -->
+  <div class="lesson" id="lesson-1">
+    <div class="lesson-meta">
+      <span class="lesson-badge badge-setup">Setup</span>
+      <span class="lesson-num">Lesson 01</span>
+    </div>
+    <h2>Installing <em>Express</em> &amp; scaffolding your project</h2>
+    <p class="lesson-intro">Every React app needs a home. We'll create a Vite-powered React frontend and an Express backend that will eventually serve our Wordle word list via an API.</p>
+
+    <div class="section-title">Step 1 — Scaffold the project</div>
+    <p class="prose">Open your terminal and run the following commands. <strong>Vite</strong> is a modern build tool — much faster than Create React App. We'll create a <code>wordle-app</code> folder with separate <code>client</code> and <code>server</code> directories.</p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span> <span class="cmd">mkdir wordle-app && cd wordle-app</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">npm create vite@latest client -- --template react</span></div>
+        <div class="output">  ✔ Select a framework: React</div>
+        <div class="output">  ✔ Select a variant: JavaScript</div>
+        <div><span class="prompt">$</span> <span class="cmd">cd client && npm install</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">cd .. && mkdir server && cd server</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">npm init -y</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Step 2 — Install Express</div>
+    <p class="prose"><strong>Express</strong> is a minimal Node.js web framework. We'll use it to create a simple API that returns a random 5-letter word for Wordle.</p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="output"># Make sure you're inside the /server folder</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">npm install express cors</span></div>
+        <div class="output">  added 67 packages in 1.2s</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <div><strong>Why cors?</strong> Your React frontend runs on port 5173 and your Express server on port 3001. Browsers block cross-origin requests by default — the <code>cors</code> package allows them.</div>
+    </div>
+
+    <div class="section-title">Step 3 — Create the Express server</div>
+    <p class="prose">Create a new file <code>server/index.js</code>. This sets up a simple API with one endpoint: <code>GET /api/word</code> which returns a random 5-letter word.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>server/index.js</div>
+        <span class="code-lang">JavaScript</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">const</span> <span class="var">express</span> = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> <span class="var">cors</span>    = <span class="fn">require</span>(<span class="str">'cors'</span>);
+
+<span class="kw">const</span> <span class="var">app</span>  = <span class="fn">express</span>();
+<span class="kw">const</span> <span class="var">PORT</span> = <span class="num">3001</span>;
+
+<span class="cm">// Allow requests from our React frontend</span>
+<span class="var">app</span>.<span class="fn">use</span>(<span class="fn">cors</span>({ origin: <span class="str">'http://localhost:5173'</span> }));
+<span class="var">app</span>.<span class="fn">use</span>(<span class="var">express</span>.<span class="fn">json</span>());
+
+<span class="cm">// Word bank — in a real app, load this from a file or database</span>
+<span class="kw">const</span> <span class="var">WORDS</span> = [
+  <span class="str">'react'</span>, <span class="str">'tiger'</span>, <span class="str">'flame'</span>, <span class="str">'storm'</span>, <span class="str">'pixel'</span>,
+  <span class="str">'crane'</span>, <span class="str">'brave'</span>, <span class="str">'swift'</span>, <span class="str">'plant'</span>, <span class="str">'ghost'</span>,
+];
+
+<span class="cm">// GET /api/word  → returns a random word</span>
+<span class="var">app</span>.<span class="fn">get</span>(<span class="str">'/api/word'</span>, (<span class="var">req</span>, <span class="var">res</span>) =&gt; {
+  <span class="kw">const</span> <span class="var">word</span> = <span class="var">WORDS</span>[<span class="var">Math</span>.<span class="fn">floor</span>(<span class="var">Math</span>.<span class="fn">random</span>() * <span class="var">WORDS</span>.length)];
+  <span class="var">res</span>.<span class="fn">json</span>({ word });
+});
+
+<span class="var">app</span>.<span class="fn">listen</span>(<span class="var">PORT</span>, () =&gt; {
+  <span class="var">console</span>.<span class="fn">log</span>(<span class="str">`Server running on http://localhost:<span class="var">${PORT}</span>`</span>);
+});</pre></div>
+    </div>
+
+    <div class="section-title">Step 4 — Start both servers</div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+      </div>
+      <div class="terminal-body">
+        <div class="output"># Terminal 1 — start the Express API</div>
+        <div><span class="prompt">$</span> <span class="cmd">cd server && node index.js</span></div>
+        <div class="output">  Server running on http://localhost:3001</div>
+        <div>&nbsp;</div>
+        <div class="output"># Terminal 2 — start the React frontend</div>
+        <div><span class="prompt">$</span> <span class="cmd">cd client && npm run dev</span></div>
+        <div class="output">  VITE v5.0.0  ready in 300 ms</div>
+        <div class="output">  ➜  Local:   http://localhost:5173/</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">🚀</span>
+      <div>Visit <code>http://localhost:3001/api/word</code> in your browser. You should see <code>{"word":"flame"}</code> (or another random word). Your backend is alive!</div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="btn btn-ghost" onclick="goTo(0)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(2)">Next: Folder Structure →</button>
+    </div>
+  </div>
+
+  <!-- LESSON 2: FOLDER STRUCTURE -->
+  <div class="lesson" id="lesson-2">
+    <div class="lesson-meta">
+      <span class="lesson-badge badge-structure">Structure</span>
+      <span class="lesson-num">Lesson 02</span>
+    </div>
+    <h2>Organizing your <em>React folders</em></h2>
+    <p class="lesson-intro">Good folder structure is the difference between a codebase that's a joy to work in and one that collapses under its own weight. Here's a battle-tested pattern used by real teams.</p>
+
+    <div class="section-title">The recommended structure</div>
+    <p class="prose">Inside the <code>client/src</code> directory, organize your code into these key folders. Each folder has a single, clear responsibility — this is called <strong>separation of concerns</strong>.</p>
+
+    <div class="folder-tree">
+      <div><span class="folder">📁 wordle-app/</span></div>
+      <div class="indent1"><span class="folder">📁 client/</span> <span class="desc">← React frontend</span></div>
+      <div class="indent2"><span class="folder">📁 src/</span></div>
+      <div class="indent3"><span class="folder">📁 components/</span> <span class="desc">← Reusable UI pieces (Button, Tile, Grid)</span></div>
+      <div class="indent3"><span class="folder">📁 pages/</span>      <span class="desc">← One file per route (HomePage, GamePage)</span></div>
+      <div class="indent3"><span class="folder">📁 hooks/</span>       <span class="desc">← Custom React hooks (useWordle, useKeyboard)</span></div>
+      <div class="indent3"><span class="folder">📁 utils/</span>       <span class="desc">← Pure helper functions (checkGuess, etc.)</span></div>
+      <div class="indent3"><span class="folder">📁 context/</span>     <span class="desc">← React Context providers (GameContext)</span></div>
+      <div class="indent3"><span class="folder">📁 assets/</span>      <span class="desc">← Images, fonts, SVGs</span></div>
+      <div class="indent3"><span class="file">📄 App.jsx</span>       <span class="desc">← Root component, router lives here</span></div>
+      <div class="indent3"><span class="file">📄 main.jsx</span>      <span class="desc">← Entry point, mounts App into DOM</span></div>
+      <div class="indent1"><span class="folder">📁 server/</span> <span class="desc">← Express backend</span></div>
+      <div class="indent2"><span class="file">📄 index.js</span>     <span class="desc">← Express app (from Lesson 1)</span></div>
+    </div>
+
+    <div class="section-title">Why these folders?</div>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>components/ — reusable UI building blocks</h4>
+          <p>Each component is a small, focused UI element. A <code>Tile.jsx</code> renders a single letter box. A <code>Grid.jsx</code> renders 6 rows of 5 tiles. Components know nothing about game logic — they just display what they're given via props.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>pages/ — one file per URL route</h4>
+          <p>Pages are the top-level views that React Router renders. <code>HomePage.jsx</code> is what you see at <code>/</code>. <code>GamePage.jsx</code> is at <code>/game</code>. Pages import components and hooks to build full screens.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>hooks/ — extract & reuse stateful logic</h4>
+          <p>Custom hooks like <code>useWordle.js</code> contain all the game logic (checking guesses, tracking state). By moving logic out of components, you make both easier to test and understand.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>utils/ — pure functions with zero side effects</h4>
+          <p>A function like <code>checkGuess(guess, answer)</code> that takes inputs and returns outputs lives in <code>utils/</code>. Pure functions are trivially easy to unit test.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Creating the files</div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span> <span class="cmd">cd client/src</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">mkdir components pages hooks utils context assets</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">touch pages/HomePage.jsx pages/GamePage.jsx</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">touch hooks/useWordle.js utils/checkGuess.js</span></div>
+        <div><span class="prompt">$</span> <span class="cmd">touch components/Tile.jsx components/Grid.jsx components/Keyboard.jsx</span></div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>Keep it flat when possible.</strong> Don't create nested subfolders unless you have 10+ files in one folder. Over-nesting is a common trap. Start flat and refactor when needed.</div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Next: Routing →</button>
+    </div>
+  </div>
+
+  <!-- LESSON 3: ROUTING -->
+  <div class="lesson" id="lesson-3">
+    <div class="lesson-meta">
+      <span class="lesson-badge badge-routing">Routing</span>
+      <span class="lesson-num">Lesson 03</span>
+    </div>
+    <h2>Adding <em>React Router</em></h2>
+    <p class="lesson-intro">React is a single-page application framework — there's only one HTML file. React Router lets you simulate multiple pages by swapping components based on the URL, without a full page reload.</p>
+
+    <div class="section-title">Install React Router</div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="prompt">$</span> <span class="cmd">cd client && npm install react-router-dom</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Set up routes in App.jsx</div>
+    <p class="prose">Replace the contents of <code>App.jsx</code> with the router setup. We wrap everything in <code>&lt;BrowserRouter&gt;</code> and define our routes inside <code>&lt;Routes&gt;</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/App.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> { <span class="var">BrowserRouter</span>, <span class="var">Routes</span>, <span class="var">Route</span> } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> <span class="var">HomePage</span> <span class="kw">from</span> <span class="str">'./pages/HomePage'</span>;
+<span class="kw">import</span> <span class="var">GamePage</span> <span class="kw">from</span> <span class="str">'./pages/GamePage'</span>;
+
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;BrowserRouter&gt;</span>
+      <span class="jsx">&lt;Routes&gt;</span>
+        <span class="jsx">&lt;Route</span> <span class="prop">path</span>=<span class="str">"/"</span>      <span class="prop">element</span>={<span class="jsx">&lt;HomePage /&gt;</span>} <span class="jsx">/&gt;</span>
+        <span class="jsx">&lt;Route</span> <span class="prop">path</span>=<span class="str">"/game"</span>  <span class="prop">element</span>={<span class="jsx">&lt;GamePage /&gt;</span>} <span class="jsx">/&gt;</span>
+        <span class="jsx">&lt;Route</span> <span class="prop">path</span>=<span class="str">"*"</span>      <span class="prop">element</span>={<span class="jsx">&lt;h1&gt;</span>404 – Not Found<span class="jsx">&lt;/h1&gt;</span>} <span class="jsx">/&gt;</span>
+      <span class="jsx">&lt;/Routes&gt;</span>
+    <span class="jsx">&lt;/BrowserRouter&gt;</span>
+  );
+}
+
+<span class="kw">export default</span> <span class="var">App</span>;</pre></div>
+    </div>
+
+    <div class="section-title">Create the pages</div>
+    <p class="prose">The <code>HomePage</code> is the landing screen. The <strong>useNavigate</strong> hook gives us a function to programmatically navigate to another route — great for when the user clicks "Play".</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/pages/HomePage.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> { <span class="var">useNavigate</span> } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">export default function</span> <span class="fn">HomePage</span>() {
+  <span class="kw">const</span> <span class="var">navigate</span> = <span class="fn">useNavigate</span>();
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;div</span> <span class="prop">className</span>=<span class="str">"home"</span><span class="jsx">&gt;</span>
+      <span class="jsx">&lt;h1&gt;</span>Wordle Clone<span class="jsx">&lt;/h1&gt;</span>
+      <span class="jsx">&lt;p&gt;</span>Guess the 5-letter word in 6 tries.<span class="jsx">&lt;/p&gt;</span>
+      <span class="jsx">&lt;button</span> <span class="prop">onClick</span>={() =&gt; <span class="fn">navigate</span>(<span class="str">'/game'</span>)}<span class="jsx">&gt;</span>
+        Play
+      <span class="jsx">&lt;/button&gt;</span>
+    <span class="jsx">&lt;/div&gt;</span>
+  );
+}</pre></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/pages/GamePage.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> { <span class="var">Link</span> } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+
+<span class="kw">export default function</span> <span class="fn">GamePage</span>() {
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;div&gt;</span>
+      <span class="jsx">&lt;Link</span> <span class="prop">to</span>=<span class="str">"/"</span><span class="jsx">&gt;</span>← Back to Home<span class="jsx">&lt;/Link&gt;</span>
+      <span class="jsx">&lt;h1&gt;</span>The Game Board goes here<span class="jsx">&lt;/h1&gt;</span>
+    <span class="jsx">&lt;/div&gt;</span>
+  );
+}</pre></div>
+    </div>
+
+    <div class="section-title">Key Router concepts</div>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="icon">🔀</div>
+        <h4>&lt;BrowserRouter&gt;</h4>
+        <p>Wraps your whole app. Provides routing context to all child components. Only one per app.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🗺️</div>
+        <h4>&lt;Routes&gt; + &lt;Route&gt;</h4>
+        <p>Defines which component to render for each URL path. <code>path="*"</code> is the catch-all 404 route.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🔗</div>
+        <h4>&lt;Link&gt;</h4>
+        <p>Replaces <code>&lt;a href&gt;</code> tags. Navigates without a page reload, keeping React state intact.</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">🧭</div>
+        <h4>useNavigate()</h4>
+        <p>A hook for programmatic navigation. Use inside event handlers: <code>navigate('/game')</code>.</p>
+      </div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="btn btn-ghost" onclick="goTo(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Next: Wordle Logic →</button>
+    </div>
+  </div>
+
+  <!-- LESSON 4: WORDLE LOGIC -->
+  <div class="lesson" id="lesson-4">
+    <div class="lesson-meta">
+      <span class="lesson-badge badge-wordle">Wordle</span>
+      <span class="lesson-num">Lesson 04</span>
+    </div>
+    <h2>Wordle: <em>Game Logic</em></h2>
+    <p class="lesson-intro">Now the fun part. We'll build the core Wordle logic: fetching the secret word from our Express API, checking guesses, and tracking game state with React hooks.</p>
+
+    <div class="section-title">The checkGuess utility</div>
+    <p class="prose">First, let's write the pure function that compares a guess to the answer and returns a status for each letter: <code>"correct"</code>, <code>"present"</code>, or <code>"absent"</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/utils/checkGuess.js</div>
+        <span class="code-lang">JavaScript</span>
+      </div>
+      <div class="code-body"><pre><span class="cm">/**
+ * Compares a guess against the answer.
+ * Returns an array of 5 objects: { letter, status }
+ * status: 'correct' | 'present' | 'absent'
+ */</span>
+<span class="kw">export function</span> <span class="fn">checkGuess</span>(<span class="var">guess</span>, <span class="var">answer</span>) {
+  <span class="kw">const</span> <span class="var">result</span>  = <span class="var">Array</span>(<span class="num">5</span>).<span class="fn">fill</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> <span class="var">ansArr</span>  = <span class="var">answer</span>.<span class="fn">split</span>(<span class="str">''</span>);
+  <span class="kw">const</span> <span class="var">used</span>    = <span class="var">Array</span>(<span class="num">5</span>).<span class="fn">fill</span>(<span class="kw">false</span>);
+
+  <span class="cm">// First pass: find correct (green) letters</span>
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> = <span class="num">0</span>; <span class="var">i</span> &lt; <span class="num">5</span>; <span class="var">i</span>++) {
+    <span class="kw">if</span> (<span class="var">guess</span>[<span class="var">i</span>] === <span class="var">ansArr</span>[<span class="var">i</span>]) {
+      <span class="var">result</span>[<span class="var">i</span>] = { letter: <span class="var">guess</span>[<span class="var">i</span>], status: <span class="str">'correct'</span> };
+      <span class="var">used</span>[<span class="var">i</span>]   = <span class="kw">true</span>;
+    }
+  }
+
+  <span class="cm">// Second pass: find present (yellow) and absent (grey)</span>
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span> = <span class="num">0</span>; <span class="var">i</span> &lt; <span class="num">5</span>; <span class="var">i</span>++) {
+    <span class="kw">if</span> (<span class="var">result</span>[<span class="var">i</span>]) <span class="kw">continue</span>; <span class="cm">// already correct</span>
+
+    <span class="kw">const</span> <span class="var">idx</span> = <span class="var">ansArr</span>.<span class="fn">findIndex</span>(
+      (<span class="var">l</span>, <span class="var">j</span>) =&gt; <span class="var">l</span> === <span class="var">guess</span>[<span class="var">i</span>] &amp;&amp; !<span class="var">used</span>[<span class="var">j</span>]
+    );
+
+    <span class="kw">if</span> (<span class="var">idx</span> !== -<span class="num">1</span>) {
+      <span class="var">result</span>[<span class="var">i</span>]  = { letter: <span class="var">guess</span>[<span class="var">i</span>], status: <span class="str">'present'</span> };
+      <span class="var">used</span>[<span class="var">idx</span>] = <span class="kw">true</span>;
+    } <span class="kw">else</span> {
+      <span class="var">result</span>[<span class="var">i</span>] = { letter: <span class="var">guess</span>[<span class="var">i</span>], status: <span class="str">'absent'</span> };
+    }
+  }
+
+  <span class="kw">return</span> <span class="var">result</span>;
+}</pre></div>
+    </div>
+
+    <div class="section-title">The useWordle custom hook</div>
+    <p class="prose">This hook is the heart of the game. It fetches the secret word from our Express API, manages the guess history, handles keyboard input, and determines win/loss state.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/hooks/useWordle.js</div>
+        <span class="code-lang">JavaScript</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> { <span class="var">useState</span>, <span class="var">useEffect</span>, <span class="var">useCallback</span> } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> { <span class="var">checkGuess</span> } <span class="kw">from</span> <span class="str">'../utils/checkGuess'</span>;
+
+<span class="kw">export function</span> <span class="fn">useWordle</span>() {
+  <span class="kw">const</span> [<span class="var">answer</span>,  <span class="var">setAnswer</span>]  = <span class="fn">useState</span>(<span class="str">''</span>);
+  <span class="kw">const</span> [<span class="var">guesses</span>, <span class="var">setGuesses</span>] = <span class="fn">useState</span>([]); <span class="cm">// array of result arrays</span>
+  <span class="kw">const</span> [<span class="var">current</span>, <span class="var">setCurrent</span>] = <span class="fn">useState</span>(<span class="str">''</span>); <span class="cm">// letters typed so far</span>
+  <span class="kw">const</span> [<span class="var">gameOver</span>,<span class="var">setGameOver</span>] = <span class="fn">useState</span>(<span class="kw">false</span>);
+  <span class="kw">const</span> [<span class="var">won</span>,     <span class="var">setWon</span>]     = <span class="fn">useState</span>(<span class="kw">false</span>);
+
+  <span class="cm">// Fetch the secret word from our Express API on mount</span>
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="fn">fetch</span>(<span class="str">'http://localhost:3001/api/word'</span>)
+      .<span class="fn">then</span>(<span class="var">r</span> =&gt; <span class="var">r</span>.<span class="fn">json</span>())
+      .<span class="fn">then</span>(<span class="var">data</span> =&gt; <span class="fn">setAnswer</span>(<span class="var">data</span>.word));
+  }, []);
+
+  <span class="kw">const</span> <span class="var">submitGuess</span> = <span class="fn">useCallback</span>(() =&gt; {
+    <span class="kw">if</span> (<span class="var">current</span>.length !== <span class="num">5</span>) <span class="kw">return</span>; <span class="cm">// must be 5 letters</span>
+
+    <span class="kw">const</span> <span class="var">result</span>   = <span class="fn">checkGuess</span>(<span class="var">current</span>, <span class="var">answer</span>);
+    <span class="kw">const</span> <span class="var">newGuesses</span> = [...<span class="var">guesses</span>, <span class="var">result</span>];
+
+    <span class="fn">setGuesses</span>(<span class="var">newGuesses</span>);
+    <span class="fn">setCurrent</span>(<span class="str">''</span>);
+
+    <span class="kw">if</span> (<span class="var">current</span> === <span class="var">answer</span>) {
+      <span class="fn">setWon</span>(<span class="kw">true</span>); <span class="fn">setGameOver</span>(<span class="kw">true</span>);
+    } <span class="kw">else if</span> (<span class="var">newGuesses</span>.length === <span class="num">6</span>) {
+      <span class="fn">setGameOver</span>(<span class="kw">true</span>);
+    }
+  }, [<span class="var">current</span>, <span class="var">answer</span>, <span class="var">guesses</span>]);
+
+  <span class="cm">// Keyboard listener</span>
+  <span class="fn">useEffect</span>(() =&gt; {
+    <span class="kw">const</span> <span class="var">onKey</span> = (<span class="var">e</span>) =&gt; {
+      <span class="kw">if</span> (<span class="var">gameOver</span>) <span class="kw">return</span>;
+      <span class="kw">if</span> (<span class="var">e</span>.key === <span class="str">'Enter'</span>)     { <span class="fn">submitGuess</span>(); <span class="kw">return</span>; }
+      <span class="kw">if</span> (<span class="var">e</span>.key === <span class="str">'Backspace'</span>)  { <span class="fn">setCurrent</span>(<span class="var">c</span> =&gt; <span class="var">c</span>.<span class="fn">slice</span>(<span class="num">0</span>, -<span class="num">1</span>)); <span class="kw">return</span>; }
+      <span class="kw">if</span> (<span class="var">e</span>.key.<span class="fn">match</span>(<span class="str">/^[a-z]$/</span>) &amp;&amp; <span class="var">current</span>.length &lt; <span class="num">5</span>) {
+        <span class="fn">setCurrent</span>(<span class="var">c</span> =&gt; <span class="var">c</span> + <span class="var">e</span>.key);
+      }
+    };
+    <span class="var">window</span>.<span class="fn">addEventListener</span>(<span class="str">'keydown'</span>, <span class="var">onKey</span>);
+    <span class="kw">return</span> () =&gt; <span class="var">window</span>.<span class="fn">removeEventListener</span>(<span class="str">'keydown'</span>, <span class="var">onKey</span>);
+  }, [<span class="var">submitGuess</span>, <span class="var">gameOver</span>, <span class="var">current</span>]);
+
+  <span class="kw">return</span> { <span class="var">answer</span>, <span class="var">guesses</span>, <span class="var">current</span>, <span class="var">gameOver</span>, <span class="var">won</span> };
+}</pre></div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🧠</span>
+      <div><strong>Why a custom hook?</strong> We could put all this logic directly in <code>GamePage.jsx</code>, but by extracting it into <code>useWordle</code>, the component stays clean and readable — and we can reuse the logic anywhere.</div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="btn btn-ghost" onclick="goTo(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(5)">Next: Wordle UI →</button>
+    </div>
+  </div>
+
+  <!-- LESSON 5: WORDLE UI -->
+  <div class="lesson" id="lesson-5">
+    <div class="lesson-meta">
+      <span class="lesson-badge badge-wordle">Wordle</span>
+      <span class="lesson-num">Lesson 05</span>
+    </div>
+    <h2>Wordle: <em>UI Components</em></h2>
+    <p class="lesson-intro">The logic is done. Now let's build the visual layer — the Tile, Grid, and Keyboard components — and wire them all together in GamePage.</p>
+
+    <div class="section-title">Tile component</div>
+    <p class="prose">The <code>Tile</code> is the smallest unit: a single letter square with a color based on its status.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/components/Tile.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">const</span> <span class="var">COLORS</span> = {
+  correct: <span class="str">'#6aaa64'</span>,
+  present: <span class="str">'#c9b458'</span>,
+  absent:  <span class="str">'#787c7e'</span>,
+};
+
+<span class="kw">export default function</span> <span class="fn">Tile</span>({ <span class="var">letter</span> = <span class="str">''</span>, <span class="var">status</span> }) {
+  <span class="kw">const</span> <span class="var">bg</span> = <span class="var">status</span> ? <span class="var">COLORS</span>[<span class="var">status</span>] : <span class="str">'transparent'</span>;
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;div</span> <span class="prop">style</span>={{
+      width: <span class="str">'60px'</span>, height: <span class="str">'60px'</span>,
+      border: <span class="str">`2px solid ${status ? bg : '#d3d6da'}`</span>,
+      background: <span class="var">bg</span>,
+      display: <span class="str">'flex'</span>, alignItems: <span class="str">'center'</span>, justifyContent: <span class="str">'center'</span>,
+      fontSize: <span class="str">'2rem'</span>, fontWeight: <span class="str">'bold'</span>,
+      color: <span class="var">status</span> ? <span class="str">'#fff'</span> : <span class="str">'#000'</span>,
+      textTransform: <span class="str">'uppercase'</span>,
+      transition: <span class="str">'background 0.3s, border-color 0.3s'</span>,
+    }}<span class="jsx">&gt;</span>
+      {<span class="var">letter</span>}
+    <span class="jsx">&lt;/div&gt;</span>
+  );
+}</pre></div>
+    </div>
+
+    <div class="section-title">Grid component</div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/components/Grid.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> <span class="var">Tile</span> <span class="kw">from</span> <span class="str">'./Tile'</span>;
+
+<span class="kw">export default function</span> <span class="fn">Grid</span>({ <span class="var">guesses</span>, <span class="var">current</span> }) {
+  <span class="cm">// Build 6 rows: completed guesses + current row + empty rows</span>
+  <span class="kw">const</span> <span class="var">rows</span> = [...<span class="var">guesses</span>];
+
+  <span class="cm">// Add the current (in-progress) row</span>
+  <span class="kw">if</span> (<span class="var">rows</span>.length &lt; <span class="num">6</span>) {
+    <span class="kw">const</span> <span class="var">currentRow</span> = <span class="var">current</span>.<span class="fn">split</span>(<span class="str">''</span>).<span class="fn">map</span>(<span class="var">l</span> =&gt; ({ letter: <span class="var">l</span>, status: <span class="kw">null</span> }));
+    <span class="kw">while</span> (<span class="var">currentRow</span>.length &lt; <span class="num">5</span>) <span class="var">currentRow</span>.<span class="fn">push</span>({ letter: <span class="str">''</span>, status: <span class="kw">null</span> });
+    <span class="var">rows</span>.<span class="fn">push</span>(<span class="var">currentRow</span>);
+  }
+
+  <span class="cm">// Fill remaining rows with empty tiles</span>
+  <span class="kw">while</span> (<span class="var">rows</span>.length &lt; <span class="num">6</span>) {
+    <span class="var">rows</span>.<span class="fn">push</span>(<span class="var">Array</span>(<span class="num">5</span>).<span class="fn">fill</span>({ letter: <span class="str">''</span>, status: <span class="kw">null</span> }));
+  }
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;div</span> <span class="prop">style</span>={{ display: <span class="str">'flex'</span>, flexDirection: <span class="str">'column'</span>, gap: <span class="str">'5px'</span> }}<span class="jsx">&gt;</span>
+      {<span class="var">rows</span>.<span class="fn">map</span>((<span class="var">row</span>, <span class="var">ri</span>) =&gt; (
+        <span class="jsx">&lt;div</span> <span class="prop">key</span>={<span class="var">ri</span>} <span class="prop">style</span>={{ display: <span class="str">'flex'</span>, gap: <span class="str">'5px'</span> }}<span class="jsx">&gt;</span>
+          {<span class="var">row</span>.<span class="fn">map</span>((<span class="var">tile</span>, <span class="var">ti</span>) =&gt; (
+            <span class="jsx">&lt;Tile</span> <span class="prop">key</span>={<span class="var">ti</span>} <span class="prop">letter</span>={<span class="var">tile</span>.letter} <span class="prop">status</span>={<span class="var">tile</span>.status} <span class="jsx">/&gt;</span>
+          ))}
+        <span class="jsx">&lt;/div&gt;</span>
+      ))}
+    <span class="jsx">&lt;/div&gt;</span>
+  );
+}</pre></div>
+    </div>
+
+    <div class="section-title">Putting it together in GamePage</div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-filename"><span class="dot"></span>client/src/pages/GamePage.jsx</div>
+        <span class="code-lang">JSX</span>
+      </div>
+      <div class="code-body"><pre><span class="kw">import</span> { <span class="var">Link</span> } <span class="kw">from</span> <span class="str">'react-router-dom'</span>;
+<span class="kw">import</span> { <span class="var">useWordle</span> } <span class="kw">from</span> <span class="str">'../hooks/useWordle'</span>;
+<span class="kw">import</span> <span class="var">Grid</span> <span class="kw">from</span> <span class="str">'../components/Grid'</span>;
+
+<span class="kw">export default function</span> <span class="fn">GamePage</span>() {
+  <span class="kw">const</span> { <span class="var">guesses</span>, <span class="var">current</span>, <span class="var">gameOver</span>, <span class="var">won</span>, <span class="var">answer</span> } = <span class="fn">useWordle</span>();
+
+  <span class="kw">return</span> (
+    <span class="jsx">&lt;div</span> <span class="prop">style</span>={{ textAlign: <span class="str">'center'</span>, padding: <span class="str">'20px'</span> }}<span class="jsx">&gt;</span>
+      <span class="jsx">&lt;Link</span> <span class="prop">to</span>=<span class="str">"/"</span><span class="jsx">&gt;</span>← Home<span class="jsx">&lt;/Link&gt;</span>
+      <span class="jsx">&lt;h1&gt;</span>Wordle<span class="jsx">&lt;/h1&gt;</span>
+
+      <span class="jsx">&lt;Grid</span> <span class="prop">guesses</span>={<span class="var">guesses</span>} <span class="prop">current</span>={<span class="var">current</span>} <span class="jsx">/&gt;</span>
+
+      {<span class="var">gameOver</span> &amp;&amp; (
+        <span class="jsx">&lt;div</span> <span class="prop">style</span>={{ marginTop: <span class="str">'20px'</span> }}<span class="jsx">&gt;</span>
+          {<span class="var">won</span>
+            ? <span class="jsx">&lt;h2&gt;</span>🎉 You got it!<span class="jsx">&lt;/h2&gt;</span>
+            : <span class="jsx">&lt;h2&gt;</span>The word was: {<span class="var">answer</span>.<span class="fn">toUpperCase</span>()}<span class="jsx">&lt;/h2&gt;</span>
+          }
+          <span class="jsx">&lt;button</span> <span class="prop">onClick</span>={() =&gt; <span class="var">window</span>.<span class="fn">location</span>.<span class="fn">reload</span>()}<span class="jsx">&gt;</span>
+            Play Again
+          <span class="jsx">&lt;/button&gt;</span>
+        <span class="jsx">&lt;/div&gt;</span>
+      )}
+    <span class="jsx">&lt;/div&gt;</span>
+  );
+}</pre></div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">🎯</span>
+      <div><strong>Next steps to level up your Wordle:</strong> Add a <code>Keyboard</code> component with colored key states, add flip animations on tile reveal using CSS transitions, persist scores to <code>localStorage</code>, and add a word validation API to reject non-dictionary words.</div>
+    </div>
+
+    <div class="section-title">🏁 You're done!</div>
+    <p class="prose">You've built a complete React project with an Express backend, a well-organized folder structure, client-side routing, and a fully working Wordle clone. Here's what you've learned:</p>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-number">✓</div>
+        <div class="step-content">
+          <h4>Express API</h4>
+          <p>Set up a Node.js server with Express and CORS. Created a <code>/api/word</code> endpoint to serve game data to the frontend.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">✓</div>
+        <div class="step-content">
+          <h4>React Folder Structure</h4>
+          <p>Organized code into <code>components/</code>, <code>pages/</code>, <code>hooks/</code>, and <code>utils/</code> — a scalable pattern that professional teams use.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">✓</div>
+        <div class="step-content">
+          <h4>React Router v6</h4>
+          <p>Added multi-page navigation with <code>BrowserRouter</code>, <code>Routes</code>, <code>Link</code>, and <code>useNavigate</code>.</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">✓</div>
+        <div class="step-content">
+          <h4>Wordle Clone</h4>
+          <p>Built game logic in a custom hook, created reusable Tile and Grid components, and handled keyboard input with useEffect.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-nav">
+      <button class="btn btn-ghost" onclick="goTo(4)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(0)">↺ Restart Course</button>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  let currentLesson = 0;
+  const totalLessons = 6;
+  const completed = new Set();
+
+  function goTo(idx) {
+    // Mark previous as completed
+    completed.add(currentLesson);
+
+    // Hide all
+    document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    // Show target
+    document.getElementById('lesson-' + idx).classList.add('active');
+    const navItem = document.getElementById('nav-' + idx);
+    navItem.classList.add('active');
+    currentLesson = idx;
+
+    // Update completed nav items
+    completed.forEach(i => {
+      const item = document.getElementById('nav-' + i);
+      if (item && i !== idx) item.classList.add('completed');
+    });
+
+    // Update progress
+    const pct = Math.round((completed.size / totalLessons) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = completed.size + ' / ' + totalLessons;
+
+    // Scroll to top
+    document.getElementById('main').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
