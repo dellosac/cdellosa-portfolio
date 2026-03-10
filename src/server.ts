@@ -50,7 +50,10 @@ async function getMonthlyListeners(artistId: string): Promise<number | null> {
             headers: { "User-Agent": "facebookexternalhit/1.1" },
         });
         const html = await res.text();
-        // Try exact number from embedded JSON first
+        // Try exact number from page text e.g. "50,852 monthly listeners"
+        const textMatch = html.match(/([\d,]+)\s+monthly listeners/i);
+        if (textMatch) return parseInt(textMatch[1].replace(/,/g, ""), 10);
+        // Try exact number from embedded JSON
         const jsonMatch = html.match(/"monthlyListeners":(\d+)/);
         if (jsonMatch) return parseInt(jsonMatch[1], 10);
         // Fall back to og:description abbreviated number e.g. "50.4K"
