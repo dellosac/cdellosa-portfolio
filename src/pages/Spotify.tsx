@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
+import Collapse from "@mui/material/Collapse";
 import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Tab from "@mui/material/Tab";
 import Table from "@mui/material/Table";
@@ -16,6 +18,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import { LineChart } from "@mui/x-charts/LineChart";
 
 interface Track {
@@ -135,7 +139,10 @@ function NowTab({ artist }: { artist: ArtistData }) {
                                 </Typography>
                             }
                             secondary={
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                >
                                     {track.album}
                                 </Typography>
                             }
@@ -183,29 +190,45 @@ function HistoryTab() {
             </Typography>
         );
 
+    const [snapshotsOpen, setSnapshotsOpen] = useState(false);
+
     const snap = snapshots[selected];
 
-    const chartData = [...snapshots].reverse().filter((s) => s.monthly_listeners !== null);
+    const chartData = [...snapshots]
+        .reverse()
+        .filter((s) => s.monthly_listeners !== null);
 
     return (
         <>
             {/* Listeners over time chart */}
             {chartData.length > 1 && (
                 <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                    <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ mb: 1 }}
+                    >
                         Monthly Listeners Over Time
                     </Typography>
                     <LineChart
-                        xAxis={[{
-                            data: chartData.map((s) => new Date(s.captured_at)),
-                            scaleType: "time",
-                            tickMinStep: 3600 * 1000 * 24,
-                        }]}
-                        series={[{
-                            data: chartData.map((s) => s.monthly_listeners as number),
-                            label: "Monthly Listeners",
-                            showMark: chartData.length <= 30,
-                        }]}
+                        xAxis={[
+                            {
+                                data: chartData.map(
+                                    (s) => new Date(s.captured_at),
+                                ),
+                                scaleType: "time",
+                                tickMinStep: 3600 * 1000 * 24,
+                            },
+                        ]}
+                        series={[
+                            {
+                                data: chartData.map(
+                                    (s) => s.monthly_listeners as number,
+                                ),
+                                label: "Monthly Listeners",
+                                showMark: chartData.length <= 30,
+                            },
+                        ]}
                         height={220}
                         margin={{ left: 70, right: 20, top: 20, bottom: 40 }}
                     />
@@ -213,36 +236,56 @@ function HistoryTab() {
             )}
 
             {/* Snapshot selector */}
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                {snapshots.length} snapshot{snapshots.length !== 1 ? "s" : ""} captured
-            </Typography>
-            <Box
-                sx={{
-                    display: "flex",
-                    gap: 1,
-                    flexWrap: "wrap",
-                    mb: 3,
-                }}
+            <ListItemButton
+                onClick={() => setSnapshotsOpen((o) => !o)}
+                sx={{ px: 0, mb: snapshotsOpen ? 0 : 2 }}
             >
-                {snapshots.map((s, i) => (
-                    <Box
-                        key={s.id}
-                        onClick={() => setSelected(i)}
-                        sx={{
-                            px: 1.5,
-                            py: 0.5,
-                            borderRadius: 1,
-                            cursor: "pointer",
-                            border: "1px solid",
-                            borderColor: i === selected ? "primary.main" : "divider",
-                            bgcolor: i === selected ? "primary.main" : "transparent",
-                            color: i === selected ? "primary.contrastText" : "text.primary",
-                        }}
-                    >
-                        <Typography variant="caption">{formatDate(s.captured_at)}</Typography>
-                    </Box>
-                ))}
-            </Box>
+                <ListItemText
+                    primary={
+                        <Typography variant="subtitle2" color="text.secondary">
+                            {snapshots.length} snapshot
+                            {snapshots.length !== 1 ? "s" : ""} —{" "}
+                            {formatDate(snap.captured_at)}
+                        </Typography>
+                    }
+                />
+                {snapshotsOpen ? (
+                    <ExpandLess fontSize="small" />
+                ) : (
+                    <ExpandMore fontSize="small" />
+                )}
+            </ListItemButton>
+            <Collapse in={snapshotsOpen} unmountOnExit>
+                <List
+                    disablePadding
+                    dense
+                    sx={{
+                        mb: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 1,
+                    }}
+                >
+                    {snapshots.map((s, i) => (
+                        <ListItemButton
+                            key={s.id}
+                            selected={i === selected}
+                            onClick={() => {
+                                setSelected(i);
+                                setSnapshotsOpen(false);
+                            }}
+                        >
+                            <ListItemText
+                                primary={
+                                    <Typography variant="caption">
+                                        {formatDate(s.captured_at)}
+                                    </Typography>
+                                }
+                            />
+                        </ListItemButton>
+                    ))}
+                </List>
+            </Collapse>
 
             {/* Stats row */}
             {snap.monthly_listeners !== null && (
@@ -273,8 +316,13 @@ function HistoryTab() {
                         <TableRow key={t.trackId} hover>
                             <TableCell>{t.rank}</TableCell>
                             <TableCell>{t.name}</TableCell>
-                            <TableCell sx={{ color: "text.secondary" }}>{t.album}</TableCell>
-                            <TableCell align="right" sx={{ color: "text.secondary" }}>
+                            <TableCell sx={{ color: "text.secondary" }}>
+                                {t.album}
+                            </TableCell>
+                            <TableCell
+                                align="right"
+                                sx={{ color: "text.secondary" }}
+                            >
                                 {formatDuration(t.durationMs)}
                             </TableCell>
                         </TableRow>
