@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Number Methods Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease;
+  }
+
+  .header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e2e8f0 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    color: var(--text-dim);
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: fadeDown 0.6s ease 0.1s both;
+  }
+
+  .progress-bar-outer {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .score-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.4s ease;
+    transition: border-color 0.3s;
+  }
+
+  .question-card.answered-correct { border-color: var(--green); }
+  .question-card.answered-wrong { border-color: var(--red); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 1px;
+  }
+
+  .q-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .q-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 12px 0 20px;
+    color: #a5f3fc;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .q-code .kw  { color: #c084fc; }
+  .q-code .fn  { color: #67e8f9; }
+  .q-code .str { color: #86efac; }
+  .q-code .num { color: #fda4af; }
+  .q-code .cm  { color: #475569; }
+
+  /* Options */
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 560px) {
+    .options { grid-template-columns: 1fr; }
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    transform: translateY(-1px);
+  }
+
+  .option-btn .opt-letter {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    background: var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+
+  .option-btn:hover:not(:disabled) .opt-letter {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.08);
+    color: var(--green);
+  }
+  .option-btn.correct .opt-letter {
+    background: var(--green);
+    color: var(--bg);
+  }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.08);
+    color: var(--red);
+  }
+  .option-btn.wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .option-btn.reveal-correct {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.05);
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+  /* Result screen */
+  .result-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    animation: fadeUp 0.5s ease;
+  }
+
+  .result-screen.show { display: block; }
+
+  .result-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--pct), var(--border) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+
+  .result-circle::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background: var(--bg);
+    border-radius: 50%;
+  }
+
+  .result-circle span {
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .result-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .result-sub {
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .result-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .breakdown-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-width: 100px;
+  }
+
+  .breakdown-item .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    display: block;
+  }
+
+  .breakdown-item .lbl {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  .restart-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 10px;
+    padding: 14px 36px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .restart-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <span class="label">// knowledge check</span>
+    <h1>JavaScript Number Methods</h1>
+    <p>30 scenario-based questions — pick the right method for the job</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+    <span class="progress-text" id="progressText">0 / 30</span>
+    <span class="score-badge" id="scoreBadge">Score: 0</span>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <div class="result-screen" id="resultScreen">
+    <div class="result-circle" id="resultCircle">
+      <span id="resultPct">0%</span>
+    </div>
+    <div class="result-title" id="resultTitle">Quiz Complete!</div>
+    <div class="result-sub" id="resultSub"></div>
+    <div class="result-breakdown">
+      <div class="breakdown-item">
+        <span class="val" id="rCorrect" style="color:var(--green)">0</span>
+        <span class="lbl">Correct</span>
+      </div>
+      <div class="breakdown-item">
+        <span class="val" id="rWrong" style="color:var(--red)">0</span>
+        <span class="lbl">Wrong</span>
+      </div>
+      <div class="breakdown-item">
+        <span class="val" id="rPct" style="color:var(--accent)">0%</span>
+        <span class="lbl">Score</span>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartQuiz()">↺ Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    tag: "Rounding",
+    text: "You want to round a number to the nearest integer. Which method should you use?",
+    code: `<span class="cm">// Expected: 4 → 4, 4.5 → 5, 4.4 → 4</span>
+Math.__?__(4.6)`,
+    options: ["Math.round()", "Math.floor()", "Math.ceil()", "Math.trunc()"],
+    answer: 0,
+    explanation: "<strong>Math.round()</strong> rounds to the nearest integer — up at .5 or above, down below .5."
+  },
+  {
+    tag: "Rounding",
+    text: "You need to always round DOWN to the nearest integer (floor), regardless of the decimal.",
+    code: `<span class="cm">// Expected: 4.9 → 4, -1.1 → -2</span>
+Math.__?__(4.9)`,
+    options: ["Math.round()", "Math.floor()", "Math.trunc()", "Math.ceil()"],
+    answer: 1,
+    explanation: "<strong>Math.floor()</strong> always rounds toward negative infinity. Note: <strong>Math.trunc()</strong> would give -1 for -1.1, but floor gives -2."
+  },
+  {
+    tag: "Rounding",
+    text: "You always want to round UP to the nearest integer, even for 4.1.",
+    code: `<span class="cm">// Expected: 4.1 → 5, -4.9 → -4</span>
+Math.__?__(4.1)`,
+    options: ["Math.round()", "Math.floor()", "Math.ceil()", "Math.abs()"],
+    answer: 2,
+    explanation: "<strong>Math.ceil()</strong> always rounds toward positive infinity."
+  },
+  {
+    tag: "Rounding",
+    text: "You want to remove the decimal part and keep only the integer portion, treating positive and negative the same way.",
+    code: `<span class="cm">// Expected: 4.9 → 4, -4.9 → -4</span>
+Math.__?__(4.9)`,
+    options: ["Math.floor()", "Math.round()", "Math.trunc()", "parseInt()"],
+    answer: 2,
+    explanation: "<strong>Math.trunc()</strong> removes the fractional digits (truncates toward zero). Unlike floor, it gives -4 for -4.9 (not -5)."
+  },
+  {
+    tag: "Formatting",
+    text: "You need to display a price with exactly 2 decimal places as a string.",
+    code: `<span class="cm">// Expected: 3.1 → "3.10", 3.145 → "3.15"</span>
+(<span class="num">3.1</span>).__?__(<span class="num">2</span>)`,
+    options: ["toPrecision(2)", "toFixed(2)", "toString(2)", "toLocaleString()"],
+    answer: 1,
+    explanation: "<strong>toFixed(n)</strong> formats a number with n decimal places and returns a string. It also rounds the last digit."
+  },
+  {
+    tag: "Formatting",
+    text: "You need a number to have exactly 4 significant digits total (not just decimal places).",
+    code: `<span class="cm">// Expected: 123.456 → "123.5", 0.000123 → "0.0001230"</span>
+(<span class="num">123.456</span>).__?__(<span class="num">4</span>)`,
+    options: ["toFixed(4)", "toPrecision(4)", "toExponential(4)", "Math.round()"],
+    answer: 1,
+    explanation: "<strong>toPrecision(n)</strong> formats to n <em>significant</em> digits total, regardless of where the decimal falls."
+  },
+  {
+    tag: "Formatting",
+    text: "You want to display a large number formatted for the user's locale (e.g., with commas like 1,000,000).",
+    code: `<span class="cm">// Expected: 1000000 → "1,000,000" (en-US)</span>
+(<span class="num">1000000</span>).__?__(<span class="str">'en-US'</span>)`,
+    options: ["toLocaleString()", "toFixed()", "toString()", "toPrecision()"],
+    answer: 0,
+    explanation: "<strong>toLocaleString(locale)</strong> formats a number using locale-specific separators, currency symbols, etc."
+  },
+  {
+    tag: "Formatting",
+    text: "You need to convert a number to its binary string representation.",
+    code: `<span class="cm">// Expected: 10 → "1010"</span>
+(<span class="num">10</span>).__?__(<span class="num">2</span>)`,
+    options: ["toBinary()", "toFixed(2)", "toString(2)", "toExponential(2)"],
+    answer: 2,
+    explanation: "<strong>toString(radix)</strong> converts a number to a string in the given base. Base 2 = binary, base 16 = hex."
+  },
+  {
+    tag: "Parsing",
+    text: "You receive a string '42.5px' from the DOM and need to extract just the number.",
+    code: `<span class="cm">// Expected: '42.5px' → 42.5</span>
+__?__(<span class="str">'42.5px'</span>)`,
+    options: ["parseInt('42.5px')", "parseFloat('42.5px')", "Number('42.5px')", "+('42.5px')"],
+    answer: 1,
+    explanation: "<strong>parseFloat()</strong> parses a string and returns the floating-point number. It stops at the first non-numeric character after digits, giving 42.5."
+  },
+  {
+    tag: "Parsing",
+    text: "You need only the integer part of a string like '100px', ignoring decimals.",
+    code: `<span class="cm">// Expected: '100.9px' → 100</span>
+__?__(<span class="str">'100.9px'</span>)`,
+    options: ["parseFloat('100.9px')", "parseInt('100.9px')", "Number('100.9px')", "Math.trunc('100.9px')"],
+    answer: 1,
+    explanation: "<strong>parseInt()</strong> parses a string as an integer, stopping at the first non-digit. It ignores decimals and trailing text."
+  },
+  {
+    tag: "Parsing",
+    text: "You want to convert a clean numeric string to a number, and get NaN if the string isn't purely numeric.",
+    code: `<span class="cm">// '42' → 42, '42px' → NaN, '' → 0</span>
+__?__(<span class="str">'42'</span>)`,
+    options: ["parseInt('42')", "parseFloat('42')", "Number('42')", "Math.abs('42')"],
+    answer: 2,
+    explanation: "<strong>Number()</strong> strictly converts strings. If the string has non-numeric characters (like '42px'), it returns NaN. parseInt would return 42 for '42px'."
+  },
+  {
+    tag: "Validation",
+    text: "You want to check if a value is the special NaN value.",
+    code: `<span class="cm">// Should return true only for NaN</span>
+__?__(NaN)    <span class="cm">// true</span>
+__?__(<span class="num">5</span>)      <span class="cm">// false</span>`,
+    options: ["isNaN()", "Number.isNaN()", "typeof NaN", "Number.isFinite()"],
+    answer: 1,
+    explanation: "<strong>Number.isNaN()</strong> only returns true for actual NaN values. The global <strong>isNaN()</strong> also coerces its argument first (isNaN('hello') → true), which is often a bug."
+  },
+  {
+    tag: "Validation",
+    text: "You want to check if a value is a finite number (not Infinity, -Infinity, or NaN).",
+    code: `<span class="cm">// Infinity → false, NaN → false, 42 → true</span>
+Number.__?__(Infinity)  <span class="cm">// false</span>
+Number.__?__(<span class="num">42</span>)        <span class="cm">// true</span>`,
+    options: ["isNaN()", "isInteger()", "isFinite()", "isSafeInteger()"],
+    answer: 2,
+    explanation: "<strong>Number.isFinite()</strong> returns true only if the value is a finite number (not ±Infinity and not NaN)."
+  },
+  {
+    tag: "Validation",
+    text: "You need to verify a number has no fractional part (is a whole number).",
+    code: `<span class="cm">// 4 → true, 4.0 → true, 4.1 → false</span>
+Number.__?__(<span class="num">4.1</span>)`,
+    options: ["isFinite(4.1)", "isNaN(4.1)", "isInteger(4.1)", "isSafeInteger(4.1)"],
+    answer: 2,
+    explanation: "<strong>Number.isInteger()</strong> checks if a value is an integer. Note: 4.0 === 4 in JS, so it returns true for 4.0."
+  },
+  {
+    tag: "Validation",
+    text: "You're working with very large integers and need to ensure they can be represented precisely in JS.",
+    code: `<span class="cm">// Number.MAX_SAFE_INTEGER = 2^53 - 1</span>
+Number.__?__(9007199254740991)  <span class="cm">// true</span>
+Number.__?__(9007199254740992)  <span class="cm">// false</span>`,
+    options: ["isFinite()", "isInteger()", "isNaN()", "isSafeInteger()"],
+    answer: 3,
+    explanation: "<strong>Number.isSafeInteger()</strong> checks if the number is between -(2^53-1) and (2^53-1), where integer arithmetic is exact."
+  },
+  {
+    tag: "Math",
+    text: "You need the absolute (positive) value of a number.",
+    code: `<span class="cm">// -5 → 5, 5 → 5</span>
+Math.__?__(-<span class="num">5</span>)`,
+    options: ["Math.floor()", "Math.trunc()", "Math.abs()", "Math.sign()"],
+    answer: 2,
+    explanation: "<strong>Math.abs()</strong> returns the absolute value — always non-negative."
+  },
+  {
+    tag: "Math",
+    text: "You want to know whether a number is positive, negative, or zero (returns 1, -1, or 0).",
+    code: `<span class="cm">// -5 → -1, 0 → 0, 42 → 1</span>
+Math.__?__(-<span class="num">5</span>)`,
+    options: ["Math.abs()", "Math.sign()", "Math.trunc()", "Math.floor()"],
+    answer: 1,
+    explanation: "<strong>Math.sign()</strong> returns -1, 0, or 1 indicating the sign of the number."
+  },
+  {
+    tag: "Math",
+    text: "You need to find the largest number from a list of values.",
+    code: `<span class="cm">// Expected: 7</span>
+Math.__?__(<span class="num">3</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">5</span>)`,
+    options: ["Math.ceil()", "Math.max()", "Math.abs()", "Math.round()"],
+    answer: 1,
+    explanation: "<strong>Math.max(...args)</strong> returns the largest value. Use with spread for arrays: Math.max(...array)."
+  },
+  {
+    tag: "Math",
+    text: "You need to raise a base number to an exponent (power).",
+    code: `<span class="cm">// 2^10 → 1024</span>
+Math.__?__(<span class="num">2</span>, <span class="num">10</span>)`,
+    options: ["Math.multiply(2, 10)", "Math.exp(10)", "Math.pow(2, 10)", "Math.log(2, 10)"],
+    answer: 2,
+    explanation: "<strong>Math.pow(base, exponent)</strong> raises base to the exponent. ES6+ alternative: the <strong>**</strong> operator (2 ** 10)."
+  },
+  {
+    tag: "Math",
+    text: "You need the square root of a number.",
+    code: `<span class="cm">// 16 → 4, 2 → 1.414...</span>
+Math.__?__(<span class="num">16</span>)`,
+    options: ["Math.cbrt()", "Math.pow(n, 2)", "Math.sqrt()", "Math.log()"],
+    answer: 2,
+    explanation: "<strong>Math.sqrt()</strong> returns the square root. For other roots: Math.cbrt() for cube root, or Math.pow(n, 1/k) for kth root."
+  },
+  {
+    tag: "Math",
+    text: "You need to generate a random decimal number between 0 (inclusive) and 1 (exclusive).",
+    code: `<span class="cm">// Returns e.g. 0.7341..., 0.1192...</span>
+Math.__?__()`,
+    options: ["Math.random()", "Math.rand()", "Math.floor(Math.random())", "Math.round(Math.random())"],
+    answer: 0,
+    explanation: "<strong>Math.random()</strong> returns a pseudo-random float in [0, 1). To get a range: Math.random() * (max - min) + min."
+  },
+  {
+    tag: "Math",
+    text: "You want a random integer between 1 and 10 (inclusive).",
+    code: `<span class="cm">// Should produce integers: 1, 2, 3 ... 10</span>
+Math.__?__(Math.random() * <span class="num">10</span>) + <span class="num">1</span>`,
+    options: ["Math.round()", "Math.ceil()", "Math.floor()", "Math.trunc()"],
+    answer: 2,
+    explanation: "<strong>Math.floor(Math.random() * 10) + 1</strong> is the standard pattern. floor(random * N) gives [0, N-1], then +1 shifts to [1, N]."
+  },
+  {
+    tag: "Math",
+    text: "You need Euler's number (e) raised to a given power.",
+    code: `<span class="cm">// e^1 → 2.718..., e^0 → 1</span>
+Math.__?__(<span class="num">1</span>)`,
+    options: ["Math.pow()", "Math.log()", "Math.exp()", "Math.sqrt()"],
+    answer: 2,
+    explanation: "<strong>Math.exp(x)</strong> returns e^x. It's the inverse of Math.log()."
+  },
+  {
+    tag: "Math",
+    text: "You need the natural logarithm (base e) of a number.",
+    code: `<span class="cm">// Math.log(Math.E) → 1</span>
+Math.__?__(Math.E)`,
+    options: ["Math.exp()", "Math.log()", "Math.log2()", "Math.log10()"],
+    answer: 1,
+    explanation: "<strong>Math.log(x)</strong> returns the natural log (ln). For base-2: Math.log2(). For base-10: Math.log10()."
+  },
+  {
+    tag: "Math",
+    text: "You need the minimum value from an array of numbers.",
+    code: `<span class="cm">// [3, 1, 4, 1, 5] → 1</span>
+Math.__?__(...[<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>])`,
+    options: ["Math.floor()", "Math.min()", "Math.abs()", "Math.trunc()"],
+    answer: 1,
+    explanation: "<strong>Math.min(...args)</strong> returns the smallest value. Spread an array to pass its elements as arguments."
+  },
+  {
+    tag: "Number Object",
+    text: "You want the maximum safe integer value available in JavaScript.",
+    code: `<span class="cm">// Should be 9007199254740991 (2^53 - 1)</span>
+Number.__?__`,
+    options: ["Number.MAX_VALUE", "Number.MAX_SAFE_INTEGER", "Number.POSITIVE_INFINITY", "Number.EPSILON"],
+    answer: 1,
+    explanation: "<strong>Number.MAX_SAFE_INTEGER</strong> is 2^53-1 (9007199254740991), the largest integer that can be exactly represented. MAX_VALUE is the largest finite float."
+  },
+  {
+    tag: "Number Object",
+    text: "You need to check if a floating-point result is 'close enough' to zero (handle float precision issues).",
+    code: `<span class="cm">// 0.1 + 0.2 - 0.3 ≈ 5.55e-17 (not exactly 0)</span>
+Math.abs(<span class="num">0.1</span> + <span class="num">0.2</span> - <span class="num">0.3</span>) < Number.__?__`,
+    options: ["Number.EPSILON", "Number.MIN_VALUE", "Number.MIN_SAFE_INTEGER", "Number.MAX_SAFE_INTEGER"],
+    answer: 0,
+    explanation: "<strong>Number.EPSILON</strong> is the smallest difference between two representable floats (~2.22e-16). It's the standard threshold for floating-point equality checks."
+  },
+  {
+    tag: "Conversion",
+    text: "You receive a hexadecimal string '0xff' and need to convert it to a decimal integer.",
+    code: `<span class="cm">// '0xff' → 255, '0x1a' → 26</span>
+__?__(<span class="str">'0xff'</span>, <span class="num">16</span>)`,
+    options: ["Number('0xff')", "parseInt('0xff', 16)", "parseFloat('0xff')", "+'0xff'"],
+    answer: 1,
+    explanation: "<strong>parseInt(str, 16)</strong> parses the string as a base-16 (hex) number. Always pass the radix to avoid bugs with octal in older environments."
+  },
+  {
+    tag: "Exponential",
+    text: "You need to display a number in exponential (scientific) notation as a string.",
+    code: `<span class="cm">// 123456 → "1.23e+5" (2 decimal places)</span>
+(<span class="num">123456</span>).__?__(<span class="num">2</span>)`,
+    options: ["toFixed(2)", "toPrecision(2)", "toExponential(2)", "toString(10)"],
+    answer: 2,
+    explanation: "<strong>toExponential(fractionDigits)</strong> converts to exponential notation. The argument controls decimal digits in the coefficient."
+  },
+  {
+    tag: "Special Values",
+    text: "A divide-by-zero result occurs. What value does JavaScript assign, and how do you detect it?",
+    code: `<span class="cm">// What is 1 / 0 in JS, and how to detect?</span>
+<span class="kw">const</span> result = <span class="num">1</span> / <span class="num">0</span>
+Number.__?__(result)  <span class="cm">// should return false</span>`,
+    options: ["isNaN(result)", "isInteger(result)", "isSafeInteger(result)", "isFinite(result)"],
+    answer: 3,
+    explanation: "<strong>1/0</strong> is <strong>Infinity</strong> in JS (not an error). <strong>Number.isFinite()</strong> returns false for Infinity, making it the right check. isNaN would return false since Infinity is a valid number type."
+  }
+];
+
+let score = 0;
+let answered = 0;
+let answeredMap = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `card-${qi}`;
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const optionsHTML = q.options.map((opt, oi) => `
+      <button class="option-btn" id="opt-${qi}-${oi}" onclick="selectAnswer(${qi}, ${oi})">
+        <span class="opt-letter">${letters[oi]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">Q${qi + 1}</span>
+        <span class="q-tag">${q.tag}</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <pre class="q-code">${q.code}</pre>
+      <div class="options">${optionsHTML}</div>
+      <div class="explanation" id="exp-${qi}">${q.explanation}</div>
+    `;
+    area.appendChild(card);
+  });
+}
+
+function selectAnswer(qi, oi) {
+  if (answeredMap[qi] !== undefined) return;
+  answeredMap[qi] = oi;
+  answered++;
+
+  const q = questions[qi];
+  const card = document.getElementById(`card-${qi}`);
+  const exp = document.getElementById(`exp-${qi}`);
+
+  // Disable all options
+  for (let i = 0; i < q.options.length; i++) {
+    const btn = document.getElementById(`opt-${qi}-${i}`);
+    btn.disabled = true;
+  }
+
+  const chosenBtn = document.getElementById(`opt-${qi}-${oi}`);
+  const correctBtn = document.getElementById(`opt-${qi}-${q.answer}`);
+
+  if (oi === q.answer) {
+    chosenBtn.classList.add('correct');
+    card.classList.add('answered-correct');
+    score++;
+  } else {
+    chosenBtn.classList.add('wrong');
+    correctBtn.classList.add('reveal-correct');
+    card.classList.add('answered-wrong');
+  }
+
+  exp.classList.add('show');
+  updateProgress();
+
+  if (answered === questions.length) {
+    setTimeout(showResults, 600);
+  }
+}
+
+function updateProgress() {
+  const pct = (answered / questions.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${answered} / ${questions.length}`;
+  document.getElementById('scoreBadge').textContent = `Score: ${score}`;
+}
+
+function showResults() {
+  document.getElementById('quizArea').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const rs = document.getElementById('resultScreen');
+  rs.classList.add('show');
+
+  document.getElementById('resultCircle').style.setProperty('--pct', `${pct}%`);
+  document.getElementById('resultPct').textContent = `${pct}%`;
+  document.getElementById('rCorrect').textContent = score;
+  document.getElementById('rWrong').textContent = questions.length - score;
+  document.getElementById('rPct').textContent = pct + '%';
+
+  let title, sub;
+  if (pct === 100) { title = '🏆 Perfect Score!'; sub = 'You\'ve mastered JS number methods!'; }
+  else if (pct >= 80) { title = '🎉 Great Work!'; sub = 'You have a solid grasp of number methods.'; }
+  else if (pct >= 60) { title = '📈 Good Progress'; sub = 'Review the explanations above to solidify the rest.'; }
+  else { title = '💪 Keep Practicing'; sub = 'Go back through the explanations — you\'ll get there!'; }
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+}
+
+function restartQuiz() {
+  score = 0;
+  answered = 0;
+  answeredMap = {};
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('quizArea').style.display = '';
+  document.querySelector('.progress-wrap').style.display = '';
+  updateProgress();
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+updateProgress();
+</script>
+</body>
+</html>

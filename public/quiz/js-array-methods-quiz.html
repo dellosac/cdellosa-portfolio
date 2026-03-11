@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Array Methods Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #252a3a;
+    --accent: #00e5ff;
+    --accent2: #7c6af7;
+    --green: #00e5a0;
+    --red: #ff4d6a;
+    --yellow: #ffd166;
+    --text: #e2e8f0;
+    --muted: #6b7590;
+    --code-bg: #0a0c10;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(124,106,247,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCREENS */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
+
+  /* ── START SCREEN ── */
+  #start-screen {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    gap: 32px;
+  }
+
+  .logo-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    padding: 6px 14px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: fadeSlideIn 0.6s ease both;
+  }
+
+  .start-title {
+    font-size: clamp(36px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    animation: fadeSlideIn 0.7s ease 0.1s both;
+  }
+
+  .start-title span {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .start-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    animation: fadeSlideIn 0.7s ease 0.2s both;
+  }
+
+  .method-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 560px;
+    animation: fadeSlideIn 0.7s ease 0.3s both;
+  }
+
+  .pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  .pill.hot { border-color: rgba(0,229,255,0.3); color: var(--accent); background: rgba(0,229,255,0.06); }
+
+  .stats-row {
+    display: flex;
+    gap: 32px;
+    animation: fadeSlideIn 0.7s ease 0.35s both;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .btn-start {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 16px 48px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #0d0f12;
+    letter-spacing: 1px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 32px rgba(0,229,255,0.2);
+    animation: fadeSlideIn 0.7s ease 0.4s both;
+    text-transform: uppercase;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 48px rgba(0,229,255,0.35);
+  }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz-screen {
+    min-height: 100vh;
+    flex-direction: column;
+    padding: 24px 20px 40px;
+    align-items: center;
+  }
+
+  .quiz-header {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+
+  .q-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .q-counter span { color: var(--accent); font-weight: 600; }
+
+  .score-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    max-width: 760px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .question-card {
+    width: 100%;
+    max-width: 760px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    animation: cardIn 0.35s cubic-bezier(.4,0,.2,1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-size: clamp(15px, 2.5vw, 17px);
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a9b1d6;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .code-block .kw   { color: #7c6af7; }
+  .code-block .fn   { color: #00e5ff; }
+  .code-block .str  { color: #9ece6a; }
+  .code-block .num  { color: #ffd166; }
+  .code-block .cmt  { color: #565f89; font-style: italic; }
+  .code-block .arr  { color: #e0af68; }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 560px) {
+    .options-grid { grid-template-columns: 1fr; }
+    .question-card { padding: 24px 18px; }
+  }
+
+  .option-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.5;
+  }
+
+  .option-btn:not(.answered):hover {
+    border-color: var(--accent2);
+    background: rgba(124,106,247,0.1);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(0,229,160,0.08);
+  }
+
+  .option-btn.correct .opt-letter {
+    background: var(--green);
+    color: #0d0f12;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(255,77,106,0.08);
+  }
+
+  .option-btn.wrong .opt-letter {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .option-btn.revealed {
+    border-color: rgba(0,229,160,0.4);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .feedback-bar {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback-bar.show { display: block; animation: fadeSlideIn 0.3s ease both; }
+  .feedback-bar.correct-fb { background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.25); color: var(--green); }
+  .feedback-bar.wrong-fb   { background: rgba(255,77,106,0.08); border: 1px solid rgba(255,77,106,0.25); color: #ff8096; }
+
+  .feedback-bar strong { font-family: 'JetBrains Mono', monospace; }
+
+  .btn-next {
+    margin-top: 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 36px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #0d0f12;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: transform 0.15s, opacity 0.15s;
+    display: none;
+  }
+
+  .btn-next.show { display: inline-block; animation: fadeSlideIn 0.3s ease both; }
+  .btn-next:hover { transform: translateY(-1px); opacity: 0.9; }
+
+  /* ── RESULTS SCREEN ── */
+  #results-screen {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    gap: 28px;
+  }
+
+  .result-emoji { font-size: 64px; animation: popIn 0.5s cubic-bezier(.175,.885,.32,1.275) both; }
+
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .result-title {
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 800;
+    animation: fadeSlideIn 0.5s ease 0.15s both;
+  }
+
+  .result-score {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fadeSlideIn 0.5s ease 0.25s both;
+    line-height: 1;
+  }
+
+  .result-sub {
+    font-size: 16px;
+    color: var(--muted);
+    animation: fadeSlideIn 0.5s ease 0.3s both;
+  }
+
+  .breakdown {
+    display: flex;
+    gap: 24px;
+    animation: fadeSlideIn 0.5s ease 0.35s both;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .breakdown-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 28px;
+    min-width: 100px;
+  }
+
+  .breakdown-num { font-size: 28px; font-weight: 800; }
+  .breakdown-label { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .c-green { color: var(--green); }
+  .c-red   { color: var(--red); }
+  .c-yellow{ color: var(--yellow); }
+
+  .review-section {
+    width: 100%;
+    max-width: 700px;
+    animation: fadeSlideIn 0.5s ease 0.4s both;
+  }
+
+  .review-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    text-align: left;
+  }
+
+  .review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .review-list::-webkit-scrollbar { width: 4px; }
+  .review-list::-webkit-scrollbar-track { background: var(--border); border-radius: 2px; }
+  .review-list::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 2px; }
+
+  .review-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .review-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .review-dot.ok  { background: var(--green); }
+  .review-dot.bad { background: var(--red); }
+
+  .review-q { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .review-a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); margin-top: 2px; }
+
+  .btn-retry {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 44px;
+    border-radius: 8px;
+    border: 1px solid var(--accent2);
+    cursor: pointer;
+    background: transparent;
+    color: var(--accent2);
+    letter-spacing: 1px;
+    transition: background 0.15s, color 0.15s;
+    text-transform: uppercase;
+    animation: fadeSlideIn 0.5s ease 0.45s both;
+  }
+
+  .btn-retry:hover { background: var(--accent2); color: #fff; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ START SCREEN ══════════════ -->
+<div id="start-screen" class="screen active">
+  <div class="logo-tag">// array_methods.quiz.js</div>
+  <h1 class="start-title">JavaScript<br><span>Array Methods</span></h1>
+  <p class="start-sub">30 scenario-based questions designed to sharpen your instinct for picking the <em>right</em> array method every time.</p>
+  <div class="method-pills">
+    <span class="pill hot">.map()</span>
+    <span class="pill hot">.filter()</span>
+    <span class="pill hot">.reduce()</span>
+    <span class="pill">.find()</span>
+    <span class="pill">.findIndex()</span>
+    <span class="pill hot">.some()</span>
+    <span class="pill">.every()</span>
+    <span class="pill">.flat()</span>
+    <span class="pill hot">.flatMap()</span>
+    <span class="pill">.includes()</span>
+    <span class="pill">.indexOf()</span>
+    <span class="pill hot">.forEach()</span>
+    <span class="pill">.splice()</span>
+    <span class="pill">.slice()</span>
+    <span class="pill">.sort()</span>
+    <span class="pill">.fill()</span>
+    <span class="pill">.from()</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">30</div><div class="stat-label">Questions</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Options each</div></div>
+    <div class="stat"><div class="stat-num">~8</div><div class="stat-label">Minutes</div></div>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<!-- ══════════════ QUIZ SCREEN ══════════════ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="q-counter">Question <span id="q-num">1</span> of 30</div>
+    <div class="score-badge" id="score-badge">Score: 0 / 0</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="question-card" id="question-card">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- ══════════════ RESULTS SCREEN ══════════════ -->
+<div id="results-screen" class="screen">
+  <!-- injected by JS -->
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    category: "Transform",
+    text: "You have an array of user objects and need a new array containing only their names. Which method is best?",
+    code: `<span class="kw">const</span> users = [
+  { id: <span class="num">1</span>, name: <span class="str">'Alice'</span> },
+  { id: <span class="num">2</span>, name: <span class="str">'Bob'</span> }
+];
+<span class="cmt">// → ['Alice', 'Bob']</span>`,
+    options: [".forEach()", ".map()", ".filter()", ".reduce()"],
+    answer: 1,
+    explanation: "<strong>.map()</strong> transforms every element and returns a new array of the same length — perfect for extracting a field from each object."
+  },
+  {
+    category: "Filter",
+    text: "You want only the products with a price under $20. Which method returns a new filtered array?",
+    code: `<span class="kw">const</span> products = [
+  { name: <span class="str">'Pen'</span>, price: <span class="num">5</span> },
+  { name: <span class="str">'Notebook'</span>, price: <span class="num">25</span> }
+];
+<span class="cmt">// → [{ name: 'Pen', price: 5 }]</span>`,
+    options: [".map()", ".find()", ".filter()", ".some()"],
+    answer: 2,
+    explanation: "<strong>.filter()</strong> keeps only elements where the callback returns true, giving you a new (potentially shorter) array."
+  },
+  {
+    category: "Search",
+    text: "You need the first user object whose id equals 3. Which method returns the element itself (or undefined)?",
+    code: `<span class="kw">const</span> users = [
+  { id: <span class="num">1</span>, name: <span class="str">'Alice'</span> },
+  { id: <span class="num">3</span>, name: <span class="str">'Carol'</span> }
+];
+<span class="cmt">// → { id: 3, name: 'Carol' }</span>`,
+    options: [".filter()", ".findIndex()", ".find()", ".indexOf()"],
+    answer: 2,
+    explanation: "<strong>.find()</strong> returns the first element that satisfies the test. Use <strong>.findIndex()</strong> if you need the position instead."
+  },
+  {
+    category: "Aggregate",
+    text: "You need to sum all numbers in an array into a single value. Which method is designed for this?",
+    code: `<span class="kw">const</span> nums = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>];
+<span class="cmt">// → 60</span>`,
+    options: [".map()", ".forEach()", ".filter()", ".reduce()"],
+    answer: 3,
+    explanation: "<strong>.reduce()</strong> accumulates all elements into a single output value — ideal for sums, products, or building objects."
+  },
+  {
+    category: "Check",
+    text: "You want to know if AT LEAST ONE item in stock is out-of-stock. Which method is best?",
+    code: `<span class="kw">const</span> items = [
+  { name: <span class="str">'A'</span>, stock: <span class="num">5</span> },
+  { name: <span class="str">'B'</span>, stock: <span class="num">0</span> }
+];
+<span class="cmt">// → true</span>`,
+    options: [".every()", ".find()", ".some()", ".includes()"],
+    answer: 2,
+    explanation: "<strong>.some()</strong> returns true as soon as one element passes the test, short-circuiting the rest."
+  },
+  {
+    category: "Check",
+    text: "You need to verify that ALL scores in an array are passing (≥ 60). Which method returns a boolean?",
+    code: `<span class="kw">const</span> scores = [<span class="num">72</span>, <span class="num">85</span>, <span class="num">91</span>];
+<span class="cmt">// → true</span>`,
+    options: [".some()", ".every()", ".filter()", ".reduce()"],
+    answer: 1,
+    explanation: "<strong>.every()</strong> returns true only if ALL elements pass the test — it short-circuits on the first failure."
+  },
+  {
+    category: "Search",
+    text: "You have a flat array of primitives and need the INDEX of the first occurrence of the value 'banana'.",
+    code: `<span class="kw">const</span> fruits = [<span class="str">'apple'</span>, <span class="str">'banana'</span>, <span class="str">'cherry'</span>];
+<span class="cmt">// → 1</span>`,
+    options: [".find()", ".findIndex()", ".indexOf()", ".includes()"],
+    answer: 2,
+    explanation: "<strong>.indexOf()</strong> returns the index of a primitive value. Use <strong>.findIndex()</strong> with a callback when matching objects."
+  },
+  {
+    category: "Search",
+    text: "You just need a yes/no answer: does this array include the value 42?",
+    code: `<span class="kw">const</span> nums = [<span class="num">7</span>, <span class="num">42</span>, <span class="num">99</span>];
+<span class="cmt">// → true</span>`,
+    options: [".indexOf()", ".find()", ".some()", ".includes()"],
+    answer: 3,
+    explanation: "<strong>.includes()</strong> is the clearest intent signal — it simply returns true or false. It also correctly handles NaN, unlike indexOf."
+  },
+  {
+    category: "Flatten",
+    text: "You have a nested array one level deep and want to flatten it into a single array.",
+    code: `<span class="kw">const</span> arr = [[<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>]];
+<span class="cmt">// → [1, 2, 3, 4]</span>`,
+    options: [".concat()", ".flat()", ".reduce()", ".flatMap()"],
+    answer: 1,
+    explanation: "<strong>.flat()</strong> flattens nested arrays. Default depth is 1; pass <code>Infinity</code> to flatten all depths."
+  },
+  {
+    category: "Flatten",
+    text: "You want to map each sentence to its words AND flatten the result in one step.",
+    code: `<span class="kw">const</span> sentences = [<span class="str">'hi there'</span>, <span class="str">'hello world'</span>];
+<span class="cmt">// → ['hi','there','hello','world']</span>`,
+    options: [".map() + .flat()", ".flatMap()", ".reduce()", ".split()"],
+    answer: 1,
+    explanation: "<strong>.flatMap()</strong> is equivalent to <code>.map().flat(1)</code> but more efficient — perfect for mapping-then-flattening in one pass."
+  },
+  {
+    category: "Mutate",
+    text: "You need to remove 2 elements starting at index 1 and insert 'X' in their place (in-place mutation).",
+    code: `<span class="kw">const</span> arr = [<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>, <span class="str">'d'</span>];
+arr.<span class="fn">???</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="str">'X'</span>);
+<span class="cmt">// arr → ['a', 'X', 'd']</span>`,
+    options: [".slice()", ".splice()", ".fill()", ".copyWithin()"],
+    answer: 1,
+    explanation: "<strong>.splice(start, deleteCount, ...items)</strong> mutates the original array by removing and/or inserting elements."
+  },
+  {
+    category: "Copy",
+    text: "You need a shallow copy of elements from index 1 to 3 WITHOUT mutating the original array.",
+    code: `<span class="kw">const</span> arr = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>];
+<span class="cmt">// → [20, 30]</span>`,
+    options: [".splice()", ".slice()", ".filter()", ".copyWithin()"],
+    answer: 1,
+    explanation: "<strong>.slice(start, end)</strong> returns a new array without mutating the original. The end index is exclusive."
+  },
+  {
+    category: "Sort",
+    text: "You want to sort an array of numbers in ascending order. What do you pass to .sort()?",
+    code: `<span class="kw">const</span> nums = [<span class="num">40</span>, <span class="num">1</span>, <span class="num">5</span>, <span class="num">200</span>];
+<span class="cmt">// → [1, 5, 40, 200]</span>`,
+    options: ["No callback needed", "(a,b) => a + b", "(a,b) => a - b", "(a,b) => b - a"],
+    answer: 2,
+    explanation: "<strong>(a, b) => a - b</strong> returns negative when a < b, so the sort puts smaller numbers first. Without a comparator, .sort() coerces to strings."
+  },
+  {
+    category: "Create",
+    text: "You want to create an array of 5 zeros. Which is the most idiomatic one-liner?",
+    code: `<span class="cmt">// → [0, 0, 0, 0, 0]</span>`,
+    options: ["new Array(5)", "Array(5).fill(0)", "Array.from({length:5})", "[...Array(5)]"],
+    answer: 1,
+    explanation: "<strong>Array(5).fill(0)</strong> creates the array and fills every slot with 0 in one chain. <code>new Array(5)</code> alone creates empty (non-iterable) slots."
+  },
+  {
+    category: "Create",
+    text: "You need to create [0, 1, 2, 3, 4] programmatically using the array length.",
+    code: `<span class="cmt">// → [0, 1, 2, 3, 4]</span>`,
+    options: [
+      "Array(5).fill(0)",
+      "Array.from({length:5}, (_,i) => i)",
+      "new Array(5).map((_,i) => i)",
+      "[...Array(5)].fill(0)"
+    ],
+    answer: 1,
+    explanation: "<strong>Array.from({length:5}, (_, i) => i)</strong> uses the map function argument to set each index as the value. <code>new Array(5).map()</code> doesn't work because the slots are empty/uninitialized."
+  },
+  {
+    category: "Side Effects",
+    text: "You need to log each element to the console. You don't need a return value. Which method fits?",
+    code: `<span class="kw">const</span> items = [<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>];
+<span class="cmt">// log each item</span>`,
+    options: [".map()", ".forEach()", ".reduce()", ".filter()"],
+    answer: 1,
+    explanation: "<strong>.forEach()</strong> is designed for side effects — it always returns undefined. Using .map() for side effects works but is misleading since it creates an unused array."
+  },
+  {
+    category: "Aggregate",
+    text: "You want to group an array of objects by a property into an object like { 'admin': [...], 'user': [...] }.",
+    code: `<span class="kw">const</span> people = [
+  { name: <span class="str">'Alice'</span>, role: <span class="str">'admin'</span> },
+  { name: <span class="str">'Bob'</span>, role: <span class="str">'user'</span> }
+];`,
+    options: [".filter()", ".map()", ".reduce()", ".find()"],
+    answer: 2,
+    explanation: "<strong>.reduce()</strong> can build any shape of output — including objects, maps, or nested structures — making it ideal for grouping."
+  },
+  {
+    category: "Transform",
+    text: "You want to double every number and then keep only values greater than 6.",
+    code: `<span class="kw">const</span> nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>];
+<span class="cmt">// → [8] (double 4 = 8 > 6)</span>`,
+    options: [
+      ".reduce() alone",
+      ".map() then .filter()",
+      ".filter() then .map()",
+      ".flatMap()"
+    ],
+    answer: 1,
+    explanation: "<strong>.map().filter()</strong> first transforms, then keeps matching results. Order matters: map first so filter sees the doubled values."
+  },
+  {
+    category: "Check",
+    text: "You need the index of the first object in an array where score > 90.",
+    code: `<span class="kw">const</span> results = [
+  { score: <span class="num">70</span> }, { score: <span class="num">95</span> }
+];
+<span class="cmt">// → 1</span>`,
+    options: [".indexOf()", ".find()", ".findIndex()", ".some()"],
+    answer: 2,
+    explanation: "<strong>.findIndex()</strong> returns the index of the first match. Use <strong>.find()</strong> if you need the element itself."
+  },
+  {
+    category: "Mutate",
+    text: "You want to fill slots 2–4 of an array with the value 7 in place.",
+    code: `<span class="kw">const</span> arr = [<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>];
+<span class="cmt">// → [0, 0, 7, 7, 7]  (indices 2,3,4)</span>`,
+    options: [".map()", ".splice()", ".fill()", ".copyWithin()"],
+    answer: 2,
+    explanation: "<strong>.fill(value, start, end)</strong> mutates the array, replacing slots from start (inclusive) to end (exclusive) with the given value."
+  },
+  {
+    category: "Aggregate",
+    text: "You want to find the maximum value in a numeric array without a loop.",
+    code: `<span class="kw">const</span> vals = [<span class="num">3</span>, <span class="num">8</span>, <span class="num">1</span>, <span class="num">6</span>];
+<span class="cmt">// → 8</span>`,
+    options: [
+      ".sort().pop()",
+      "Math.max(...vals)",
+      ".reduce((a,b) => a > b ? a : b)",
+      "Both B and C are correct"
+    ],
+    answer: 3,
+    explanation: "Both <strong>Math.max(...arr)</strong> and <strong>.reduce()</strong> work. The spread approach is clean for short arrays; reduce is safer for very large arrays (avoids stack limit)."
+  },
+  {
+    category: "Flatten",
+    text: "You have deeply nested arrays and want to fully flatten them regardless of depth.",
+    code: `<span class="kw">const</span> arr = [<span class="num">1</span>, [<span class="num">2</span>, [<span class="num">3</span>, [<span class="num">4</span>]]]];
+<span class="cmt">// → [1, 2, 3, 4]</span>`,
+    options: [
+      ".flat()",
+      ".flat(Infinity)",
+      ".flatMap(x => x)",
+      ".reduce((a,b) => a.concat(b))"
+    ],
+    answer: 1,
+    explanation: "<strong>.flat(Infinity)</strong> recursively flattens to any depth. <code>.flat()</code> with no argument only flattens one level."
+  },
+  {
+    category: "Sort",
+    text: "You want to sort strings alphabetically (case-sensitive). What comparator do you use?",
+    code: `<span class="kw">const</span> words = [<span class="str">'banana'</span>, <span class="str">'apple'</span>, <span class="str">'cherry'</span>];`,
+    options: [
+      "(a,b) => a - b",
+      "No callback (default .sort())",
+      "(a,b) => a.localeCompare(b)",
+      "(a,b) => a > b ? 1 : -1"
+    ],
+    answer: 1,
+    explanation: "Default <strong>.sort()</strong> (no callback) coerces to strings and sorts lexicographically — it works for basic ASCII strings. For locale-aware sorting, prefer <code>.localeCompare()</code>."
+  },
+  {
+    category: "Create",
+    text: "You want to convert a Set of unique values back into an array.",
+    code: `<span class="kw">const</span> mySet = <span class="kw">new</span> Set([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]);
+<span class="cmt">// → [1, 2, 3]</span>`,
+    options: [
+      "mySet.map(x => x)",
+      "[...mySet]  or  Array.from(mySet)",
+      "Array.of(mySet)",
+      "Object.values(mySet)"
+    ],
+    answer: 1,
+    explanation: "<strong>Array.from(iterable)</strong> and the <strong>spread syntax</strong> both convert any iterable (Set, Map, NodeList, etc.) into an array."
+  },
+  {
+    category: "Transform",
+    text: "You want to add a computed 'fullName' field to each object WITHOUT mutating the originals.",
+    code: `<span class="kw">const</span> users = [{ first: <span class="str">'Jane'</span>, last: <span class="str">'Doe'</span> }];
+<span class="cmt">// → [{ first:'Jane', last:'Doe', fullName:'Jane Doe' }]</span>`,
+    options: [
+      ".forEach() with mutation",
+      ".map() with spread",
+      ".reduce() into new array",
+      ".filter() with spread"
+    ],
+    answer: 1,
+    explanation: "<strong>.map(u => ({ ...u, fullName: `${u.first} ${u.last}` }))</strong> creates new objects via spread, returning a new array without touching the originals."
+  },
+  {
+    category: "Aggregate",
+    text: "You want to count how many items in an array match a condition (e.g., price > 10).",
+    code: `<span class="kw">const</span> prices = [<span class="num">5</span>, <span class="num">12</span>, <span class="num">8</span>, <span class="num">20</span>];
+<span class="cmt">// → 2</span>`,
+    options: [
+      ".filter(p => p > 10).length",
+      ".reduce((acc, p) => p > 10 ? acc+1 : acc, 0)",
+      ".some(p => p > 10)",
+      "Both A and B are correct"
+    ],
+    answer: 3,
+    explanation: "Both <strong>.filter().length</strong> (simple, readable) and <strong>.reduce()</strong> (single pass) work correctly. Either is fine; reduce avoids creating an intermediate array."
+  },
+  {
+    category: "Mutate",
+    text: "You want to remove the last element from an array and use that element.",
+    code: `<span class="kw">const</span> stack = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="kw">const</span> last = stack.<span class="fn">???</span>();
+<span class="cmt">// last → 3, stack → [1, 2]</span>`,
+    options: [".splice(-1)", ".pop()", ".slice(-1)", ".shift()"],
+    answer: 1,
+    explanation: "<strong>.pop()</strong> removes and returns the last element, mutating the array. <strong>.shift()</strong> does the same for the first element."
+  },
+  {
+    category: "Sort",
+    text: "You want to sort an array of objects by a 'date' property (newest first).",
+    code: `<span class="kw">const</span> posts = [
+  { title: <span class="str">'A'</span>, date: <span class="str">'2024-01-10'</span> },
+  { title: <span class="str">'B'</span>, date: <span class="str">'2024-03-05'</span> }
+];`,
+    options: [
+      "(a,b) => a.date - b.date",
+      "(a,b) => b.date.localeCompare(a.date)",
+      "(a,b) => new Date(b.date) - new Date(a.date)",
+      "(a,b) => a.date > b.date ? 1 : -1"
+    ],
+    answer: 2,
+    explanation: "<strong>new Date(b.date) - new Date(a.date)</strong> subtracts timestamps — negative means b is newer so it sorts first (descending). String comparison also works for ISO dates but is less explicit."
+  },
+  {
+    category: "Transform",
+    text: "You want to remove duplicate values from an array.",
+    code: `<span class="kw">const</span> arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">1</span>];
+<span class="cmt">// → [1, 2, 3]</span>`,
+    options: [
+      ".filter((v,i,a) => a.indexOf(v) === i)",
+      "[...new Set(arr)]",
+      ".reduce() with an object map",
+      "All of the above work"
+    ],
+    answer: 3,
+    explanation: "All three work. <strong>[...new Set(arr)]</strong> is the most concise and idiomatic modern approach."
+  },
+  {
+    category: "Check",
+    text: "You need to check if an array is empty before processing it.",
+    code: `<span class="kw">const</span> arr = [];
+<span class="cmt">// safe guard before map/reduce</span>`,
+    options: [
+      "arr.length === 0",
+      "!arr.some(() => true)",
+      "arr.every(() => false)",
+      "arr.find(() => true) === undefined"
+    ],
+    answer: 0,
+    explanation: "<strong>arr.length === 0</strong> is the simplest and most readable way to check for an empty array. The other options technically work but are overcomplicated."
+  },
+  {
+    category: "Aggregate",
+    text: "You want to merge/flatten an array of arrays returned from a mapping operation.",
+    code: `<span class="kw">const</span> data = [{ tags: [<span class="str">'js'</span>, <span class="str">'web'</span>] }, { tags: [<span class="str">'css'</span>] }];
+<span class="cmt">// → ['js', 'web', 'css']</span>`,
+    options: [
+      ".map(d => d.tags).flat()",
+      ".flatMap(d => d.tags)",
+      ".reduce((a, d) => [...a, ...d.tags], [])",
+      "All of the above"
+    ],
+    answer: 3,
+    explanation: "All three produce the same result. <strong>.flatMap(d => d.tags)</strong> is the most concise. <strong>.map().flat()</strong> is slightly more readable when the mapping step is complex."
+  }
+];
+
+// ── State ──────────────────────────────
+let currentQ = 0;
+let score = 0;
+let answered = 0;
+let userAnswers = [];
+let shuffledQuestions = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  shuffledQuestions = shuffle(QUESTIONS);
+  currentQ = 0; score = 0; answered = 0; userAnswers = [];
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = shuffledQuestions[currentQ];
+  const pct = (currentQ / shuffledQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('score-badge').textContent = `Score: ${score} / ${answered}`;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const card = document.getElementById('question-card');
+
+  card.innerHTML = `
+    <div class="q-category">${q.category}</div>
+    <div class="q-text">${q.text}</div>
+    ${q.code ? `<div class="code-block">${q.code}</div>` : ''}
+    <div class="options-grid" id="options-grid">
+      ${q.options.map((opt, i) => `
+        <button class="option-btn" id="opt-${i}" onclick="selectAnswer(${i})">
+          <span class="opt-letter">${letters[i]}</span>
+          <span>${opt}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback-bar" id="feedback-bar"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+      ${currentQ < shuffledQuestions.length - 1 ? 'Next Question →' : 'See Results →'}
+    </button>
+  `;
+
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+}
+
+function selectAnswer(selected) {
+  const q = shuffledQuestions[currentQ];
+  const isCorrect = selected === q.answer;
+  answered++;
+  if (isCorrect) score++;
+  userAnswers.push({ q, selected, isCorrect });
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.classList.add('answered'));
+
+  btns[selected].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.answer].classList.add('revealed');
+
+  const fb = document.getElementById('feedback-bar');
+  fb.innerHTML = isCorrect
+    ? `✓ Correct! ${q.explanation}`
+    : `✗ Not quite. ${q.explanation}`;
+  fb.className = `feedback-bar show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+
+  document.getElementById('btn-next').classList.add('show');
+  document.getElementById('score-badge').textContent = `Score: ${score} / ${answered}`;
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= shuffledQuestions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  showScreen('results-screen');
+  const pct = Math.round((score / shuffledQuestions.length) * 100);
+  let emoji, title;
+  if (pct === 100) { emoji = '🏆'; title = 'Perfect Score!'; }
+  else if (pct >= 80) { emoji = '🎯'; title = 'Sharp Instincts!'; }
+  else if (pct >= 60) { emoji = '📈'; title = 'Good Progress!'; }
+  else if (pct >= 40) { emoji = '🔧'; title = 'Keep Practicing!'; }
+  else { emoji = '📚'; title = 'Back to the Docs!'; }
+
+  const wrong = userAnswers.filter(a => !a.isCorrect);
+
+  const screen = document.getElementById('results-screen');
+  screen.innerHTML = `
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-title">${title}</div>
+    <div class="result-score">${pct}%</div>
+    <div class="result-sub">${score} correct out of ${shuffledQuestions.length} questions</div>
+    <div class="breakdown">
+      <div class="breakdown-item"><div class="breakdown-num c-green">${score}</div><div class="breakdown-label">Correct</div></div>
+      <div class="breakdown-item"><div class="breakdown-num c-red">${shuffledQuestions.length - score}</div><div class="breakdown-label">Wrong</div></div>
+      <div class="breakdown-item"><div class="breakdown-num c-yellow">${pct}%</div><div class="breakdown-label">Score</div></div>
+    </div>
+    ${wrong.length > 0 ? `
+    <div class="review-section">
+      <div class="review-title">Review — Missed Questions</div>
+      <div class="review-list">
+        ${wrong.map(a => `
+          <div class="review-item">
+            <div class="review-dot bad"></div>
+            <div>
+              <div>${a.q.text.substring(0,80)}${a.q.text.length > 80 ? '...' : ''}</div>
+              <div class="review-q">Your answer: <span style="color:var(--red)">${a.q.options[a.selected]}</span></div>
+              <div class="review-a">Correct: ${a.q.options[a.q.answer]}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : `<div style="color:var(--green);font-size:15px;animation:fadeSlideIn 0.5s ease 0.4s both">No missed questions — flawless! 🔥</div>`}
+    <button class="btn-retry" onclick="startQuiz()">Retry Quiz</button>
+  `;
+}
+</script>
+</body>
+</html>
