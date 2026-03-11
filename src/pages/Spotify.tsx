@@ -165,6 +165,7 @@ function HistoryTab() {
     const [snapshots, setSnapshots] = useState<Snapshot[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [selected, setSelected] = useState<number>(0);
+    const [snapshotsOpen, setSnapshotsOpen] = useState(false);
 
     useEffect(() => {
         fetch("/api/spotify/history")
@@ -189,8 +190,6 @@ function HistoryTab() {
                 No snapshots yet.
             </Typography>
         );
-
-    const [snapshotsOpen, setSnapshotsOpen] = useState(false);
 
     const snap = snapshots[selected];
 
