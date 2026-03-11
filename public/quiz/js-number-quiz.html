@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JS Number Methods Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #080b12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 64px;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #e8ecf4;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0 14px;
+    }
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 22px;
+      color: #f0f4ff;
+      letter-spacing: -1px;
+    }
+    .logo-accent { color: #f7c948; }
+    .header-title {
+      color: #6b7280;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .score-chip {
+      background: #00ff9d18;
+      border: 1px solid #00ff9d44;
+      color: #00ff9d;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    /* Progress */
+    .progress-bar {
+      width: 100%;
+      max-width: 640px;
+      height: 3px;
+      background: #1a1d2a;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4f8ef7, #00ff9d);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* Counter */
+    .counter {
+      width: 100%;
+      max-width: 640px;
+      margin-bottom: 16px;
+    }
+    .counter-num {
+      font-size: 42px;
+      font-weight: 900;
+      color: #f0f4ff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .counter-of {
+      font-size: 20px;
+      color: #3a3e52;
+      font-family: 'JetBrains Mono', monospace;
+      margin-left: 4px;
+    }
+
+    /* Card */
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: #0e1117;
+      border: 1px solid #1e2235;
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      box-shadow: 0 24px 64px #00000088;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .card.animating {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .question-text {
+      font-size: 17px;
+      font-weight: 600;
+      color: #e8ecf4;
+      line-height: 1.65;
+      margin-bottom: 24px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Options */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      background: #0e1117;
+      border: 1px solid #2a2d3a;
+      color: #c8ccd8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      transition: all 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    .option-btn:hover:not([disabled]) {
+      border-color: #4f8ef7;
+      color: #4f8ef7;
+      background: #4f8ef710;
+    }
+    .option-btn.correct {
+      background: #00ff9d15;
+      border: 1px solid #00ff9d;
+      color: #00ff9d;
+    }
+    .option-btn.wrong {
+      background: #ff4d6d15;
+      border: 1px solid #ff4d6d;
+      color: #ff4d6d;
+    }
+    .option-btn.selected {
+      background: #4f8ef715;
+      border: 1px solid #4f8ef7;
+      color: #4f8ef7;
+    }
+    .option-letter {
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: #ffffff10;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Explanation */
+    .explanation {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: #f7c94812;
+      border: 1px solid #f7c94830;
+      border-radius: 10px;
+      color: #c8ae72;
+      font-size: 13px;
+      line-height: 1.65;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .explanation-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* Next button */
+    .next-btn {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 640px;
+      padding: 16px;
+      background: linear-gradient(135deg, #4f8ef7, #00d4aa);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .next-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .next-btn:active { transform: translateY(0); }
+    .hidden { display: none; }
+
+    /* Result Screen */
+    #result-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 48px;
+      width: 100%;
+      max-width: 500px;
+    }
+    .result-card {
+      background: #0e1117;
+      border: 1px solid #1e2235;
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px #00000099;
+    }
+    .result-emoji { font-size: 64px; margin-bottom: 10px; }
+    .grade-label {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .score-big {
+      font-size: 80px;
+      font-weight: 900;
+      color: #f0f4ff;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+    .score-of { font-size: 40px; color: #3a3e52; }
+    .score-pct { color: #6b7280; font-size: 14px; margin-top: 8px; margin-bottom: 28px; }
+    .review-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .review-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .review-dot.ok { background: #00ff9d22; border: 1px solid #00ff9d55; color: #00ff9d; }
+    .review-dot.bad { background: #ff4d6d22; border: 1px solid #ff4d6d55; color: #ff4d6d; }
+    .restart-btn {
+      padding: 14px 40px;
+      background: linear-gradient(135deg, #4f8ef7, #00d4aa);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .restart-btn:hover { opacity: 0.9; }
+
+    @media (max-width: 480px) {
+      .card { padding: 22px 18px 20px; }
+      .question-text { font-size: 15px; }
+      .result-card { padding: 36px 24px; }
+      .score-big { font-size: 64px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Quiz Screen -->
+<div id="quiz-screen">
+  <div class="header">
+    <span class="logo">JS<span class="logo-accent">#</span></span>
+    <span class="header-title">Number Methods Quiz</span>
+    <span class="score-chip" id="score-display">0 pts</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="counter">
+    <span class="counter-num" id="counter-num">1</span>
+    <span class="counter-of" id="counter-of">/ 30</span>
+  </div>
+
+  <div class="card" id="card">
+    <div class="question-text" id="question-text"></div>
+    <div class="options" id="options"></div>
+    <div class="explanation hidden" id="explanation">
+      <span class="explanation-icon">💡</span>
+      <span id="explanation-text"></span>
+    </div>
+  </div>
+
+  <button class="next-btn hidden" id="next-btn">Next Question →</button>
+</div>
+
+<!-- Result Screen -->
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-emoji" id="result-emoji"></div>
+    <div class="grade-label" id="grade-label"></div>
+    <div class="score-big" id="score-big"></div>
+    <div class="score-pct" id="score-pct"></div>
+    <div class="review-grid" id="review-grid"></div>
+    <button class="restart-btn" onclick="restart()">Try Again</button>
+  </div>
+</div>
+
+<script>
+  const questions = [
+    { question: "What does Number.isInteger(4.0) return?", options: ["false", "true", "undefined", "NaN"], answer: 1, explanation: "4.0 is mathematically an integer, so Number.isInteger() returns true." },
+    { question: "What is the output of (1.005).toFixed(2)?", options: ['"1.01"', '"1.00"', '"1.005"', '"1.0"'], answer: 1, explanation: "Due to floating-point precision issues, (1.005).toFixed(2) returns '1.00', not '1.01'." },
+    { question: "What does Number.isNaN('NaN') return?", options: ["true", "false", "NaN", "TypeError"], answer: 1, explanation: "Number.isNaN() only returns true for the actual NaN value. Unlike global isNaN(), it doesn't coerce its argument." },
+    { question: "Which method converts a number to a string in base 16 (hex)?", options: ["toHex()", "toString(16)", "toBase(16)", "toHexString()"], answer: 1, explanation: "(255).toString(16) returns 'ff'. The toString() method accepts a radix (2–36)." },
+    { question: "What is Number.MAX_SAFE_INTEGER?", options: ["2^53", "2^53 - 1", "2^31 - 1", "2^32"], answer: 1, explanation: "Number.MAX_SAFE_INTEGER is 2^53 - 1 = 9007199254740991, the largest integer that can be represented exactly." },
+    { question: "What does parseFloat('3.14abc') return?", options: ["NaN", "3", "3.14", "Error"], answer: 2, explanation: "parseFloat parses until it encounters a non-numeric character, returning 3.14." },
+    { question: "What is the result of 0.1 + 0.2 === 0.3 in JavaScript?", options: ["true", "false", "NaN", "TypeError"], answer: 1, explanation: "Due to floating-point representation, 0.1 + 0.2 = 0.30000000000000004, so === 0.3 is false." },
+    { question: "What does Number.isFinite(Infinity) return?", options: ["true", "false", "NaN", "undefined"], answer: 1, explanation: "Infinity is not a finite number, so Number.isFinite(Infinity) returns false." },
+    { question: "What does (123.456).toPrecision(5) return?", options: ['"123.46"', '"123.4"', '"123.456"', '"12345"'], answer: 0, explanation: "toPrecision(5) formats to 5 significant digits total: '123.46'." },
+    { question: "What does parseInt('010', 10) return?", options: ["8", "10", "undefined", "NaN"], answer: 1, explanation: "parseInt('010', 10) parses in base 10, returning 10. Without the radix, older engines might parse as octal (8)." },
+    { question: "What does Number('') return?", options: ["NaN", "0", "undefined", "''"], answer: 1, explanation: "Number('') converts an empty string to 0." },
+    { question: "Which of these correctly checks for a safe integer?", options: ["Number.isSafeInt(n)", "Number.isSafeInteger(n)", "Number.checkSafe(n)", "n <= Number.MAX_SAFE_INTEGER"], answer: 1, explanation: "Number.isSafeInteger() is the built-in method. Option D is incomplete — it doesn't check the lower bound." },
+    { question: "What does (1000000).toExponential(2) return?", options: ['"1e+6"', '"1.00e+6"', '"1.00e+06"', '"10.00e+5"'], answer: 1, explanation: "toExponential(2) formats with 2 decimal places in exponential notation: '1.00e+6'." },
+    { question: "What is Number.EPSILON?", options: ["The smallest positive number", "The difference between 1 and the smallest float > 1", "The largest safe integer", "The value of Infinity"], answer: 1, explanation: "Number.EPSILON ≈ 2.22e-16 and is used to compare floats: Math.abs(a - b) < Number.EPSILON." },
+    { question: "What does parseInt('0xFF', 16) return?", options: ["255", "256", "NaN", "15"], answer: 0, explanation: "0xFF in hexadecimal equals 255 in decimal." },
+    { question: "What is the result of typeof NaN?", options: ['"NaN"', '"undefined"', '"number"', '"object"'], answer: 2, explanation: "Surprisingly, typeof NaN is 'number'. NaN stands for Not-a-Number but is of type number." },
+    { question: "What does Number(null) return?", options: ["null", "NaN", "0", "undefined"], answer: 2, explanation: "Number(null) returns 0. Number(undefined) returns NaN." },
+    { question: "How does Number.parseInt differ from global parseInt?", options: ["It supports different radixes", "They are the same function", "Number.parseInt only parses integers", "Number.parseInt throws on NaN"], answer: 1, explanation: "Number.parseInt is identical to the global parseInt — added to Number for modular code style." },
+    { question: "What does (255).toString(2) return?", options: ['"255"', '"ff"', '"11111111"', '"0b11111111"'], answer: 2, explanation: "toString(2) converts to binary. 255 in binary is '11111111'." },
+    { question: "What is the result of isNaN('hello')?", options: ["false", "true", "NaN", "TypeError"], answer: 1, explanation: "Global isNaN() coerces its argument. isNaN('hello') → isNaN(NaN) → true. Use Number.isNaN() to avoid coercion." },
+    { question: "What does Number.isInteger(5.000000000000001) return?", options: ["true", "false", "NaN", "undefined"], answer: 0, explanation: "Due to floating-point precision, 5.000000000000001 === 5 in JS, so Number.isInteger() returns true." },
+    { question: "What is the output of (0.1 + 0.2).toFixed(1)?", options: ['"0.3"', '"0.30000000000000004"', '"0.4"', '"0.2"'], answer: 0, explanation: "toFixed(1) rounds to 1 decimal place, so (0.30000000000000004).toFixed(1) returns '0.3'." },
+    { question: "What is Number.MIN_SAFE_INTEGER?", options: ["-(2^53)", "-(2^53 - 1)", "0", "-(2^31)"], answer: 1, explanation: "Number.MIN_SAFE_INTEGER is -(2^53 - 1) = -9007199254740991." },
+    { question: "What does parseInt(0.000005) return?", options: ["0", "5", "NaN", "0.000005"], answer: 0, explanation: "String(0.000005) is '0.000005'. parseInt reads '0' then stops at '.', returning 0." },
+    { question: "What is the best practice for comparing floats in JavaScript?", options: ["Use ===", "Use Math.abs(a - b) < Number.EPSILON", "Use parseFloat comparison", "Use toFixed() then compare"], answer: 1, explanation: "Math.abs(a - b) < Number.EPSILON accounts for floating-point errors reliably." },
+    { question: "What does Number(true) return?", options: ["true", "NaN", "1", "0"], answer: 2, explanation: "Number(true) returns 1. Number(false) returns 0." },
+    { question: "Which method returns a string with a specified number of decimal places?", options: ["toPrecision()", "toFixed()", "toExponential()", "toString()"], answer: 1, explanation: "toFixed(n) returns a string with exactly n decimal places." },
+    { question: "What is the output of Number.isFinite('123')?", options: ["true", "false", "NaN", "123"], answer: 1, explanation: "Number.isFinite() does NOT coerce its argument. '123' is a string, not a finite number, so it returns false." },
+    { question: "What does parseInt('12.99') return?", options: ["12", "13", "12.99", "NaN"], answer: 0, explanation: "parseInt() parses until it hits a non-integer character. The '.' stops parsing, returning 12." },
+    { question: "What is the idiomatic way to safely convert a string to a number?", options: ["new Number(str)", "Number(str) or +str", "str.toNumber()", "Math.number(str)"], answer: 1, explanation: "Number(str) or the unary + operator (+str) are the idiomatic, safe ways to convert strings to numbers in JS." },
+  ];
+
+  let current = 0;
+  let score = 0;
+  let revealed = false;
+  let answers = [];
+  const letters = ['A', 'B', 'C', 'D'];
+
+  function renderQuestion() {
+    const q = questions[current];
+    document.getElementById('counter-num').textContent = current + 1;
+    document.getElementById('counter-of').textContent = `/ ${questions.length}`;
+    document.getElementById('progress-fill').style.width = `${(current / questions.length) * 100}%`;
+    document.getElementById('question-text').textContent = q.question;
+
+    const optionsEl = document.getElementById('options');
+    optionsEl.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-letter">${letters[idx]}</span><span>${opt}</span>`;
+      btn.onclick = () => handleSelect(idx);
+      optionsEl.appendChild(btn);
+    });
+
+    document.getElementById('explanation').classList.add('hidden');
+    document.getElementById('next-btn').classList.add('hidden');
+    revealed = false;
+  }
+
+  function handleSelect(idx) {
+    if (revealed) return;
+    revealed = true;
+    const q = questions[current];
+    const correct = idx === q.answer;
+    if (correct) score++;
+    answers.push({ selected: idx, correct });
+
+    document.getElementById('score-display').textContent = `${score} pts`;
+
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add('correct');
+      else if (i === idx) btn.classList.add('wrong');
+    });
+
+    document.getElementById('explanation-text').textContent = q.explanation;
+    document.getElementById('explanation').classList.remove('hidden');
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.remove('hidden');
+    nextBtn.textContent = current + 1 >= questions.length ? 'See Results →' : 'Next Question →';
+  }
+
+  document.getElementById('next-btn').onclick = () => {
+    const card = document.getElementById('card');
+    card.classList.add('animating');
+    setTimeout(() => {
+      current++;
+      if (current >= questions.length) {
+        showResult();
+      } else {
+        renderQuestion();
+        card.classList.remove('animating');
+      }
+    }, 300);
+  };
+
+  function showResult() {
+    document.getElementById('quiz-screen').style.display = 'none';
+    const resultScreen = document.getElementById('result-screen');
+    resultScreen.style.display = 'flex';
+
+    const pct = Math.round((score / questions.length) * 100);
+    let emoji, label, color;
+    if (pct >= 90) { emoji = '🏆'; label = 'Expert'; color = '#00ff9d'; }
+    else if (pct >= 70) { emoji = '⚡'; label = 'Proficient'; color = '#ffd600'; }
+    else if (pct >= 50) { emoji = '📚'; label = 'Learning'; color = '#ff8c42'; }
+    else { emoji = '🌱'; label = 'Beginner'; color = '#ff4d6d'; }
+
+    document.getElementById('result-emoji').textContent = emoji;
+    document.getElementById('grade-label').textContent = label;
+    document.getElementById('grade-label').style.color = color;
+    document.getElementById('score-big').innerHTML = `${score}<span class="score-of">/${questions.length}</span>`;
+    document.getElementById('score-pct').textContent = `${pct}% correct`;
+
+    const grid = document.getElementById('review-grid');
+    grid.innerHTML = '';
+    answers.forEach((a, i) => {
+      const dot = document.createElement('div');
+      dot.className = `review-dot ${a.correct ? 'ok' : 'bad'}`;
+      dot.title = `Q${i + 1}`;
+      dot.textContent = a.correct ? '✓' : '✗';
+      grid.appendChild(dot);
+    });
+  }
+
+  function restart() {
+    current = 0; score = 0; revealed = false; answers = [];
+    document.getElementById('score-display').textContent = '0 pts';
+    document.getElementById('quiz-screen').style.display = 'flex';
+    document.getElementById('quiz-screen').style.flexDirection = 'column';
+    document.getElementById('quiz-screen').style.alignItems = 'center';
+    document.getElementById('quiz-screen').style.width = '100%';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('card').classList.remove('animating');
+    renderQuestion();
+  }
+
+  // Init
+  renderQuestion();
+</script>
+</body>
+</html>

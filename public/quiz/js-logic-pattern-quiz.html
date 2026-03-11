@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Logic Patterns Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a28;
+    --border: #2a2a40;
+    --accent: #7c6aff;
+    --accent2: #ff6a8a;
+    --accent3: #6affb0;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --correct: #6affb0;
+    --wrong: #ff6a8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-orb-1 { width: 500px; height: 500px; background: rgba(124,106,255,0.12); top: -100px; right: -100px; }
+  .glow-orb-2 { width: 400px; height: 400px; background: rgba(255,106,138,0.08); bottom: -100px; left: -50px; }
+
+  #app { position: relative; z-index: 1; }
+
+  /* ── INTRO SCREEN ── */
+  #intro {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,106,255,0.15);
+    border: 1px solid rgba(124,106,255,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 32px;
+    letter-spacing: 0.05em;
+  }
+
+  .badge::before { content: '◈'; }
+
+  h1 {
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .intro-desc {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .pattern-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    max-width: 680px;
+    margin-bottom: 52px;
+  }
+
+  .chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .start-btn {
+    background: linear-gradient(135deg, var(--accent), #9b6aff);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 52px;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 60px rgba(124,106,255,0.4); }
+  .start-btn:hover::before { opacity: 1; }
+  .start-btn:active { transform: translateY(0); }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz { display: none; min-height: 100vh; padding: 24px; }
+
+  .quiz-header {
+    max-width: 780px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .quiz-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .q-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .progress-bar {
+    max-width: 780px;
+    margin: 0 auto 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .question-card {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .pattern-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,106,255,0.12);
+    border: 1px solid rgba(124,106,255,0.25);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .question-text {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .code-block {
+    background: #0d0d18;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #c8c8e8;
+    overflow-x: auto;
+    white-space: pre;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: 'JS';
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* syntax highlighting */
+  .kw   { color: #c792ea; }
+  .fn   { color: #82aaff; }
+  .str  { color: #c3e88d; }
+  .num  { color: #f78c6c; }
+  .cmt  { color: #546e7a; font-style: italic; }
+  .op   { color: #89ddff; }
+
+  .options-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .option-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    line-height: 1.5;
+  }
+
+  .option-letter {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(124,106,255,0.08);
+    transform: translateX(4px);
+  }
+
+  .option-btn:hover:not(:disabled) .option-letter {
+    background: var(--accent);
+    color: white;
+  }
+
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(106,255,176,0.08);
+  }
+
+  .option-btn.correct .option-letter {
+    background: var(--correct);
+    color: #0a0a0f;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(255,106,138,0.08);
+  }
+
+  .option-btn.wrong .option-letter {
+    background: var(--wrong);
+    color: white;
+  }
+
+  .option-btn:disabled { cursor: default; transform: none; }
+
+  .feedback-box {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: rgba(106,255,176,0.1); border: 1px solid rgba(106,255,176,0.25); color: var(--correct); }
+  .feedback-box.wrong-fb   { background: rgba(255,106,138,0.1); border: 1px solid rgba(255,106,138,0.25); color: var(--wrong); }
+
+  .feedback-title { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+  .feedback-body  { color: var(--text); opacity: 0.85; }
+
+  .next-btn {
+    margin-top: 24px;
+    background: linear-gradient(135deg, var(--accent), #9b6aff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,106,255,0.35); }
+
+  /* ── RESULTS SCREEN ── */
+  #results {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .score-ring {
+    width: 160px;
+    height: 160px;
+    position: relative;
+    margin: 0 auto 32px;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+  .score-ring-fill {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke: url(#scoreGrad);
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .score-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-num { font-size: 38px; font-weight: 800; }
+  .score-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  .result-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+  .result-sub { color: var(--muted); font-size: 16px; margin-bottom: 40px; max-width: 500px; line-height: 1.6; }
+
+  .breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+
+  .breakdown-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: left;
+  }
+
+  .breakdown-card .bc-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .breakdown-card .bc-val { font-size: 26px; font-weight: 800; }
+  .breakdown-card .bc-val.green { color: var(--correct); }
+  .breakdown-card .bc-val.red { color: var(--wrong); }
+
+  .retry-btn {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 36px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .retry-btn:hover { background: rgba(124,106,255,0.12); transform: translateY(-2px); }
+
+  @media (max-width: 600px) {
+    .question-card { padding: 24px 20px; }
+    .code-block { font-size: 12px; padding: 16px; }
+    h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="glow-orb glow-orb-1"></div>
+<div class="glow-orb glow-orb-2"></div>
+
+<div id="app">
+
+  <!-- INTRO -->
+  <div id="intro">
+    <div class="badge">50 Questions · Pattern Recognition</div>
+    <h1>JS Logic<br><span class="line2">Pattern Quiz</span></h1>
+    <p class="intro-desc">Stop solving problems from scratch. Train your eye to recognize the pattern hidden inside the problem — then the code practically writes itself.</p>
+    <div class="pattern-chips">
+      <div class="chip">Guard Clause</div>
+      <div class="chip">Boolean Toggle</div>
+      <div class="chip">Clamp</div>
+      <div class="chip">Nullish Coalescing</div>
+      <div class="chip">Short-circuit Default</div>
+      <div class="chip">Optional Chaining</div>
+      <div class="chip">Ternary Assignment</div>
+      <div class="chip">Array Dedup</div>
+      <div class="chip">Default Parameter</div>
+      <div class="chip">Object Spread Merge</div>
+      <div class="chip">Falsy Filter</div>
+      <div class="chip">Max/Min of Array</div>
+      <div class="chip">Swap Variables</div>
+      <div class="chip">Truthy Existence Check</div>
+      <div class="chip">Conditional Add to Array</div>
+      <div class="chip">Logical Assignment</div>
+      <div class="chip">Array Flat Map</div>
+      <div class="chip">Computed Property Name</div>
+      <div class="chip">Array Destructuring</div>
+      <div class="chip">Array Partition</div>
+      <div class="chip">Memoization</div>
+      <div class="chip">Conditional Spread</div>
+      <div class="chip">Function Composition</div>
+      <div class="chip">Array Find vs Filter</div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz →</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <div class="quiz-header">
+      <div class="quiz-title">◈ Pattern Quiz</div>
+      <div class="q-counter" id="qCounter">1 / 30</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="question-card" id="questionCard">
+      <div class="pattern-tag" id="patternTag"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="code-block" id="codeBlock"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="feedback-box" id="feedbackBox">
+        <div class="feedback-title" id="feedbackTitle"></div>
+        <div class="feedback-body" id="feedbackBody"></div>
+      </div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <defs>
+          <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c6aff"/>
+            <stop offset="100%" stop-color="#ff6a8a"/>
+          </linearGradient>
+        </defs>
+        <circle class="score-ring-bg" cx="80" cy="80" r="68"/>
+        <circle class="score-ring-fill" id="scoreCircle" cx="80" cy="80" r="68"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-num" id="scoreNum"></div>
+        <div class="score-label">/ 30</div>
+      </div>
+    </div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <div class="breakdown">
+      <div class="breakdown-card">
+        <div class="bc-label">CORRECT</div>
+        <div class="bc-val green" id="bCorrect"></div>
+      </div>
+      <div class="breakdown-card">
+        <div class="bc-label">WRONG</div>
+        <div class="bc-val red" id="bWrong"></div>
+      </div>
+      <div class="breakdown-card">
+        <div class="bc-label">ACCURACY</div>
+        <div class="bc-val" id="bAccuracy"></div>
+      </div>
+    </div>
+    <button class="retry-btn" onclick="retryQuiz()">Retry Quiz ↺</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    pattern: "Guard Clause",
+    q: "You need to process a user object, but only if it exists. Which snippet best applies the Guard Clause pattern?",
+    code: `function processUser(user) {\n  // ??? your logic here\n  sendEmail(user.email);\n  updateDashboard(user);\n}`,
+    options: [
+      `if (user) { sendEmail(user.email); updateDashboard(user); }`,
+      `if (!user) return;\nsendEmail(user.email);\nupdateDashboard(user);`,
+      `try { sendEmail(user.email); } catch(e) {}`,
+      `user && sendEmail(user.email) && updateDashboard(user);`,
+    ],
+    answer: 1,
+    explanation: "A Guard Clause checks the failure condition first and returns early. This keeps the happy path unindented and easier to read than wrapping everything in an if-block."
+  },
+  {
+    pattern: "Boolean Toggle",
+    q: "A sidebar's open/closed state needs to flip every time a button is clicked. Which is the cleanest pattern?",
+    code: `let isOpen = false;\n\nfunction toggleSidebar() {\n  // ???\n}`,
+    options: [
+      `if (isOpen) { isOpen = false; } else { isOpen = true; }`,
+      `isOpen = isOpen ? false : true;`,
+      `isOpen = !isOpen;`,
+      `isOpen = Boolean(!isOpen);`,
+    ],
+    answer: 2,
+    explanation: "The Boolean Toggle pattern `x = !x` is the canonical one-liner. It's shorter, clearer, and leaves zero ambiguity about intent compared to the alternatives."
+  },
+  {
+    pattern: "Clamp",
+    q: "A volume slider should never go below 0 or above 100. Which expression clamps it correctly?",
+    code: `function setVolume(value) {\n  volume = ???;\n}`,
+    options: [
+      `Math.min(value, 100)`,
+      `Math.max(value, 0)`,
+      `Math.min(Math.max(value, 0), 100)`,
+      `value >= 0 && value <= 100 ? value : 0`,
+    ],
+    answer: 2,
+    explanation: "Clamp = `Math.min(Math.max(value, min), max)`. The inner Max enforces the floor, the outer Min enforces the ceiling. Together they constrain the value to the range."
+  },
+  {
+    pattern: "Nullish Coalescing",
+    q: "A config value might be null or undefined, but 0 and false are valid values. Which pattern handles this correctly?",
+    code: `const timeout = config.timeout ???  3000;`,
+    options: [
+      `|| 3000`,
+      `?? 3000`,
+      `|| config.timeout || 3000`,
+      `=== null ? 3000 : config.timeout`,
+    ],
+    answer: 1,
+    explanation: "The `??` (nullish coalescing) operator only falls back when the left side is null or undefined — not when it's 0, false, or ''. Using `||` would incorrectly replace 0 with 3000."
+  },
+  {
+    pattern: "Short-circuit Default",
+    q: "You want to greet a user with their name, or 'Guest' if name is falsy. Which pattern is idiomatic JS?",
+    code: `function greet(name) {\n  const display = ???;\n  return \`Hello, \${display}!\`;\n}`,
+    options: [
+      `name ?? 'Guest'`,
+      `name || 'Guest'`,
+      `name !== undefined ? name : 'Guest'`,
+      `name ? name : 'Guest'`,
+    ],
+    answer: 1,
+    explanation: "Short-circuit default with `||` returns the right side when the left is falsy (null, undefined, '', 0, false). For names, an empty string should also fall back, so `||` is correct here."
+  },
+  {
+    pattern: "Optional Chaining",
+    q: "You're accessing a deeply nested property that might not exist at any level. What's the safest pattern?",
+    code: `const city = user???address???city;`,
+    options: [
+      `user && user.address && user.address.city`,
+      `user?.address?.city`,
+      `user['address']['city']`,
+      `try { return user.address.city } catch { return undefined }`,
+    ],
+    answer: 1,
+    explanation: "Optional chaining `?.` short-circuits and returns `undefined` if any link in the chain is null or undefined, without throwing. It replaces verbose `&&` chains with a clean, readable one-liner."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "This function has 3 preconditions before doing real work. What's the cleanest structure?",
+    code: `function submitForm(data) {\n  if (!data) ???\n  if (!data.email) ???\n  if (!isValidEmail(data.email)) ???\n  \n  // submit...\n}`,
+    options: [
+      `{ throw new Error() } (for each)`,
+      `return; (for each — exit early)`,
+      `{ continue; } (for each)`,
+      `{ data = null; } (for each)`,
+    ],
+    answer: 1,
+    explanation: "Multiple guard clauses stack at the top of the function with `return` (or throw). Each bad case exits immediately. The actual logic at the bottom runs only when all conditions pass."
+  },
+  {
+    pattern: "Ternary Assignment",
+    q: "Assign a CSS class based on a condition. Which is the clearest inline assignment?",
+    code: `const cls = isActive ??? 'btn-active' : 'btn-idle';`,
+    options: [
+      `isActive == true &&`,
+      `?`,
+      `||`,
+      `??`,
+    ],
+    answer: 1,
+    explanation: "The ternary `condition ? a : b` is perfect for inline assignments with exactly two branches. It's more readable than an if/else block when assigning a single variable."
+  },
+  {
+    pattern: "Array Dedup",
+    q: "You have an array with duplicate values and need a unique list. Which is the most concise pattern?",
+    code: `const tags = ['js', 'css', 'js', 'html', 'css'];\nconst unique = ???;`,
+    options: [
+      `tags.filter((t, i) => tags.indexOf(t) === i)`,
+      `[...new Set(tags)]`,
+      `tags.reduce((acc, t) => acc.includes(t) ? acc : [...acc, t], [])`,
+      `Array.from(new Map(tags.map(t => [t, t])).values())`,
+    ],
+    answer: 1,
+    explanation: "`[...new Set(arr)]` is the canonical dedup pattern. A Set automatically discards duplicates; spreading it back into an array takes one line with zero dependencies."
+  },
+  {
+    pattern: "Clamp",
+    q: "A CSS transition duration is read from user input (in ms). It must be between 100 and 2000. Spot the bug:",
+    code: `const duration = Math.max(Math.min(value, 100), 2000);`,
+    options: [
+      `Math.max and Math.min are swapped — min should be the outer call`,
+      `The min and max values (100, 2000) are in the wrong positions`,
+      `Both: arguments are swapped AND min/max are in wrong positions`,
+      `There is no bug`,
+    ],
+    answer: 2,
+    explanation: "Two bugs: (1) the outer call should be Math.min (ceiling), inner should be Math.max (floor). (2) min value (100) should be inside Math.max, max value (2000) inside Math.min. Correct: `Math.min(Math.max(value, 100), 2000)`"
+  },
+  {
+    pattern: "Default Parameter",
+    q: "A function should use a default value when no argument is provided. Which is the modern JS pattern?",
+    code: `function createUser(name, role ???) {\n  return { name, role };\n}`,
+    options: [
+      `= role || 'viewer'  (in the body)`,
+      `= 'viewer'  (in the signature)`,
+      `, role = undefined`,
+      `if (!role) role = 'viewer';`,
+    ],
+    answer: 1,
+    explanation: "ES6 default parameters `function fn(x = default)` are the modern pattern. They handle `undefined` arguments cleanly and make intent clear in the function signature itself."
+  },
+  {
+    pattern: "Object Spread Merge",
+    q: "You want to update a user object's email without mutating the original. Which pattern is idiomatic?",
+    code: `const user = { name: 'Alex', email: 'old@x.com', role: 'admin' };\nconst updated = ???;`,
+    options: [
+      `Object.assign(user, { email: 'new@x.com' })`,
+      `{ ...user, email: 'new@x.com' }`,
+      `user.email = 'new@x.com'`,
+      `Object.create(user, { email: { value: 'new@x.com' } })`,
+    ],
+    answer: 1,
+    explanation: "Object spread `{ ...original, key: newVal }` creates a shallow copy with the override applied. Later properties override earlier ones, so placing the override after `...user` ensures it wins."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "What problem does this code have, and how does the Guard Clause pattern fix it?",
+    code: `function getDiscount(user) {\n  if (user) {\n    if (user.isPremium) {\n      if (user.yearsActive > 2) {\n        return 0.3;\n      }\n    }\n  }\n  return 0;\n}`,
+    options: [
+      `No problem — deep nesting is fine for readability`,
+      `It should use a switch statement instead`,
+      `The conditions should be inverted and exit early, flattening the nesting`,
+      `It needs try/catch around the return`,
+    ],
+    answer: 2,
+    explanation: "Deep nesting (also called the 'arrowhead pattern') makes code hard to scan. Guard clauses invert each condition to exit early: `if (!user) return 0; if (!user.isPremium) return 0;` — then the happy path at the end is clean."
+  },
+  {
+    pattern: "Falsy Filter",
+    q: "Remove all falsy values (null, undefined, 0, '', false) from an array. What's the one-liner?",
+    code: `const data = [1, null, 'hi', 0, false, 'ok', undefined];\nconst clean = data.???(Boolean);`,
+    options: [
+      `reduce`,
+      `map`,
+      `filter`,
+      `find`,
+    ],
+    answer: 2,
+    explanation: "`array.filter(Boolean)` passes each item to the Boolean constructor as a predicate. Any falsy value returns false from Boolean() and gets removed. It's clean, composable, and idiomatic."
+  },
+  {
+    pattern: "Max/Min of Array",
+    q: "Find the largest number in an array. Which pattern uses the spread operator elegantly?",
+    code: `const scores = [44, 88, 12, 99, 55];\nconst top = ???;`,
+    options: [
+      `scores.sort((a,b) => b-a)[0]`,
+      `Math.max(...scores)`,
+      `scores.reduce((m,v) => v > m ? v : m)`,
+      `Math.max(scores)`,
+    ],
+    answer: 1,
+    explanation: "`Math.max(...arr)` uses spread to pass array elements as individual arguments. It's the most concise pattern. Note: `Math.max(arr)` without spread returns NaN because Math.max expects numbers, not an array."
+  },
+  {
+    pattern: "Swap Variables",
+    q: "Swap the values of two variables without a temp variable. Which modern JS pattern does this?",
+    code: `let a = 1, b = 2;\n??? // swap them\n// now a === 2, b === 1`,
+    options: [
+      `a = b; b = a;`,
+      `[a, b] = [b, a];`,
+      `a = a + b; b = a - b; a = a - b;`,
+      `let temp = a; a = b; b = temp;`,
+    ],
+    answer: 1,
+    explanation: "Destructuring assignment `[a, b] = [b, a]` is the modern swap idiom. The right side creates a new array with values in swapped order, then destructuring assigns them back. No temp variable needed."
+  },
+  {
+    pattern: "Short-circuit Default",
+    q: "Which line uses short-circuit evaluation to call a function only if a value exists?",
+    code: `const user = getUser();\n\n// Only log if user exists:\n???`,
+    options: [
+      `if (user !== null) { console.log(user); }`,
+      `user && console.log(user);`,
+      `user ?? console.log(user);`,
+      `console.log(user || '');`,
+    ],
+    answer: 1,
+    explanation: "`user && console.log(user)` uses short-circuit evaluation: if `user` is falsy, the right side never executes. It's a compact guard for optional side effects, though an explicit `if` is often clearer in complex code."
+  },
+  {
+    pattern: "Nullish Coalescing",
+    q: "A feature flag is explicitly set to `false` in the config. The fallback should NOT override it. Which is correct?",
+    code: `const featureEnabled = config.feature ???  true;`,
+    options: [
+      `|| true  — because false is falsy`,
+      `?? true  — because ?? only falls back on null/undefined`,
+      `&& true  — to ensure it's always true`,
+      `=== false ? true : config.feature`,
+    ],
+    answer: 1,
+    explanation: "`??` is crucial here. `config.feature` is explicitly `false`, which is a valid value to respect. Using `||` would override it with `true`. `??` only activates when the value is `null` or `undefined`."
+  },
+  {
+    pattern: "Boolean Toggle",
+    q: "Which of these does NOT follow the Boolean Toggle pattern and has a subtle bug?",
+    code: `// Option A:\nflag = !flag;\n\n// Option B:\nflag = flag === false ? true : false;\n\n// Option C:\nflag = !Boolean(flag);\n\n// Option D (buggy!):\nflag = flag !== true;`,
+    options: [
+      `Option A`,
+      `Option B`,
+      `Option C`,
+      `Option D — it has an edge case`,
+    ],
+    answer: 3,
+    explanation: "Option D `flag !== true` returns `true` for null, undefined, 0, '', etc. — not just `false`. If `flag` starts as `undefined`, it evaluates to `true` instead of toggling. Options A, B, and C all correctly invert a boolean."
+  },
+  {
+    pattern: "Conditional Add to Array",
+    q: "Build an array of items, but only include 'admin' if the user has that role. Which is the cleanest pattern?",
+    code: `const permissions = [\n  'read',\n  'write',\n  ???(isAdmin && 'admin'),\n].filter(Boolean);`,
+    options: [
+      `push`,
+      `...[]`,
+      `concat`,
+      `spread`,
+    ],
+    answer: 1,
+    explanation: "The pattern `[...baseItems, ...(condition ? [item] : [])].filter(Boolean)` conditionally injects items. Alternatively, `isAdmin && 'admin'` inside the array combined with `.filter(Boolean)` removes the `false` values."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "A payment function has several early exits. Which structure is correct?",
+    code: `function processPayment(amount, card) {\n  ???\n  ???\n  ???\n  chargeCard(card, amount);\n}`,
+    options: [
+      `if (amount > 0 && card && card.valid) { chargeCard(card, amount); }`,
+      `if (!amount || amount <= 0) return;\nif (!card) return;\nif (!card.valid) return;`,
+      `try { if(amount && card.valid) chargeCard(...) } catch {}`,
+      `return amount && card ? chargeCard(card, amount) : null;`,
+    ],
+    answer: 1,
+    explanation: "Three stacked guard clauses at the top, each returning immediately on a bad condition. The actual work (`chargeCard`) stays at the same indentation as the guards — clean, linear, readable."
+  },
+  {
+    pattern: "Optional Chaining",
+    q: "You want to call a method that might not exist on an object. How do you safely invoke it?",
+    code: `const result = api???getData?.();`,
+    options: [
+      `api.getData ? api.getData() : undefined`,
+      `api?.getData?.()`,
+      `api && api.getData && api.getData()`,
+      `try { api.getData() } catch { return undefined }`,
+    ],
+    answer: 1,
+    explanation: "Optional chaining works on method calls too: `obj?.method?.()`. The first `?.` guards against `api` being nullish, the second guards against `getData` not existing. All in one expression."
+  },
+  {
+    pattern: "Clamp",
+    q: "A user's reputation points should stay between -100 and 500. They just lost 200 points and are at -250. What does clamping give you?",
+    code: `const newRep = Math.min(Math.max(-250, -100), 500);`,
+    options: [
+      `-250  (no change)`,
+      `-100  (clamped to floor)`,
+      `0`,
+      `500  (clamped to ceiling)`,
+    ],
+    answer: 1,
+    explanation: "`Math.max(-250, -100)` = `-100` (the floor wins over -250). Then `Math.min(-100, 500)` = `-100` (it's already below the ceiling). Result: `-100`. The player is clamped to the minimum."
+  },
+  {
+    pattern: "Object Spread Merge",
+    q: "Two config objects need to be merged. The user config should override the defaults. Which is correct?",
+    code: `const defaults = { theme: 'light', lang: 'en', debug: false };\nconst userCfg = { theme: 'dark', debug: true };\n\nconst config = ???;`,
+    options: [
+      `{ ...userCfg, ...defaults }`,
+      `{ ...defaults, ...userCfg }`,
+      `Object.assign(defaults, userCfg)`,
+      `{ defaults, userCfg }`,
+    ],
+    answer: 1,
+    explanation: "In spread merges, later properties win. `{ ...defaults, ...userCfg }` means userCfg's keys override defaults. Option A is reversed (defaults would win). Option C mutates the original `defaults` object."
+  },
+  {
+    pattern: "Array Dedup",
+    q: "You're deduplicating an array of objects by ID. Why doesn't `[...new Set(users)]` work here?",
+    code: `const users = [\n  { id: 1, name: 'Ada' },\n  { id: 2, name: 'Bob' },\n  { id: 1, name: 'Ada' },\n];`,
+    options: [
+      `Set doesn't exist in JavaScript`,
+      `Set uses reference equality — two objects with the same data are still different references`,
+      `Set only works with numbers`,
+      `Spread syntax doesn't work with Set`,
+    ],
+    answer: 1,
+    explanation: "Set uses strict reference equality (===) for objects. Two `{ id: 1 }` objects are different references even if identical. To dedup by property: `[...new Map(users.map(u => [u.id, u])).values()]`."
+  },
+  {
+    pattern: "Truthy Existence Check",
+    q: "Check if an array has at least one item. Which is the most idiomatic pattern?",
+    code: `const items = getItems();\n\nif (???) {\n  renderList(items);\n}`,
+    options: [
+      `items.length > 0`,
+      `items.length`,
+      `items !== null && items !== undefined && items.length > 0`,
+      `Boolean(items.length)`,
+    ],
+    answer: 0,
+    explanation: "Both A and B work (since `length > 0` is truthy), but `items.length > 0` is most explicit and readable. It clearly states intent: 'there is at least one item.' Avoid relying on implicit truthy coercion for readability."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "What does this guard clause pattern enable at the bottom of the function?",
+    code: `function renderProfile(user) {\n  if (!user) return null;\n  if (!user.isVerified) return <Unverified />;\n  if (user.isBanned) return <Banned />;\n\n  return <Profile data={user} />;\n}`,
+    options: [
+      `It allows the profile to always render`,
+      `The happy path renders without any nesting or conditionals`,
+      `It prevents the function from returning null`,
+      `It forces the function to run synchronously`,
+    ],
+    answer: 1,
+    explanation: "Guard clauses push edge cases to the top with early returns. The final `return <Profile />` sits at zero nesting, is unconditional, and represents the only path that survives all guards — the 'happy path'."
+  },
+  {
+    pattern: "Default Parameter",
+    q: "This function uses an old pattern for defaults. Spot what's wrong with using `||` for defaults:",
+    code: `function setPage(page) {\n  page = page || 1;\n  fetchData(page);\n}`,
+    options: [
+      `Nothing is wrong`,
+      `It should use ?? instead — if page is explicitly passed as 0, || gives 1 instead`,
+      `Default parameters can't be used with numbers`,
+      `page should be a string, not a number`,
+    ],
+    answer: 1,
+    explanation: "Using `||` as a default means `0` (a valid page index) gets replaced by `1` because `0` is falsy. The fix: use `??` or an ES6 default parameter `function setPage(page = 1)` — both only activate on `null`/`undefined`."
+  },
+  {
+    pattern: "Clamp",
+    q: "Without using Math.min/max, which code correctly clamps a value between min and max?",
+    code: `function clamp(value, min, max) {\n  return ???;\n}`,
+    options: [
+      `value < min ? min : value > max ? max : value`,
+      `value > min ? min : value < max ? max : value`,
+      `min < value < max ? value : min`,
+      `value - min / max - min`,
+    ],
+    answer: 0,
+    explanation: "The nested ternary manually replicates clamping: if below the floor, return floor; if above the ceiling, return ceiling; otherwise return value unchanged. This is exactly what `Math.min(Math.max(v,min),max)` does internally."
+  },
+  {
+    pattern: "Boolean Toggle",
+    q: "A UI needs a dark/light mode toggle. The state is managed in a React-style setter. Which is correct?",
+    code: `const [isDark, setIsDark] = useState(false);\n\n<button onClick={???}>Toggle</button>`,
+    options: [
+      `() => setIsDark(true)`,
+      `() => setIsDark(isDark === false)`,
+      `() => setIsDark(prev => !prev)`,
+      `() => isDark = !isDark`,
+    ],
+    answer: 2,
+    explanation: "In React, using the updater function form `setIsDark(prev => !prev)` is the safe toggle pattern. It reads the most current state value rather than potentially stale `isDark` from closure, preventing bugs in batched updates."
+  },
+  {
+    pattern: "Early Return Value",
+    q: "A function should return a cached result if available, otherwise compute it. Which pattern is cleanest?",
+    code: `function getPrice(id) {\n  ???\n  const price = computePrice(id);\n  cache[id] = price;\n  return price;\n}`,
+    options: [
+      `if (cache[id]) { return cache[id]; } else { /* fall through */ }`,
+      `if (cache[id] !== undefined) return cache[id];`,
+      `try { return cache[id]; } catch {}`,
+      `cache[id] ? cache[id] : computePrice(id);`,
+    ],
+    answer: 1,
+    explanation: "Return early with the cached value when it exists (`!== undefined` is important if 0 is a valid price). The rest of the function only runs on a cache miss — clean and linear, no nesting needed."
+  },
+  {
+    pattern: "Logical Assignment",
+    q: "You want to set a default on an object property only if it's currently null or undefined. Which operator does this in one step?",
+    code: `const settings = { theme: null };\nsettings.theme ???= 'light';`,
+    options: [
+      `||= (OR assignment)`,
+      `&&= (AND assignment)`,
+      `??= (nullish assignment)`,
+      `+= (addition assignment)`,
+    ],
+    answer: 2,
+    explanation: "`??=` (nullish assignment) only assigns the right side if the left is null or undefined. `settings.theme ??= 'light'` sets theme to 'light' only when it's null/undefined — not when it's `false` or `0`."
+  },
+  {
+    pattern: "Array Flat Map",
+    q: "You have an array of users, each with an array of tags. You want one flat list of all tags. Which is the one-liner?",
+    code: `const users = [\n  { tags: ['js', 'react'] },\n  { tags: ['css', 'js'] },\n];\nconst allTags = users.???;`,
+    options: [
+      `map(u => u.tags).flat()`,
+      `flatMap(u => u.tags)`,
+      `reduce((a, u) => [...a, ...u.tags], [])`,
+      `Both A and B are equally idiomatic`,
+    ],
+    answer: 3,
+    explanation: "Both `map().flat()` and `flatMap()` are correct and idiomatic. `flatMap` is slightly more efficient (one pass), while `map().flat()` can be easier to read in complex chains. Either is a recognized pattern."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "An async function fetches data. Which structure best applies guard clauses to async/await?",
+    code: `async function loadUser(id) {\n  const res = await fetch(\`/api/users/\${id}\`);\n  ???\n  const data = await res.json();\n  ???\n  return data.user;\n}`,
+    options: [
+      `if (!res.ok) { throw new Error('Failed'); }\nif (!data.user) { return null; }`,
+      `try { } catch { }  around everything`,
+      `res.ok && data.user ? return : throw`,
+      `return res.ok ? await res.json() : null;`,
+    ],
+    answer: 0,
+    explanation: "Guard clauses work perfectly in async functions. Check `!res.ok` right after the fetch and throw/return early. Then check the data shape before using it. Each guard keeps a single responsibility."
+  },
+  {
+    pattern: "Object Destructuring Default",
+    q: "Destructure a config object, providing defaults for missing keys. Which syntax is correct?",
+    code: `const config = { host: 'localhost' };\nconst { host, port ???, secure ??? } = config;`,
+    options: [
+      `|| 3000, || false`,
+      `= 3000, = false`,
+      `?? 3000, ?? false`,
+      `: 3000, : false`,
+    ],
+    answer: 1,
+    explanation: "Destructuring defaults use `= value` syntax: `const { port = 3000, secure = false } = config`. This is similar to function default parameters — the default activates only when the value is `undefined`."
+  },
+  {
+    pattern: "Nullish Coalescing",
+    q: "Which expression correctly chains nullish coalescing to try multiple fallbacks?",
+    code: `const name = user.displayName ??? user.email ??? 'Anonymous';`,
+    options: [
+      `|| ... ||`,
+      `?? ... ??`,
+      `&& ... &&`,
+      `|| ... ??`,
+    ],
+    answer: 1,
+    explanation: "`??` chains naturally: if `displayName` is null/undefined, try `email`; if that's also null/undefined, fall back to 'Anonymous'. Unlike `||`, a falsy-but-present value like `''` won't be skipped."
+  },
+  {
+    pattern: "Computed Property Name",
+    q: "You're building a state updater where the property key is dynamic. Which pattern uses a computed property name?",
+    code: `function updateField(state, field, value) {\n  return { ...state, ??? };\n}`,
+    options: [
+      `field: value`,
+      `[field]: value`,
+      `...{ field: value }`,
+      `{ field } = value`,
+    ],
+    answer: 1,
+    explanation: "`[field]: value` is a computed property name — the brackets evaluate `field` as a variable at runtime to produce the key. Without brackets, `field` would be the literal string key 'field'."
+  },
+  {
+    pattern: "Array Destructuring",
+    q: "You only need the third item from an array. Which destructuring skips the first two?",
+    code: `const rgb = [255, 128, 0];\nconst [???, blue] = rgb;`,
+    options: [
+      `_, _,`,
+      `..., ,`,
+      `, ,`,
+      `skip, skip,`,
+    ],
+    answer: 2,
+    explanation: "Skipping elements in destructuring uses commas with no variable: `const [, , blue] = rgb`. Each comma advances the position. Underscore (`_`) also works by convention but creates an actual variable."
+  },
+  {
+    pattern: "Short-circuit Default",
+    q: "Which of these would incorrectly skip a perfectly valid value of `0`?",
+    code: `// User's score might legitimately be 0:\nconst display = score ??? 'No score';`,
+    options: [
+      `?? 'No score'  — only skips null/undefined`,
+      `|| 'No score'  — treats 0 as falsy and replaces it`,
+      `=== undefined ? 'No score' : score`,
+      `!score ? 'No score' : score`,
+    ],
+    answer: 1,
+    explanation: "`score || 'No score'` treats `0` as falsy and replaces it with 'No score'. This is the classic `||` trap. Use `??` when `0`, `false`, or `''` are legitimate values that should NOT trigger the fallback."
+  },
+  {
+    pattern: "Clamp",
+    q: "A progress bar percentage is calculated from user data. It must display between 0% and 100%. What's the one-liner?",
+    code: `const pct = (completed / total) * 100;\nconst display = ???;`,
+    options: [
+      `pct > 100 ? 100 : pct < 0 ? 0 : pct`,
+      `Math.min(Math.max(pct, 0), 100)`,
+      `pct % 100`,
+      `Both A and B produce the same result`,
+    ],
+    answer: 3,
+    explanation: "Both A (nested ternary) and B (`Math.min(Math.max(...))`) are correct implementations of the clamp pattern. B is more readable and idiomatic. A is the manual equivalent. They produce identical results."
+  },
+  {
+    pattern: "Optional Chaining",
+    q: "You're calling an optional callback prop in a React component. Which pattern safely calls it only if provided?",
+    code: `function Button({ onClick, label }) {\n  return (\n    <button onClick={??? onClick(event)}>\n      {label}\n    </button>\n  );\n}`,
+    options: [
+      `onClick &&`,
+      `onClick ?`,
+      `e => onClick`,
+      `e => onClick?.`,
+    ],
+    answer: 3,
+    explanation: "`e => onClick?.(e)` uses optional chaining on the call itself. `onClick?.()` invokes the function if it exists, returns undefined otherwise — no extra if-check needed. This is the clean pattern for optional callbacks."
+  },
+  {
+    pattern: "Truthy Existence Check",
+    q: "Check whether a Map has any entries. Which is most readable?",
+    code: `const cache = new Map();\n\nif (???) {\n  processCachedData(cache);\n}`,
+    options: [
+      `cache`,
+      `cache.size`,
+      `cache.size > 0`,
+      `cache.size !== 0`,
+    ],
+    answer: 2,
+    explanation: "`cache.size > 0` is most explicit. `cache.size` is truthy when > 0 and works, but `> 0` makes intent unmistakable. `cache` alone is always truthy (it's an object reference), so it's always true regardless of contents."
+  },
+  {
+    pattern: "Boolean Toggle",
+    q: "A loading spinner tracks active requests. It should show while count > 0. Which toggle-like pattern is correct?",
+    code: `let activeRequests = 0;\n\nfunction startRequest()  { activeRequests???; }\nfunction finishRequest() { activeRequests???; }\n\nconst isLoading = activeRequests > 0;`,
+    options: [
+      `= !activeRequests  for both`,
+      `++  and  --`,
+      `+= 1  and  -= 1`,
+      `Both B and C are correct`,
+    ],
+    answer: 3,
+    explanation: "For a counter-based toggle, `++` and `--` (or `+= 1` / `-= 1`) are both correct patterns. The spinner derives from `count > 0`. This is a more robust pattern than a plain boolean when multiple overlapping requests are possible."
+  },
+  {
+    pattern: "Guard Clause",
+    q: "Refactoring: which rewrite correctly converts this nested code to guard clauses?",
+    code: `// Before:\nif (isLoggedIn) {\n  if (hasPermission) {\n    doAction();\n  }\n}`,
+    options: [
+      `if (!isLoggedIn || !hasPermission) return;\ndoAction();`,
+      `if (isLoggedIn && hasPermission) doAction(); return;`,
+      `return isLoggedIn && hasPermission ? doAction() : null;`,
+      `if (!isLoggedIn) return;\nif (hasPermission) doAction();`,
+    ],
+    answer: 0,
+    explanation: "Combining the negated conditions with `||` in a single guard is clean and correct: if either check fails, exit early. Then `doAction()` runs unconditionally — no nesting. Option D is close but still has an if around `doAction`."
+  },
+  {
+    pattern: "Array Group/Partition",
+    q: "Split an array into two arrays: items that pass a test, and items that fail. Which pattern does this?",
+    code: `const nums = [1, 2, 3, 4, 5, 6];\nconst [evens, odds] = nums.reduce(\n  ([pass, fail], n) => ???,\n  [[], []]\n);`,
+    options: [
+      `n % 2 === 0 ? [[...pass, n], fail] : [pass, [...fail, n]]`,
+      `[pass.push(n), fail]`,
+      `n % 2 ? fail.push(n) : pass.push(n)`,
+      `[[...pass, n % 2 === 0], [...fail, n % 2 !== 0]]`,
+    ],
+    answer: 0,
+    explanation: "The partition pattern uses `reduce` with a two-array accumulator. Each item goes into the first array if it passes the predicate, the second if it doesn't. The spread creates new arrays to avoid mutation."
+  },
+  {
+    pattern: "Pipe / Function Composition",
+    q: "You want to apply a sequence of transforms to a value. Which pattern represents function composition?",
+    code: `const process = (val) =>\n  ???(???(???(val)));`,
+    options: [
+      `sanitize(validate(transform(val))) — right-to-left composition`,
+      `val.sanitize().validate().transform() — method chaining`,
+      `[sanitize, validate, transform].reduce((v, fn) => fn(v), val)`,
+      `Both A and C are valid composition patterns`,
+    ],
+    answer: 3,
+    explanation: "Both are correct. A is manual composition (innermost function runs first). C is a pipeline via `reduce` — more scalable when the step list is dynamic. Both are recognized functional patterns for threading a value through transforms."
+  },
+  {
+    pattern: "Object Spread Merge",
+    q: "What does this spread produce? Pick the correct output.",
+    code: `const a = { x: 1, y: 2 };\nconst b = { y: 99, z: 3 };\nconst c = { ...a, ...b };`,
+    options: [
+      `{ x: 1, y: 2, z: 3 }  — a wins because it comes first`,
+      `{ x: 1, y: 99, z: 3 }  — b wins because it comes last`,
+      `{ x: 1, y: [2, 99], z: 3 }  — values are merged into arrays`,
+      `Error — duplicate key y`,
+    ],
+    answer: 1,
+    explanation: "In object spread, later sources overwrite earlier ones for duplicate keys. `...b` comes after `...a`, so `b.y = 99` wins over `a.y = 2`. Result: `{ x: 1, y: 99, z: 3 }`. This is how override-merging works."
+  },
+  {
+    pattern: "Memoization Pattern",
+    q: "A pure function is called repeatedly with the same arguments. Which pattern caches results to avoid redundant computation?",
+    code: `const memo = {};\n\nfunction fib(n) {\n  ???\n  memo[n] = fib(n-1) + fib(n-2);\n  return memo[n];\n}`,
+    options: [
+      `if (n <= 1) return n;`,
+      `if (memo[n] !== undefined) return memo[n];`,
+      `if (n in memo) return memo[n];`,
+      `Both B and C are correct guard-plus-cache patterns`,
+    ],
+    answer: 3,
+    explanation: "Both `memo[n] !== undefined` and `n in memo` correctly check if a result is cached. The guard clause exits early with the cached result. This memoization pattern transforms exponential recursion into linear time."
+  },
+  {
+    pattern: "Conditional Spread",
+    q: "Build a fetch options object that only includes the `body` property for non-GET requests. Which is the clean pattern?",
+    code: `const options = {\n  method,\n  headers,\n  ???(method !== 'GET' && { body: JSON.stringify(data) }),\n};`,
+    options: [
+      `...[]`,
+      `...`,
+      `include:`,
+      `concat`,
+    ],
+    answer: 1,
+    explanation: "Conditional spread `...(condition && { key: val })` is a powerful pattern. When the condition is false, `false` is spread (spreading a falsy value adds nothing). When true, the object's properties are spread in. Used heavily for building dynamic option objects."
+  },
+  {
+    pattern: "Array Find vs Filter",
+    q: "You need exactly one user by ID from an array. Which method is semantically correct and more efficient?",
+    code: `const users = [ ...manyUsers ];\nconst target = users.???(u => u.id === targetId);`,
+    options: [
+      `filter(u => u.id === targetId)[0]`,
+      `find(u => u.id === targetId)`,
+      `map(u => u.id).indexOf(targetId)`,
+      `reduce((found, u) => u.id === targetId ? u : found, null)`,
+    ],
+    answer: 1,
+    explanation: "`find()` stops at the first match and returns the element (or undefined). `filter()[0]` always scans the whole array and returns an array — wasteful for unique lookups. `find` is semantically correct when you expect at most one result."
+  },
+];
+
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  currentQ = 0;
+  score = 0;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  answered = false;
+
+  document.getElementById('qCounter').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  document.getElementById('progressFill').style.width = `${(currentQ / QUESTIONS.length) * 100}%`;
+  document.getElementById('patternTag').textContent = `⬡ ${q.pattern}`;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('codeBlock').textContent = q.code;
+
+  const feedback = document.getElementById('feedbackBox');
+  feedback.className = 'feedback-box';
+  document.getElementById('nextBtn').className = 'next-btn';
+
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  // re-trigger animation
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+}
+
+function selectAnswer(selected) {
+  if (answered) return;
+  answered = true;
+  const q = QUESTIONS[currentQ];
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(b => b.disabled = true);
+
+  const correct = selected === q.answer;
+  if (correct) score++;
+
+  buttons[selected].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) buttons[q.answer].classList.add('correct');
+
+  const fb = document.getElementById('feedbackBox');
+  const title = document.getElementById('feedbackTitle');
+  const body = document.getElementById('feedbackBody');
+
+  if (correct) {
+    fb.className = 'feedback-box correct-fb show';
+    title.textContent = '✓ Correct!';
+  } else {
+    fb.className = 'feedback-box wrong-fb show';
+    title.textContent = `✗ Not quite — the answer is ${['A','B','C','D'][q.answer]}`;
+  }
+  body.textContent = q.explanation;
+
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= QUESTIONS.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz').style.display = 'none';
+  const results = document.getElementById('results');
+  results.style.display = 'flex';
+
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('bCorrect').textContent = score;
+  document.getElementById('bWrong').textContent = QUESTIONS.length - score;
+  document.getElementById('bAccuracy').textContent = Math.round((score / QUESTIONS.length) * 100) + '%';
+
+  const pct = score / QUESTIONS.length;
+  let title, sub;
+  if (pct >= 0.9) {
+    title = "Pattern Master 🏆";
+    sub = "You're reading code like a native. These idioms are deeply wired in — now it's time to build with them unconsciously.";
+    document.getElementById('scoreNum').style.color = 'var(--correct)';
+  } else if (pct >= 0.7) {
+    title = "Strong Recognizer ⚡";
+    sub = "You're picking up the patterns well. A few edge cases tripped you up — revisit the ones you missed and they'll click fast.";
+    document.getElementById('scoreNum').style.color = 'var(--accent)';
+  } else if (pct >= 0.5) {
+    title = "Getting There 📐";
+    sub = "The patterns are familiar but not automatic yet. Focus on the Guard Clause and Nullish Coalescing ones — they come up constantly.";
+    document.getElementById('scoreNum').style.color = '#f78c6c';
+  } else {
+    title = "Keep Drilling 🔧";
+    sub = "Pattern recognition is a skill that needs repetition. Retry the quiz — second time through, the explanations will make much more sense.";
+    document.getElementById('scoreNum').style.color = 'var(--wrong)';
+  }
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+
+  // Animate ring
+  const circumference = 2 * Math.PI * 68;
+  const circle = document.getElementById('scoreCircle');
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference;
+  setTimeout(() => {
+    circle.style.strokeDashoffset = circumference - (pct * circumference);
+  }, 200);
+}
+
+function retryQuiz() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('intro').style.display = 'flex';
+  currentQ = 0;
+  score = 0;
+}
+</script>
+</body>
+</html>

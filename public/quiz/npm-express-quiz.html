@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Express.js Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #2a2a3a;
+    --accent: #00ff88;
+    --accent2: #ff6b35;
+    --accent3: #7c6aff;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --correct: #00ff88;
+    --wrong: #ff4466;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(0,255,136,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(124,106,255,0.04) 0%, transparent 50%);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--text) 40%, var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    height: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 999px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 28px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    opacity: 0.6;
+  }
+
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .q-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  .q-text code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(124,106,255,0.15);
+    border: 1px solid rgba(124,106,255,0.3);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: #b8afff;
+  }
+
+  /* OPTIONS */
+  .options {
+    display: grid;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent3);
+    background: rgba(124,106,255,0.08);
+    transform: translateX(4px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.05);
+    border-radius: 5px;
+    padding: 3px 7px;
+    min-width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: rgba(0,255,136,0.08);
+  }
+
+  .option-btn.correct .opt-letter {
+    background: var(--correct);
+    color: #000;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: rgba(255,68,102,0.08);
+  }
+
+  .option-btn.wrong .opt-letter {
+    background: var(--wrong);
+    color: #fff;
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .feedback.show { display: block; animation: fadeUp 0.3s ease both; }
+  .feedback.correct-fb { background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.3); color: #a0ffcf; }
+  .feedback.wrong-fb   { background: rgba(255,68,102,0.08);  border: 1px solid rgba(255,68,102,0.3);  color: #ffb3c0; }
+
+  /* NEXT BUTTON */
+  .next-btn {
+    margin-top: 24px;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .next-btn.show { display: block; animation: fadeUp 0.3s ease 0.1s both; }
+  .next-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* RESULTS */
+  .results {
+    display: none;
+    text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .results.show { display: block; }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 28px;
+    position: relative;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: none;
+  }
+
+  .score-ring .score-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .score-ring .score-den {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .results h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .results .verdict {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 32px;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .stat-box .stat-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+
+  .stat-box .stat-val.green { color: var(--correct); }
+  .stat-box .stat-val.red   { color: var(--wrong); }
+  .stat-box .stat-val.blue  { color: var(--accent3); }
+
+  .stat-box .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .restart-btn {
+    padding: 15px 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .restart-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="tag">// knowledge check</div>
+    <h1>Express.js Quiz</h1>
+    <p>20 questions · npm &amp; express fundamentals</p>
+  </div>
+
+  <div id="quiz-section">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 / 20</div>
+
+    <div class="card" id="card">
+      <div class="q-number" id="q-number">Question 1 of 20</div>
+      <div class="q-text"  id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn">Next Question →</button>
+    </div>
+  </div>
+
+  <div class="results card" id="results">
+    <div class="score-ring">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="58" fill="none" stroke="#2a2a3a" stroke-width="10"/>
+        <circle cx="70" cy="70" r="58" fill="none" stroke="url(#rg)" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="364.4"
+          id="ring-arc" stroke-dashoffset="364.4"/>
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#00ff88"/>
+            <stop offset="100%" stop-color="#7c6aff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-text">
+        <span class="score-num" id="score-num">0</span>
+        <span class="score-den">/ 20</span>
+      </div>
+    </div>
+    <h2 id="result-title">Quiz Complete!</h2>
+    <div class="verdict" id="verdict"></div>
+    <div class="results-grid">
+      <div class="stat-box"><div class="stat-val green" id="r-correct">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-box"><div class="stat-val red"   id="r-wrong">0</div><div class="stat-label">Wrong</div></div>
+      <div class="stat-box"><div class="stat-val blue"  id="r-pct">0%</div><div class="stat-label">Score</div></div>
+    </div>
+    <button class="restart-btn" onclick="restart()">↺ Try Again</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "What does <code>require('express')</code> do at the top of server.js?",
+    options: [
+      "Downloads express from the internet at runtime",
+      "Imports the express module from node_modules into the file",
+      "Creates a new express server automatically",
+      "Registers express as a global variable in Node.js"
+    ],
+    answer: 1,
+    explain: "require() is Node.js's CommonJS module system. It loads the express package that was previously installed via `npm install express` and stored in node_modules."
+  },
+  {
+    q: "What is the purpose of <code>npm install express</code> before running the server?",
+    options: [
+      "It starts the express server",
+      "It updates Node.js to the latest version",
+      "It downloads the express package into node_modules so require() can find it",
+      "It registers your project on npmjs.com"
+    ],
+    answer: 2,
+    explain: "npm install downloads packages from the npm registry into a local node_modules folder. Without running this first, require('express') would throw a 'Cannot find module' error."
+  },
+  {
+    q: "What does <code>const app = express()</code> create?",
+    options: [
+      "A database connection",
+      "An HTTP server that is immediately listening on a port",
+      "An Express application instance used to define routes and middleware",
+      "A static file server"
+    ],
+    answer: 2,
+    explain: "Calling express() returns an app object — the central object you use to define routes (app.get, app.post, etc.) and register middleware with app.use()."
+  },
+  {
+    q: "Why is <code>const PORT = 3001</code> used instead of hardcoding 3001 everywhere?",
+    options: [
+      "Node.js requires a PORT constant by specification",
+      "It makes the port easy to change in one place, and is often overridden by an environment variable",
+      "Express automatically reads a variable named PORT",
+      "Port 3001 is a reserved constant in the HTTP spec"
+    ],
+    answer: 1,
+    explain: "Using a named constant (or better: process.env.PORT || 3001) means you only change the value once. In production, hosting platforms inject the correct port via environment variables."
+  },
+  {
+    q: "What does <code>app.use(cors({ origin: 'http://localhost:5173' }))</code> do?",
+    options: [
+      "Blocks all requests from localhost:5173",
+      "Enables Cross-Origin Resource Sharing so the React frontend at port 5173 can call this API",
+      "Redirects requests from port 5173 to port 3001",
+      "Installs the cors package automatically"
+    ],
+    answer: 1,
+    explain: "Browsers enforce the Same-Origin Policy and block cross-origin fetch requests by default. The cors middleware adds the necessary Access-Control-Allow-Origin headers so the React dev server (Vite uses port 5173) can call the Express API."
+  },
+  {
+    q: "What is middleware in Express.js?",
+    options: [
+      "Code that only runs when an error occurs",
+      "The database layer between your app and disk",
+      "Functions that have access to req, res, and next — they run in sequence before a route handler",
+      "Another name for a route handler"
+    ],
+    answer: 2,
+    explain: "Middleware functions sit in a pipeline. Each one can read/modify req and res, then call next() to pass control to the next middleware or route handler. app.use() registers middleware globally."
+  },
+  {
+    q: "What does <code>app.use(express.json())</code> enable?",
+    options: [
+      "It makes Express respond with JSON automatically",
+      "It parses incoming request bodies with Content-Type: application/json into req.body",
+      "It converts the WORDS array to JSON format",
+      "It validates that all responses are valid JSON"
+    ],
+    answer: 1,
+    explain: "Without express.json(), POST/PUT requests with a JSON body would leave req.body as undefined. This built-in middleware parses the raw JSON string and populates req.body with the resulting object."
+  },
+  {
+    q: "In the route <code>app.get('/api/word', (req, res) => { ... })</code>, what does <code>/api/word</code> represent?",
+    options: [
+      "A folder path on your hard drive",
+      "The URL path that triggers this route handler when a GET request matches it",
+      "A JavaScript variable named api/word",
+      "The name of the npm package to load"
+    ],
+    answer: 1,
+    explain: "Express matches the incoming request's method (GET) and path (/api/word). If both match, the callback (req, res) => { ... } is invoked. Prefixing routes with /api is a common convention to separate API endpoints from static files."
+  },
+  {
+    q: "What are <code>req</code> and <code>res</code> in a route callback?",
+    options: [
+      "req is the response object, res is the request object",
+      "req represents the incoming HTTP request; res represents the outgoing HTTP response",
+      "Both are references to the Express app instance",
+      "req is for reading the database; res is for writing to it"
+    ],
+    answer: 1,
+    explain: "req (request) contains everything about the incoming request — headers, params, body, query strings. res (response) provides methods like res.json(), res.send(), and res.status() to send a reply back to the client."
+  },
+  {
+    q: "What does <code>res.json({ word })</code> do?",
+    options: [
+      "Logs the word variable to the console",
+      "Saves the word to a JSON file on disk",
+      "Sends an HTTP response with Content-Type: application/json and the serialized object as the body",
+      "Converts the word to uppercase and stores it in req"
+    ],
+    answer: 2,
+    explain: "res.json() automatically sets the Content-Type header to application/json, serializes the object using JSON.stringify, and ends the response. { word } is ES6 shorthand for { word: word }."
+  },
+  {
+    q: "What is <code>Math.floor(Math.random() * WORDS.length)</code> computing?",
+    options: [
+      "The total number of words in the array",
+      "A random floating-point number between 0 and 1",
+      "A random integer index from 0 to WORDS.length - 1, used to pick a random word",
+      "The alphabetically first word in WORDS"
+    ],
+    answer: 2,
+    explain: "Math.random() returns [0, 1). Multiplying by WORDS.length gives [0, 10). Math.floor rounds down to 0–9, giving a valid random array index. This is the standard pattern for picking a random array element."
+  },
+  {
+    q: "What does <code>app.listen(PORT, () => { ... })</code> do?",
+    options: [
+      "It imports a module called listen",
+      "It tells Node.js to start an HTTP server and begin accepting connections on the given port",
+      "It blocks the script until a client connects",
+      "It sends a test request to localhost:3001 to verify the server is up"
+    ],
+    answer: 1,
+    explain: "app.listen() wraps Node's http.createServer() and binds the server to the specified port. The callback fires once the server is ready — a great place to log a startup message."
+  },
+  {
+    q: "Why does the server log <code>Server running on http://localhost:3001</code> to the console?",
+    options: [
+      "Express requires a console.log in app.listen to function correctly",
+      "The callback passed to app.listen executes once the server successfully starts, and it contains that console.log",
+      "Node.js automatically logs this for all HTTP servers",
+      "The cors middleware triggers this log message"
+    ],
+    answer: 1,
+    explain: "The second argument to app.listen() is a callback that runs after the server is bound to the port. The console.log inside it is developer-defined — it just happens to be there as a startup indicator."
+  },
+  {
+    q: "What file lists <code>express</code> and <code>cors</code> as dependencies for this project?",
+    options: [
+      "server.js",
+      ".env",
+      "package.json",
+      "node_modules/index.js"
+    ],
+    answer: 2,
+    explain: "package.json is the project manifest. Running `npm install express cors` adds them to the \"dependencies\" field. Running `npm install` on a fresh clone reads this file and restores all packages."
+  },
+  {
+    q: "What does the <code>cors</code> package solve in this architecture?",
+    options: [
+      "It compresses responses to reduce bandwidth",
+      "It prevents the browser's Same-Origin Policy from blocking the React app from fetching data from a different port",
+      "It encrypts traffic between frontend and backend",
+      "It caches API responses for 24 hours"
+    ],
+    answer: 1,
+    explain: "React (port 5173) and Express (port 3001) are different origins. Without CORS headers, the browser refuses to expose the response to JS. The cors middleware adds the required Access-Control-Allow-Origin header."
+  },
+  {
+    q: "If you added a POST route with <code>app.post('/api/word', ...)</code>, what would be different from the existing GET route?",
+    options: [
+      "POST routes do not receive a req or res object",
+      "POST routes are matched only when the HTTP method is POST, typically used to send data to the server",
+      "POST routes run before all GET routes automatically",
+      "POST routes cannot use res.json()"
+    ],
+    answer: 1,
+    explain: "HTTP methods define intent: GET = retrieve, POST = create/submit. app.post() matches only POST requests. With express.json() already registered, you can read the submitted JSON from req.body inside a POST handler."
+  },
+  {
+    q: "What would happen if you removed <code>app.use(express.json())</code> and a client POSTed JSON?",
+    options: [
+      "The server would crash immediately",
+      "The response would be sent twice",
+      "req.body would be undefined, so you couldn't access the posted data",
+      "Express would still parse it because JSON support is built in by default"
+    ],
+    answer: 2,
+    explain: "express.json() is not on by default — it's an opt-in middleware. Without it, Express doesn't parse the request body, leaving req.body as undefined. This is a very common source of bugs."
+  },
+  {
+    q: "In a production deployment, why might you replace the in-memory <code>WORDS</code> array with a database?",
+    options: [
+      "Arrays are illegal in production Node.js",
+      "Express cannot read arrays longer than 10 items",
+      "In-memory data is lost on server restart and cannot be shared across multiple server instances",
+      "Databases are required by the cors spec"
+    ],
+    answer: 2,
+    explain: "Data stored in a variable lives only in that Node.js process. A restart wipes it, and scaling to multiple servers means each has its own copy. A database persists data and is shared across all instances."
+  },
+  {
+    q: "What npm command would you run to add a new package (e.g. <code>dotenv</code>) to this project?",
+    options: [
+      "node install dotenv",
+      "npm require dotenv",
+      "npm install dotenv",
+      "express add dotenv"
+    ],
+    answer: 2,
+    explain: "`npm install <package>` downloads the package into node_modules and records it in package.json under dependencies (or devDependencies with the --save-dev flag). You then require() it in your code."
+  },
+  {
+    q: "What is the role of <code>node_modules</code> in a Node.js project?",
+    options: [
+      "It stores your application's source code",
+      "It contains all installed npm packages that your code can require()",
+      "It is created by Express to cache route handlers",
+      "It holds environment variables like PORT"
+    ],
+    answer: 1,
+    explain: "node_modules is the local package store. npm install populates it from the registry. It is typically in .gitignore because it can be recreated from package.json with `npm install`, and it can be hundreds of MB."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  answered = false;
+
+  document.getElementById('q-number').textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+  document.getElementById('q-text').innerHTML = q.q;
+
+  const letters = ['A','B','C','D'];
+  const optEl = document.getElementById('options');
+  optEl.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+    btn.onclick = () => selectAnswer(i);
+    optEl.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  const nb = document.getElementById('next-btn');
+  nb.className = 'next-btn';
+  nb.textContent = current === QUESTIONS.length - 1 ? 'See Results →' : 'Next Question →';
+
+  const pct = (current / QUESTIONS.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${current} / ${QUESTIONS.length}`;
+
+  // re-trigger animation
+  const card = document.getElementById('card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = QUESTIONS[current];
+  const btns = document.querySelectorAll('.option-btn');
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === idx)  btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  if (idx === q.answer) {
+    score++;
+    fb.className = 'feedback correct-fb show';
+    fb.textContent = '✓ Correct! ' + q.explain;
+  } else {
+    fb.className = 'feedback wrong-fb show';
+    fb.textContent = '✗ Not quite. ' + q.explain;
+  }
+
+  document.getElementById('next-btn').classList.add('show');
+}
+
+document.getElementById('next-btn').onclick = () => {
+  current++;
+  if (current >= QUESTIONS.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+};
+
+function showResults() {
+  document.getElementById('quiz-section').style.display = 'none';
+  const results = document.getElementById('results');
+  results.classList.add('show');
+
+  const pct = Math.round((score / QUESTIONS.length) * 100);
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('r-correct').textContent = score;
+  document.getElementById('r-wrong').textContent = QUESTIONS.length - score;
+  document.getElementById('r-pct').textContent = pct + '%';
+
+  let title, verdict;
+  if (pct === 100)      { title = '🏆 Perfect Score!';       verdict = 'You nailed every single question.' }
+  else if (pct >= 80)   { title = '🎉 Great Work!';           verdict = 'Solid understanding of Express.js.' }
+  else if (pct >= 60)   { title = '👍 Good Effort';           verdict = 'A few gaps to revisit — keep going.' }
+  else if (pct >= 40)   { title = '📚 Keep Learning';         verdict = 'Review the explanations and try again.' }
+  else                  { title = '💪 Keep At It';            verdict = 'Go back to the basics and give it another shot.' }
+
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('verdict').textContent = verdict;
+
+  // animate ring
+  const circ = 2 * Math.PI * 58;
+  const offset = circ * (1 - score / QUESTIONS.length);
+  setTimeout(() => {
+    document.getElementById('ring-arc').style.transition = 'stroke-dashoffset 1s ease';
+    document.getElementById('ring-arc').style.strokeDashoffset = offset;
+  }, 100);
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quiz-section').style.display = 'block';
+  document.getElementById('ring-arc').style.transition = 'none';
+  document.getElementById('ring-arc').style.strokeDashoffset = 364.4;
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Array Methods Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #111827; --surface2: #0f172a; --border: #1e293b;
+    --text: #e2e8f0; --muted: #94a3b8; --dim: #64748b;
+    --accent: #00ff88; --blue: #7dd3fc; --warn: #fbbf24; --danger: #f87171;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace; --display: 'Syne', sans-serif;
+  }
+  body { background:var(--bg); color:var(--text); font-family:var(--mono); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem 4rem; }
+  #app { width:100%; max-width:720px; }
+
+  .quiz-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .quiz-title { font-family:var(--display); font-size:1.2rem; color:var(--blue); }
+  .quiz-subtitle { color:var(--dim); font-size:0.72rem; }
+  .quiz-score-val { font-size:1.1rem; font-weight:700; color:var(--accent); text-align:right; }
+  .quiz-score-sub { color:var(--dim); font-size:0.72rem; text-align:right; }
+
+  .progress-bar-wrap { background:var(--border); border-radius:999px; height:4px; margin-bottom:1.25rem; }
+  .progress-bar-fill { background:linear-gradient(90deg,var(--accent),var(--blue)); height:100%; border-radius:999px; transition:width 0.4s ease; }
+
+  .timer-wrap { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem; }
+  .timer-track { flex:1; background:var(--border); border-radius:999px; height:6px; overflow:hidden; }
+  .timer-fill { height:100%; border-radius:999px; transition:width 1s linear, background 0.5s; }
+  .timer-label { min-width:2rem; text-align:right; font-size:0.85rem; font-weight:700; }
+
+  .cat-tag { display:inline-block; font-size:0.62rem; padding:0.18rem 0.55rem; border-radius:5px; letter-spacing:0.06em; vertical-align:middle; }
+  .cat-core      { background:#1e3a5f; color:var(--blue); }
+  .cat-random    { background:#2d1f4e; color:#c4b5fd; }
+  .cat-exists    { background:#1a3a2a; color:var(--accent); }
+  .cat-filter    { background:#2d2a10; color:var(--warn); }
+  .cat-transform { background:#3a1a1a; color:var(--danger); }
+  .cat-find      { background:#1a2d3a; color:#93c5fd; }
+  .cat-pattern   { background:#1a2a1a; color:#86efac; }
+
+  .card { background:var(--surface); border-radius:16px; padding:2rem; border:1px solid var(--border); margin-bottom:1.25rem; }
+  .q-badge { display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; font-size:0.68rem; color:var(--dim); letter-spacing:0.08em; }
+  .q-text { font-size:1rem; line-height:1.65; color:#f1f5f9; font-weight:400; margin-bottom:1.25rem; }
+  .q-code { background:var(--surface2); border:1px solid var(--border); border-left:3px solid var(--blue); border-radius:10px; padding:1rem 1.25rem; font-size:0.82rem; color:var(--blue); margin-bottom:1.5rem; overflow-x:auto; line-height:1.7; white-space:pre; font-family:var(--mono); }
+
+  .options { display:flex; flex-direction:column; gap:0.65rem; }
+  .opt-btn { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; text-align:left; cursor:pointer; color:var(--muted); font-family:var(--mono); font-size:0.88rem; transition:all 0.2s; line-height:1.5; display:flex; align-items:center; gap:0.75rem; width:100%; }
+  .opt-btn:hover:not(.disabled) { background:#1e293b; border-color:#334155; color:var(--text); }
+  .opt-btn.disabled { cursor:default; }
+  .opt-btn.correct { background:#00ff8815; border-color:#00ff8860; color:var(--accent); }
+  .opt-btn.wrong   { background:#f8717115; border-color:#f8717160; color:var(--danger); }
+  .opt-circle { min-width:1.5rem; height:1.5rem; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:var(--dim); flex-shrink:0; }
+  .opt-btn.correct .opt-circle { background:#00ff8830; color:var(--accent); }
+  .opt-btn.wrong   .opt-circle { background:#f8717130; color:var(--danger); }
+
+  .explanation { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem; font-size:0.85rem; color:var(--muted); line-height:1.7; animation:fadeUp 0.3s ease; }
+  .next-btn { width:100%; background:linear-gradient(135deg,var(--accent),#06d6a0); border:none; color:var(--bg); padding:0.9rem; border-radius:12px; cursor:pointer; font-family:var(--mono); font-size:0.95rem; font-weight:700; letter-spacing:0.05em; transition:opacity 0.2s; animation:fadeUp 0.3s ease; }
+  .next-btn:hover { opacity:0.88; }
+  .timeout-banner { background:#f8717115; border:1px solid #f8717150; border-radius:10px; padding:0.6rem 1rem; font-size:0.82rem; color:var(--danger); margin-bottom:1rem; animation:fadeUp 0.3s ease; }
+
+  #results { display:none; text-align:center; }
+  .donut-wrap { position:relative; width:140px; height:140px; margin:0 auto 2rem; }
+  .donut-svg { transform:rotate(-90deg); }
+  .donut-bg { fill:none; stroke:var(--border); stroke-width:12; }
+  .donut-fg { fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 1s ease; }
+  .donut-text { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-pct { font-family:var(--display); font-size:1.8rem; font-weight:800; }
+  .grade-label { font-family:var(--display); font-size:2rem; margin-bottom:0.5rem; }
+  .grade-sub { color:var(--dim); font-size:0.9rem; margin-bottom:2rem; }
+  .stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:2rem; }
+  .stat-card { background:var(--surface); border-radius:12px; padding:1rem; border:1px solid var(--border); }
+  .stat-val { font-size:1.5rem; font-weight:700; }
+  .stat-label { font-size:0.72rem; color:var(--dim); margin-top:0.25rem; }
+  .results-btns { display:flex; gap:1rem; justify-content:center; }
+  .btn-secondary { background:#1e3a5f; border:none; color:var(--blue); padding:0.75rem 1.75rem; border-radius:12px; cursor:pointer; font-family:var(--mono); font-size:0.9rem; transition:opacity 0.2s; }
+  .btn-secondary:hover { opacity:0.85; }
+  .btn-primary { background:var(--accent); border:none; color:var(--bg); padding:0.75rem 1.75rem; border-radius:12px; cursor:pointer; font-family:var(--mono); font-size:0.9rem; font-weight:700; transition:opacity 0.2s; }
+  .btn-primary:hover { opacity:0.88; }
+
+  #review { display:none; }
+  .review-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .review-nav { display:flex; justify-content:space-between; margin-top:1.5rem; }
+  .nav-btn { background:#1e3a5f; border:none; color:var(--blue); padding:0.65rem 1.5rem; border-radius:10px; cursor:pointer; font-family:var(--mono); font-size:0.9rem; transition:opacity 0.2s; }
+  .nav-btn:disabled { background:var(--border); color:var(--dim); cursor:default; }
+  .nav-btn:hover:not(:disabled) { opacity:0.85; }
+  .review-badge { font-size:0.78rem; padding:0.25rem 0.75rem; border-radius:999px; }
+  .review-correct { background:#00ff8820; color:var(--accent); }
+  .review-wrong   { background:#f8717120; color:var(--danger); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  @media(max-width:480px){ .card{padding:1.25rem} .q-text{font-size:0.92rem} .opt-btn{font-size:0.82rem} }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="quiz">
+    <div class="quiz-header">
+      <div><div class="quiz-title">JS Array Methods</div><div class="quiz-subtitle">// quiz.js &mdash; 50 questions</div></div>
+      <div><div class="quiz-score-val" id="score-display">0 pts</div><div class="quiz-score-sub" id="q-counter">Q 1 / 50</div></div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="timer-wrap">
+      <div class="timer-track"><div class="timer-fill" id="timer-fill" style="width:100%;background:#00ff88"></div></div>
+      <span class="timer-label" id="timer-label" style="color:#00ff88">30s</span>
+    </div>
+    <div class="card">
+      <div id="q-badge" class="q-badge"></div>
+      <div id="q-text" class="q-text"></div>
+      <pre id="q-code" class="q-code" style="display:none"></pre>
+      <div id="options" class="options"></div>
+    </div>
+    <div class="timeout-banner" id="timeout-banner" style="display:none">&#9200; Time's up! The correct answer is shown below.</div>
+    <div class="explanation" id="explanation" style="display:none"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()">Next Question &rarr;</button>
+  </div>
+
+  <div id="results">
+    <div class="donut-wrap">
+      <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+        <circle class="donut-bg" cx="70" cy="70" r="58"/>
+        <circle class="donut-fg" id="donut-fg" cx="70" cy="70" r="58" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+      </svg>
+      <div class="donut-text"><span class="donut-pct" id="result-pct">0%</span></div>
+    </div>
+    <div class="grade-label" id="grade-label">-</div>
+    <div class="grade-sub" id="grade-sub"></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" style="color:#00ff88" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#f87171" id="stat-wrong">0</div><div class="stat-label">Wrong</div></div>
+      <div class="stat-card"><div class="stat-val" id="stat-score">0%</div><div class="stat-label">Score</div></div>
+    </div>
+    <div class="results-btns">
+      <button class="btn-secondary" onclick="showReview()">Review Answers</button>
+      <button class="btn-primary" onclick="restartQuiz()">Try Again</button>
+    </div>
+  </div>
+
+  <div id="review">
+    <div class="review-header">
+      <button class="btn-secondary" id="back-btn">&#8592; Back to Results</button>
+      <span style="color:var(--dim);font-size:0.85rem" id="review-counter">1 / 50</span>
+    </div>
+    <div class="card">
+      <div style="display:flex;gap:0.6rem;margin-bottom:1rem;align-items:center;flex-wrap:wrap">
+        <span class="review-badge" id="review-badge"></span>
+        <span style="color:var(--dim);font-size:0.8rem" id="review-q-num"></span>
+        <span id="review-cat"></span>
+      </div>
+      <div class="q-text" id="review-q-text"></div>
+      <pre class="q-code" id="review-q-code" style="display:none"></pre>
+      <div class="options" id="review-options"></div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-top:1.25rem;font-size:0.85rem;color:var(--muted);line-height:1.7" id="review-exp"></div>
+    </div>
+    <div class="review-nav">
+      <button class="nav-btn" id="prev-btn" onclick="reviewNav(-1)" disabled>&#8592; Prev</button>
+      <button class="nav-btn" id="rnext-btn" onclick="reviewNav(1)">Next &#8594;</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const Q = [
+  // ── RANDOM PICK ─────────────────────────────────────────────────
+  { cat:"random", q:"What does this expression do?",
+    code:"array[Math.floor(Math.random() * array.length)]",
+    opts:["Returns the last element","Returns a uniformly random element","Returns the middle element","Shuffles the entire array"],
+    ans:1, exp:"Math.random() gives a float in [0,1). Multiplied by array.length and floored, it becomes a valid random integer index — giving a uniformly distributed random element." },
+
+  { cat:"random", q:"Why use Math.floor() instead of Math.round() when picking a random array item?",
+    code:"// array has 3 items (valid indices: 0, 1, 2)\nMath.round(Math.random() * 2) // problem?",
+    opts:["Math.round is slower","Math.round can produce an out-of-bounds index","Math.round always returns 0","No difference at all"],
+    ans:1, exp:"Math.round(Math.random() * 2) can return 2 when Math.random() >= 0.75 — but for a 3-item array, index 2 IS valid (just barely). The real danger: with n items, Math.round(Math.random() * n) can return n, which is out of bounds. Math.floor(Math.random() * n) always stays in [0, n-1]." },
+
+  { cat:"random", q:"Which is the correct way to pick a random item from an array named fruits?",
+    code:null,
+    opts:["fruits[Math.random()]","fruits[Math.floor(Math.random() * fruits.length)]","fruits[Math.ceil(Math.random() * fruits.length)]","fruits[Math.random() * fruits.length]"],
+    ans:1, exp:"Only Math.floor(Math.random() * fruits.length) consistently produces valid integer indices in [0, fruits.length - 1]." },
+
+  { cat:"random", q:"What is the possible output range of this expression for an array of 5 items?",
+    code:"Math.floor(Math.random() * 5)",
+    opts:["1 to 5","0 to 5","0 to 4","0.0 to 4.99"],
+    ans:2, exp:"Math.random() is in [0,1). Times 5 gives [0,5). Math.floor truncates to integers: 0, 1, 2, 3, or 4 — exactly the valid indices for a 5-element array." },
+
+  { cat:"random", q:"How would you pick a random item AND also get its index?",
+    code:"const arr = ['a','b','c','d'];",
+    opts:[
+      "const i = Math.random(arr.length); const item = arr[i];",
+      "const i = Math.floor(Math.random() * arr.length); const item = arr[i];",
+      "const item = arr.random(); const i = arr.indexOf(item);",
+      "const i = arr.length * Math.random(); const item = arr[i];"
+    ],
+    ans:1, exp:"Store the computed index in a variable first: const i = Math.floor(Math.random() * arr.length). Then arr[i] gives you the element and i gives you the index." },
+
+  // ── CHECK IF SOMETHING EXISTS ────────────────────────────────────
+  { cat:"exists", q:"What does includes() return for this call?",
+    code:"['cat', 'dog', 'bird'].includes('dog')",
+    opts:["1","true","'dog'","undefined"],
+    ans:1, exp:"includes() always returns a boolean — true if the value exists in the array, false otherwise." },
+
+  { cat:"exists", q:"What is the key difference between includes() and indexOf()?",
+    code:"[NaN].includes(NaN)  // → ?\n[NaN].indexOf(NaN)   // → ?",
+    opts:[
+      "includes() returns boolean and handles NaN; indexOf() returns an index and fails on NaN",
+      "indexOf() is always faster",
+      "includes() only works on strings",
+      "There is no practical difference"
+    ],
+    ans:0, exp:"includes() uses SameValueZero, which correctly matches NaN. indexOf() uses strict equality (===), and NaN !== NaN, so indexOf always returns -1 for NaN." },
+
+  { cat:"exists", q:"What is the output?",
+    code:"[1, 2, NaN].includes(NaN)",
+    opts:["false","true","undefined","Throws TypeError"],
+    ans:1, exp:"Unlike indexOf(), includes() uses SameValueZero, which correctly identifies NaN as equal to NaN. Result: true." },
+
+  { cat:"exists", q:"How do you check if a value does NOT exist in an array?",
+    code:"const fruits = ['apple', 'banana', 'cherry'];",
+    opts:[
+      "fruits.excludes('mango')",
+      "!fruits.includes('mango')",
+      "fruits.missing('mango')",
+      "fruits.indexOf('mango') === undefined"
+    ],
+    ans:1, exp:"Simply negate includes() with !. Note: the indexOf approach would need === -1, not === undefined, since indexOf returns a number." },
+
+  { cat:"exists", q:"What does some() offer over includes() when working with objects?",
+    code:"const users = [{name:'Alice'},{name:'Bob'}];\nusers.some(u => u.name === 'Alice')",
+    opts:[
+      "some() is faster for large arrays",
+      "some() accepts a callback so it can test complex conditions, not just primitive equality",
+      "some() returns the matching element",
+      "No difference — they are interchangeable"
+    ],
+    ans:1, exp:"includes() uses strict equality — great for primitives. some() takes a callback, letting you match on any condition, including object properties." },
+
+  // ── FILTER DOWN TO MATCHING ITEMS ───────────────────────────────
+  { cat:"filter", q:"What does filter() always return, even if nothing matches?",
+    code:"[1, 2, 3, 4].filter(x => x > 100)",
+    opts:["null","undefined","false","An empty array []"],
+    ans:3, exp:"filter() always returns a new array. When no elements match, it returns [] — never null or undefined." },
+
+  { cat:"filter", q:"What is the output?",
+    code:"[0, '', null, undefined, false, 1, 'hi'].filter(Boolean)",
+    opts:[
+      "[0, '', null, undefined, false, 1, 'hi']",
+      "[1, 'hi']",
+      "[false, 1, 'hi']",
+      "[]"
+    ],
+    ans:1, exp:"Passing Boolean as the callback coerces each element. 0, '', null, undefined, and false are falsy — removed. Only 1 and 'hi' survive." },
+
+  { cat:"filter", q:"How do you filter an array to keep only even numbers?",
+    code:"const nums = [1, 2, 3, 4, 5, 6];",
+    opts:[
+      "nums.filter(n => n / 2)",
+      "nums.filter(n => n % 2 === 0)",
+      "nums.keep(n => n % 2 === 0)",
+      "nums.filter(n => n % 2)"
+    ],
+    ans:1, exp:"n % 2 === 0 is truthy for even numbers. Note: n % 2 without === 0 keeps ODD numbers, because remainder 1 is truthy." },
+
+  { cat:"filter", q:"What does this filter return?",
+    code:"['spray','limit','elite','exuberant'].filter(w => w.length > 5)",
+    opts:["['spray','limit']","['exuberant']","['elite','exuberant']","['spray','exuberant']"],
+    ans:1, exp:"spray=5, limit=5, elite=5 — none exceed 5. exuberant=9 — passes. Result: ['exuberant']." },
+
+  { cat:"filter", q:"What is the difference between filter() and find()?",
+    code:null,
+    opts:[
+      "filter() returns all matches as a new array; find() returns just the first match as a value",
+      "find() returns an array; filter() returns a single value",
+      "They are identical",
+      "filter() mutates; find() does not"
+    ],
+    ans:0, exp:"filter() returns a NEW array of ALL matching elements. find() returns the first matching element as a raw value (or undefined if none match) — not wrapped in an array." },
+
+  { cat:"filter", q:"How would you filter out all falsy values from an array?",
+    code:"const mixed = [1, 0, 'hi', '', null, true, false, undefined];",
+    opts:[
+      "mixed.filter(x => x !== false)",
+      "mixed.filter(Boolean)",
+      "mixed.remove(falsy)",
+      "mixed.clean()"
+    ],
+    ans:1, exp:"filter(Boolean) is the idiomatic way to strip all falsy values (0, '', null, undefined, false, NaN) in one pass." },
+
+  // ── TRANSFORM EVERY ITEM ────────────────────────────────────────
+  { cat:"transform", q:"What does this expression produce?",
+    code:"['hello', 'world'].map(word => word.toUpperCase())",
+    opts:["['hello','world']","['HELLO','WORLD']","'HELLO WORLD'","undefined"],
+    ans:1, exp:"map() creates a new array by applying the callback to each element. toUpperCase() on each string yields ['HELLO','WORLD']." },
+
+  { cat:"transform", q:"What does map() guarantee about its return value length?",
+    code:"[1, 2, 3].map(x => x * 10)",
+    opts:[
+      "A new array of the same length as the original",
+      "A new array that may be shorter if items are skipped",
+      "The original array modified in place",
+      "undefined"
+    ],
+    ans:0, exp:"map() always returns a NEW array of EXACTLY the same length. One output element per input element — no exceptions." },
+
+  { cat:"transform", q:"How do you extract just the 'name' property from an array of user objects?",
+    code:"const users = [\n  { name:'Alice', age:30 },\n  { name:'Bob',   age:25 }\n];",
+    opts:[
+      "users.map(u => u)",
+      "users.map(u => u.name)",
+      "users.extract('name')",
+      "users.filter(u => u.name)"
+    ],
+    ans:1, exp:"users.map(u => u.name) returns ['Alice','Bob']. This 'pluck' pattern is one of the most common uses of map()." },
+
+  { cat:"transform", q:"What is the output?",
+    code:"[1, 2, 3].map(n => n ** 2)",
+    opts:["[1,4,9]","[2,4,6]","[1,2,3]","6"],
+    ans:0, exp:"** is the exponentiation operator. 1^2=1, 2^2=4, 3^2=9. Result: [1,4,9]." },
+
+  { cat:"transform", q:"What is the key difference between map() and forEach()?",
+    code:null,
+    opts:[
+      "forEach() returns a new array; map() returns undefined",
+      "map() returns a new array; forEach() always returns undefined",
+      "map() mutates the original; forEach() does not",
+      "They are interchangeable"
+    ],
+    ans:1, exp:"map() returns a new transformed array. forEach() always returns undefined — use it only for side effects like logging or DOM updates, not when you need the result." },
+
+  { cat:"transform", q:"What does this map() call produce?",
+    code:"['  hello  ','  world  '].map(s => s.trim())",
+    opts:["['  hello  ','  world  ']","['hello','world']","['hello  ','world  ']","undefined"],
+    ans:1, exp:"trim() removes leading and trailing whitespace from each string. map() applies it to every element." },
+
+  { cat:"transform", q:"What is the output of this map over objects?",
+    code:"[{price:10},{price:20},{price:30}].map(p => p.price * 1.1)",
+    opts:["[{price:11},{price:22},{price:33}]","[11, 22, 33]","[10,20,30]","undefined"],
+    ans:1, exp:"map() transforms each object by extracting price and multiplying by 1.1 (a 10% increase). The result is an array of numbers: [11,22,33]." },
+
+  // ── FIND THE FIRST MATCH ─────────────────────────────────────────
+  { cat:"find", q:"What does this expression return?",
+    code:"['banana','apple','avocado','apricot']\n  .find(item => item.startsWith('a'))",
+    opts:["['apple','avocado','apricot']","'apple'","'avocado'","undefined"],
+    ans:1, exp:"find() returns the FIRST element that satisfies the condition. 'banana' fails. 'apple' starts with 'a' — found! It stops immediately and returns 'apple'." },
+
+  { cat:"find", q:"What does find() return when no element matches?",
+    code:"[1, 2, 3].find(x => x > 100)",
+    opts:["null","-1","false","undefined"],
+    ans:3, exp:"find() returns undefined when no element satisfies the condition. Compare with findIndex() which returns -1 in the same scenario." },
+
+  { cat:"find", q:"What does findIndex() return for this call?",
+    code:"['cat','dog','fish'].findIndex(x => x === 'dog')",
+    opts:["'dog'","true","1","2"],
+    ans:2, exp:"findIndex() returns the INDEX of the first matching element, not the element itself. 'dog' is at index 1." },
+
+  { cat:"find", q:"What is the difference between find() and filter() when working with objects?",
+    code:"const items = [{id:1},{id:2},{id:3}];",
+    opts:[
+      "find() returns the first matching object; filter() returns an array of all matching objects",
+      "filter() returns the first match; find() returns all matches",
+      "find() mutates the array",
+      "They behave identically for objects"
+    ],
+    ans:0, exp:"find() gives you the raw matching object ({id:2}). filter() gives you an array ([{id:2}]). Use find() when you expect exactly one result." },
+
+  { cat:"find", q:"What is the output?",
+    code:"const people = [\n  { name:'Alice', age:28 },\n  { name:'Bob',   age:17 },\n  { name:'Carol', age:15 }\n];\npeople.find(p => p.age < 18)?.name",
+    opts:["'Alice'","'Bob'","['Bob','Carol']","undefined"],
+    ans:1, exp:"find() returns the first person where age < 18 — that's Bob. The optional chain (?.) safely accesses .name, yielding 'Bob'." },
+
+  { cat:"find", q:"How do find() and findIndex() behave when the array is empty?",
+    code:"[].find(x => x > 0)\n[].findIndex(x => x > 0)",
+    opts:[
+      "find() throws; findIndex() returns -1",
+      "Both return undefined",
+      "find() returns undefined; findIndex() returns -1",
+      "Both return null"
+    ],
+    ans:2, exp:"On an empty array, find() returns undefined and findIndex() returns -1. Neither throws an error." },
+
+  // ── CORE ARRAY METHODS ───────────────────────────────────────────
+  { cat:"core", q:"What does Array.prototype.map() return?",
+    code:"const nums = [1, 2, 3];\nconst result = nums.map(x => x * 2);",
+    opts:["The original array mutated","A new array with transformed elements","undefined","A boolean"],
+    ans:1, exp:"map() always returns a NEW array of the same length with each element transformed by the callback." },
+
+  { cat:"core", q:"What is the output?",
+    code:"[1, 2, 3].reduce((acc, val) => acc + val, 0)",
+    opts:["[1,2,3]","undefined","6","123"],
+    ans:2, exp:"reduce() accumulates values. Starting at 0: 0+1=1, 1+2=3, 3+3=6." },
+
+  { cat:"core", q:"What does flat() do by default (no argument)?",
+    code:"[1, [2, [3, [4]]]].flat()",
+    opts:["[1,2,3,4]","[1,2,[3,[4]]]","[1,[2,[3,[4]]]]","Throws an error"],
+    ans:1, exp:"flat() defaults to depth 1 — only one level is flattened. To go deeper, pass a number or use flat(Infinity)." },
+
+  { cat:"core", q:"Which method MUTATES the original array?",
+    code:null,
+    opts:["map()","filter()","splice()","slice()"],
+    ans:2, exp:"splice() directly mutates the original array. map(), filter(), and slice() all return new arrays without touching the original." },
+
+  { cat:"core", q:"What does flatMap() return?",
+    code:"[[1,2],[3,4]].flatMap(x => x)",
+    opts:["[[1,2],[3,4]]","[1,2,3,4]","[1,2,3,4,undefined]","Throws an error"],
+    ans:1, exp:"flatMap() maps each element then flattens one level deep. It is equivalent to .map(...).flat(1)." },
+
+  { cat:"core", q:"What does every() return here?",
+    code:"[2, 4, 6, 8].every(x => x % 2 === 0)",
+    opts:["[true,true,true,true]","4","true","false"],
+    ans:2, exp:"every() returns true only if ALL elements satisfy the condition. All four numbers are even, so the result is true." },
+
+  { cat:"core", q:"What is the output?",
+    code:"['a','b','c'].reduceRight((acc, val) => acc + val)",
+    opts:["'abc'","'cba'","'c'","undefined"],
+    ans:1, exp:"reduceRight() iterates right-to-left. Starting with 'c', then 'c'+'b'='cb', then 'cb'+'a'='cba'." },
+
+  { cat:"core", q:"What does new Array(3).fill(0) produce?",
+    code:"new Array(3).fill(0)",
+    opts:["[undefined,undefined,undefined]","[0,0,0]","[3]","[0]"],
+    ans:1, exp:"fill() fills all slots with the given value. new Array(3) creates 3 empty slots; .fill(0) sets all to 0." },
+
+  { cat:"core", q:"What is the output?",
+    code:"[1,[2],[[3]]].flat(Infinity)",
+    opts:["[1,[2],[[3]]]","[1,2,[3]]","[1,2,3]","Throws RangeError"],
+    ans:2, exp:"flat(Infinity) recursively flattens every nesting level, no matter how deep." },
+
+  { cat:"core", q:"What does this range generator produce?",
+    code:"Array.from({ length: 5 }, (_, i) => i + 1)",
+    opts:["[0,1,2,3,4]","[1,2,3,4,5]","[undefined x5]","Throws TypeError"],
+    ans:1, exp:"Array.from with a map function is the idiomatic way to generate ranges. {length:5} is an array-like object." },
+
+  { cat:"core", q:"What is the infamous output?",
+    code:"[1, 2, 3].map(parseInt)",
+    opts:["[1,2,3]","[1,NaN,NaN]","[1,2,NaN]","[NaN,NaN,NaN]"],
+    ans:1, exp:"map passes (value, index, array). parseInt(2, 1) with radix 1 is NaN; parseInt(3, 2) parses '3' in binary which is also NaN. Always use .map(x => parseInt(x, 10))." },
+
+  { cat:"core", q:"What does at(-1) return?",
+    code:"const arr = [10, 20, 30];\narr.at(-1)",
+    opts:["undefined","10","20","30"],
+    ans:3, exp:"at() supports negative indices. -1 means the last element, -2 the second to last, etc. arr.at(-1) returns 30." },
+
+  { cat:"core", q:"What is the correct comparator for descending numeric sort?",
+    code:"[3, 1, 4, 1, 5].sort(???)",
+    opts:["(a,b) => a-b","(a,b) => b-a","(a,b) => a>b","(a,b) => -1"],
+    ans:1, exp:"(a,b) => b-a sorts descending. A positive return means b comes before a. (a,b) => a-b sorts ascending." },
+
+  { cat:"core", q:"What is the immutable way to add an item to an array?",
+    code:"const arr = [1, 2, 3];",
+    opts:["arr.push(4)","arr[arr.length] = 4","[...arr, 4]","arr.add(4)"],
+    ans:2, exp:"[...arr, 4] creates a NEW array — the original is untouched. This is the immutable, React/Redux-friendly pattern." },
+
+  { cat:"core", q:"What does Array.isArray([]) return and why does it matter?",
+    code:"typeof []          // → 'object'\nArray.isArray([])  // → ?",
+    opts:["false","true","'array'","null"],
+    ans:1, exp:"typeof [] is 'object', which is ambiguous. Array.isArray() reliably distinguishes arrays from plain objects, null, Date, etc." },
+
+  // ── PATTERNS ─────────────────────────────────────────────────────
+  { cat:"pattern", q:"What does this reduce implement?",
+    code:"const grouped = items.reduce((acc, item) => {\n  const key = item.category;\n  return { ...acc, [key]: [...(acc[key] || []), item] };\n}, {});",
+    opts:["Sort by category","Group-by (bucket items by a shared property)","Flatten nested arrays","Deduplication"],
+    ans:1, exp:"This is the classic reduce group-by pattern — collecting array items into an object keyed by a property value." },
+
+  { cat:"pattern", q:"What does this functional pipeline produce?",
+    code:"[1,2,3,4,5]\n  .filter(x => x % 2 !== 0)\n  .map(x => x ** 2)\n  .reduce((a,b) => a + b, 0)",
+    opts:["55","35","9","15"],
+    ans:1, exp:"Filter odd numbers: [1,3,5]. Square each: [1,9,25]. Sum: 1+9+25 = 35." },
+
+  { cat:"pattern", q:"What is the idiomatic way to remove duplicates from an array?",
+    code:"const arr = [1, 1, 2, 3, 3, 2];",
+    opts:[
+      "arr.removeDuplicates()",
+      "[...new Set(arr)]",
+      "arr.filter((v,i) => arr.indexOf(v) > i)",
+      "arr.unique()"
+    ],
+    ans:1, exp:"[...new Set(arr)] or Array.from(new Set(arr)) are the modern idiomatic ways. A Set only stores unique values by design." },
+
+  { cat:"pattern", q:"What is the ES2023 immutable alternative to splice()?",
+    code:"const arr = [1, 2, 3, 4];\nconst newArr = arr.???(1, 1, 99);\n// arr unchanged, newArr = [1, 99, 3, 4]",
+    opts:["immutableSplice()","toSpliced()","safeSplice()","spliceCopy()"],
+    ans:1, exp:"toSpliced() (ES2023) is the immutable version of splice(). Also new in ES2023: toSorted(), toReversed(), and with()." },
+
+  { cat:"pattern", q:"What does this reduce build?",
+    code:"const arr = ['a','b','c'];\narr.reduce((acc, val, i) => ({ ...acc, [val]: i }), {})",
+    opts:["['a','b','c']","{ a:0, b:1, c:2 }","{ 0:'a', 1:'b', 2:'c' }","undefined"],
+    ans:1, exp:"This reduce builds an object mapping each value to its index — a common O(1) lookup optimisation pattern." },
+
+  { cat:"pattern", q:"How do you find the maximum number in an array with spread?",
+    code:"const nums = [3, 7, 1, 9, 4];",
+    opts:[
+      "nums.max()",
+      "Math.max(...nums)",
+      "nums.reduce(Math.max)",
+      "Math.max(nums)"
+    ],
+    ans:1, exp:"Math.max expects individual arguments, not an array. The spread operator (...nums) expands the array into arguments: Math.max(3,7,1,9,4) = 9." },
+
+  { cat:"pattern", q:"What does this immutable update pattern do?",
+    code:"const arr = [1, 2, 3, 4, 5];\nconst updated = arr.map((x, i) => i === 2 ? 99 : x);",
+    opts:[
+      "Deletes index 2 from the array",
+      "Returns a new array with index 2 replaced by 99, without mutating arr",
+      "Inserts 99 at index 2",
+      "Replaces every element with 99"
+    ],
+    ans:1, exp:"This is the immutable update pattern — map returns a new array where only index 2 is swapped for 99. The original arr remains [1,2,3,4,5]." },
+
+  { cat:"pattern", q:"What does this reduce produce?",
+    code:"[1, 2, 3].reduce((acc, val) => [...acc, val * 2], [])",
+    opts:["[2,4,6]","12","[1,2,3,2,4,6]","undefined"],
+    ans:0, exp:"This reduce builds a new array by spreading the accumulator and appending val*2 each iteration — effectively .map(x => x * 2)." },
+
+  { cat:"pattern", q:"What is the output of this array merge?",
+    code:"const a = [1, 2];\nconst b = [3, 4];\nconst c = [...a, ...b];",
+    opts:["[[1,2],[3,4]]","[1,2,3,4]","[1,2,[3,4]]","TypeError"],
+    ans:1, exp:"The spread operator expands each array into individual elements. This immutable merge pattern is preferred over concat() in modern code." }
+];
+
+const TOTAL = Q.length;
+const CAT = {
+  core:      {label:"Core Method",  cls:"cat-core"},
+  random:    {label:"Random Pick",  cls:"cat-random"},
+  exists:    {label:"Check Exists", cls:"cat-exists"},
+  filter:    {label:"Filter",       cls:"cat-filter"},
+  transform: {label:"Transform",    cls:"cat-transform"},
+  find:      {label:"Find",         cls:"cat-find"},
+  pattern:   {label:"Pattern",      cls:"cat-pattern"}
+};
+
+let cQ=0, score=0, answered=false, timerVal=30, timerInterval=null, userAnswers=[], revIdx=0;
+
+function catHtml(cat){ const m=CAT[cat]||{label:cat,cls:'cat-core'}; return `<span class="cat-tag ${m.cls}">${m.label}</span>`; }
+
+function startTimer(){
+  clearInterval(timerInterval); timerVal=30; tickTimer();
+  timerInterval=setInterval(()=>{ timerVal--; tickTimer(); if(timerVal<=0){clearInterval(timerInterval);handleAnswer(null);} },1000);
+}
+function tickTimer(){
+  const p=(timerVal/30)*100, c=timerVal>15?'#00ff88':timerVal>8?'#fbbf24':'#f87171';
+  document.getElementById('timer-fill').style.cssText=`width:${p}%;background:${c}`;
+  document.getElementById('timer-label').style.color=c;
+  document.getElementById('timer-label').textContent=timerVal+'s';
+}
+
+function renderQ(){
+  const q=Q[cQ];
+  document.getElementById('q-badge').innerHTML=`QUESTION ${cQ+1} &nbsp;${catHtml(q.cat)}`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-counter').textContent=`Q ${cQ+1} / ${TOTAL}`;
+  document.getElementById('score-display').textContent=`${score} pts`;
+  document.getElementById('progress-fill').style.width=`${(cQ/TOTAL)*100}%`;
+  const ce=document.getElementById('q-code');
+  q.code?(ce.textContent=q.code,ce.style.display='block'):(ce.style.display='none');
+  const oe=document.getElementById('options'); oe.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='opt-btn';
+    b.innerHTML=`<span class="opt-circle">${String.fromCharCode(65+i)}</span>${esc(o)}`;
+    b.onclick=()=>handleAnswer(i); oe.appendChild(b);
+  });
+  ['explanation','next-btn','timeout-banner'].forEach(id=>document.getElementById(id).style.display='none');
+  answered=false; startTimer();
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function handleAnswer(idx){
+  if(answered)return; answered=true; clearInterval(timerInterval);
+  const q=Q[cQ]; const ok=idx===q.ans;
+  if(ok)score++; userAnswers.push({selected:idx,correct:ok});
+  document.querySelectorAll('#options .opt-btn').forEach((b,i)=>{
+    b.classList.add('disabled'); b.onclick=null;
+    const c=b.querySelector('.opt-circle');
+    if(i===q.ans){b.classList.add('correct');c.textContent='✓';}
+    else if(i===idx&&!ok){b.classList.add('wrong');c.textContent='✗';}
+  });
+  if(idx===null)document.getElementById('timeout-banner').style.display='block';
+  const ex=document.getElementById('explanation');
+  ex.innerHTML=`<span style="color:var(--warn);margin-right:.4rem">&#128161;</span><strong style="color:var(--text)">Explanation: </strong>${q.exp}`;
+  ex.style.display='block'; ex.style.borderLeft=`3px solid ${ok?'var(--accent)':'var(--danger)'}`;
+  const nb=document.getElementById('next-btn'); nb.style.display='block';
+  nb.textContent=cQ+1>=TOTAL?'See Results \u2192':'Next Question \u2192';
+}
+
+function nextQuestion(){ cQ++; cQ>=TOTAL?showResults():renderQ(); }
+
+function showResults(){
+  ['quiz','review'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('results').style.display='block';
+  const p=Math.round((score/TOTAL)*100);
+  const g=p>=90?'Expert':p>=70?'Proficient':p>=50?'Learning':'Beginner';
+  const c=p>=90?'#00ff88':p>=70?'#7dd3fc':p>=50?'#fbbf24':'#f87171';
+  document.getElementById('result-pct').textContent=p+'%'; document.getElementById('result-pct').style.color=c;
+  document.getElementById('grade-label').textContent=g; document.getElementById('grade-label').style.color=c;
+  document.getElementById('grade-sub').textContent=`${score} correct out of ${TOTAL} questions`;
+  document.getElementById('stat-correct').textContent=score;
+  document.getElementById('stat-wrong').textContent=TOTAL-score;
+  document.getElementById('stat-score').textContent=p+'%'; document.getElementById('stat-score').style.color=c;
+  const fg=document.getElementById('donut-fg'); fg.style.stroke=c;
+  setTimeout(()=>{ fg.style.strokeDashoffset=364.4-(p/100)*364.4; },100);
+}
+
+function showReview(){
+  document.getElementById('results').style.display='none';
+  document.getElementById('review').style.display='block';
+  revIdx=0; renderRev();
+}
+
+function renderRev(){
+  const q=Q[revIdx], a=userAnswers[revIdx];
+  document.getElementById('review-counter').textContent=`${revIdx+1} / ${TOTAL}`;
+  document.getElementById('review-q-num').textContent=`Q${revIdx+1}`;
+  document.getElementById('review-cat').innerHTML=catHtml(q.cat);
+  const bd=document.getElementById('review-badge');
+  bd.textContent=a.correct?'✓ Correct':'✗ Incorrect';
+  bd.className='review-badge '+(a.correct?'review-correct':'review-wrong');
+  document.getElementById('review-q-text').textContent=q.q;
+  const ce=document.getElementById('review-q-code');
+  q.code?(ce.textContent=q.code,ce.style.display='block'):(ce.style.display='none');
+  const oe=document.getElementById('review-options'); oe.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const ok=i===q.ans, sel=i===a.selected;
+    const d=document.createElement('div');
+    d.className='opt-btn disabled'+(ok?' correct':sel?' wrong':'');
+    const ci=document.createElement('span'); ci.className='opt-circle';
+    ci.textContent=ok?'✓':(sel&&!ok?'✗':String.fromCharCode(65+i));
+    if(ok){ci.style.background='#00ff8830';ci.style.color='#00ff88';}
+    else if(sel){ci.style.background='#f8717130';ci.style.color='#f87171';}
+    d.appendChild(ci); d.appendChild(document.createTextNode(o)); oe.appendChild(d);
+  });
+  document.getElementById('review-exp').innerHTML=`<span style="color:var(--warn)">&#128161; </span>${q.exp}`;
+  document.getElementById('prev-btn').disabled=revIdx===0;
+  document.getElementById('rnext-btn').disabled=revIdx===TOTAL-1;
+}
+
+function reviewNav(d){ revIdx=Math.max(0,Math.min(TOTAL-1,revIdx+d)); renderRev(); }
+
+document.getElementById('back-btn').onclick=function(){
+  document.getElementById('review').style.display='none';
+  document.getElementById('results').style.display='block';
+};
+
+function restartQuiz(){
+  cQ=0;score=0;answered=false;userAnswers=[];revIdx=0;
+  ['results','review'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('quiz').style.display='block';
+  document.getElementById('donut-fg').style.strokeDashoffset='364.4';
+  renderQ();
+}
+
+renderQ();
+</script>
+</body>
+</html>
