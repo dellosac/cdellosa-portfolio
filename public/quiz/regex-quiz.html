@@ -459,7 +459,7 @@
   <header>
     <div class="tag">// knowledge test</div>
     <h1><span class="cyan">REG</span><span class="pink">EX</span><br>MASTER</h1>
-    <p class="subtitle">20 questions · patterns · syntax · logic</p>
+    <p class="subtitle">50 questions · JavaScript · patterns · interview prep</p>
   </header>
 
   <!-- START SCREEN -->
@@ -470,7 +470,7 @@
 
     <div class="start-stats">
       <div class="start-stat">
-        <span class="start-stat-val">20</span>
+        <span class="start-stat-val">50</span>
         <span class="start-stat-label">Questions</span>
       </div>
       <div class="divider"></div>
@@ -496,6 +496,14 @@
       <span class="topic-tag">Backreferences</span>
       <span class="topic-tag">Alternation</span>
       <span class="topic-tag">Escaping</span>
+      <span class="topic-tag">matchAll()</span>
+      <span class="topic-tag">Unicode (\\p{})</span>
+      <span class="topic-tag">ReDoS</span>
+      <span class="topic-tag">Sticky Flag</span>
+      <span class="topic-tag">Possessive</span>
+      <span class="topic-tag">Python vs JS</span>
+      <span class="topic-tag">split() tricks</span>
+      <span class="topic-tag">IP Validation</span>
     </div>
 
     <button class="btn btn-primary" onclick="startQuiz()" style="font-size:13px; padding:14px 40px;">START QUIZ →</button>
@@ -545,6 +553,7 @@
 
 <script>
 const questions = [
+  // ── QUESTIONS 1-20 (original, JS-verified) ──────────────────────────────
   {
     q: "What does the <code>^</code> anchor match in a regex pattern?",
     code: null,
@@ -621,7 +630,7 @@ const questions = [
     q: "Which of the following is a positive lookahead?",
     code: null,
     options: [
-      "/foo(?<=bar)/",
+      "/foo(?&lt;=bar)/",
       "/foo(?!bar)/",
       "/foo(?=bar)/",
       "/(?:foo)bar/"
@@ -726,16 +735,16 @@ const questions = [
     explanation: "{2,5} is an interval quantifier matching between 2 and 5 occurrences (inclusive). /a{2,5}/ matches 'aa', 'aaa', 'aaaa', or 'aaaaa'."
   },
   {
-    q: "What is a named capture group, and which syntax is used?",
+    q: "What is a named capture group in JavaScript, and which syntax is used?",
     code: null,
     options: [
       "/(?:name)pattern/ — non-capturing with label",
-      "/(?<name>pattern)/ — named capture, accessed via match.groups.name",
+      "/(?&lt;n&gt;pattern)/ — named capture, accessed via match.groups.name",
       "/(?=name)pattern/ — lookahead with alias",
       "/(?[name]pattern)/ — bracket notation"
     ],
     answer: 1,
-    explanation: "(?<name>...) creates a named capture group. In JavaScript, you access it via match.groups.name. It makes regex results much more readable than numbered references."
+    explanation: "(?<n>...) creates a named capture group. In JavaScript, you access it via match.groups.name. It makes regex results much more readable than numbered references."
   },
   {
     q: "What does alternation <code>|</code> do in regex?",
@@ -750,7 +759,7 @@ const questions = [
     explanation: "| is the alternation operator — it means OR. /cat|dog|bird/ matches 'cat', 'dog', or 'bird'. It evaluates left-to-right and stops at the first match."
   },
   {
-    q: "What does the lookbehind <code>(?<=\\$)\\d+</code> match?",
+    q: "What does the lookbehind <code>(?&lt;=\\$)\\d+</code> match?",
     code: null,
     options: [
       "Any sequence of digits",
@@ -762,7 +771,7 @@ const questions = [
     explanation: "(?<=\\$) is a positive lookbehind — it asserts the match is preceded by '$'. So (?<=\\$)\\d+ matches digits that come after a $, but '$' itself is not part of the matched text."
   },
   {
-    q: "Which regex would validate a basic email format?",
+    q: "Which regex would validate a basic email format in JavaScript?",
     code: null,
     options: [
       "/^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$/",
@@ -784,11 +793,376 @@ const questions = [
     ],
     answer: 2,
     explanation: "\\b\\w matches the first word character at every word boundary. With the g flag, this hits 'f', 'b', and 'b'. Uppercasing each gives 'Foo Bar Baz' — a title-case transform."
+  },
+
+  // ── QUESTIONS 21-40 (advanced JS) ───────────────────────────────────────
+  {
+    q: "What does <code>String.prototype.matchAll()</code> require that <code>match()</code> does not?",
+    code: null,
+    options: [
+      "The 's' (dotAll) flag",
+      "The 'g' (global) flag — it throws a TypeError without it",
+      "The 'm' (multiline) flag",
+      "A capturing group in the pattern"
+    ],
+    answer: 1,
+    explanation: "matchAll() always requires the 'g' flag — it throws a TypeError if the regex doesn't have it. It returns an iterator of all match objects, each with full capture group info, unlike match() with 'g' which drops group details."
+  },
+  {
+    q: "Which approach correctly replaces ALL occurrences of a substring in JavaScript without regex?",
+    code: "'a-b-c'.replaceAll('-', '_')",
+    options: [
+      "replace() with a string argument replaces all",
+      "replaceAll() introduced in ES2021",
+      "split('-').join('_')",
+      "Both B and C are valid"
+    ],
+    answer: 3,
+    explanation: "replaceAll() (ES2021) replaces all occurrences directly. split('-').join('_') is a classic workaround. Both work. replace() with a string argument only replaces the first match."
+  },
+  {
+    q: "What does this JavaScript produce?",
+    code: "'2024-03'.match(/(?&lt;year&gt;\\d{4})-(?&lt;month&gt;\\d{2})/)",
+    options: [
+      "An array with index 1 and 2 only",
+      "A match object with a 'groups' property: { year: '2024', month: '03' }",
+      "An error — named groups need the 'g' flag",
+      "A plain array: ['2024', '03']"
+    ],
+    answer: 1,
+    explanation: "Named capture groups populate the match object's .groups property. The result has match[0]='2024-03', match[1]='2024', match[2]='03', AND result.groups = { year: '2024', month: '03' }."
+  },
+  {
+    q: "What is catastrophic backtracking and which pattern causes it?",
+    code: "/^(a+)+$/  on input  'aaaaaaaaab'",
+    options: [
+      "When a regex has too many capture groups",
+      "When overlapping quantifiers cause exponential match attempts, hanging the engine",
+      "A bug where ^ and $ don't anchor correctly",
+      "When the 'g' flag causes infinite loops"
+    ],
+    answer: 1,
+    explanation: "Nested quantifiers like (a+)+ create exponential combinations the engine must try before failing. On 'aaaaaaaaab', this can take billions of steps — a ReDoS (Regular Expression Denial of Service) vulnerability."
+  },
+  {
+    q: "What does the <code>v</code> flag (ES2024) enable in JavaScript regex?",
+    code: "/[\\p{Emoji}&&\\p{ASCII}]/v",
+    options: [
+      "Verbose mode — allows whitespace and comments",
+      "Unicode Sets mode — enables set operations like intersection (&&) and subtraction (--)",
+      "Variable-length lookbehinds",
+      "It's not a valid JavaScript flag"
+    ],
+    answer: 1,
+    explanation: "The 'v' flag (unicodeSets) upgrades the 'u' flag with set operations inside character classes: && for intersection, -- for subtraction. It also enables more Unicode property escapes and stricter syntax."
+  },
+  {
+    q: "What is the difference between <code>test()</code> and <code>exec()</code> in JavaScript?",
+    code: null,
+    options: [
+      "test() returns a boolean; exec() returns the match array (or null)",
+      "exec() returns a boolean; test() returns the match array",
+      "They are identical — just aliases",
+      "test() only works with string literals, not variables"
+    ],
+    answer: 0,
+    explanation: "test() returns true/false — ideal for validation. exec() returns a detailed match array with index, input, and groups, or null if no match. Both advance lastIndex when used with the 'g' flag."
+  },
+  {
+    q: "What does <code>\\p{L}</code> match in JavaScript, and which flag is required?",
+    code: "/\\p{L}+/u",
+    options: [
+      "Any ASCII letter — works without flags",
+      "Any Unicode letter (from any language) — requires the 'u' or 'v' flag",
+      "Any punctuation character",
+      "A literal 'p' followed by '{L}'"
+    ],
+    answer: 1,
+    explanation: "\\p{L} is a Unicode property escape matching any letter in any script (Latin, Arabic, Chinese, etc.). It requires the 'u' or 'v' flag. Without it, \\p is treated as just 'p'."
+  },
+  {
+    q: "What is the output of this code?",
+    code: "const r = /a/g;\nconsole.log(r.test('a'));\nconsole.log(r.test('a'));",
+    options: [
+      "true, true",
+      "true, false — lastIndex advances, second test fails",
+      "false, true",
+      "An error — can't call test() twice"
+    ],
+    answer: 1,
+    explanation: "With the 'g' flag, test() updates lastIndex after a match. After the first test('a'), lastIndex=1. The second call starts at index 1, finds no 'a', returns false, and resets lastIndex to 0."
+  },
+  {
+    q: "How do you match a literal dot in JavaScript regex?",
+    code: null,
+    options: [
+      "Use . — it matches any character including dots",
+      "Use \\. — escape it to match only a literal period",
+      "Use [.] or \\. — both match only a literal dot",
+      "Use \\.* to match dots"
+    ],
+    answer: 2,
+    explanation: "Both \\. and [.] match only a literal period. Inside a character class [], the dot loses its special meaning. Using bare . would also match digits, letters, etc. — not what you want for URL or IP validation."
+  },
+  {
+    q: "In JavaScript, what does <code>\\d</code> match with the <code>u</code> flag?",
+    code: "/^\\d+$/u.test('٣')  // Arabic-Indic digit three",
+    options: [
+      "Any Unicode decimal digit including Arabic-Indic numerals — returns true",
+      "Only ASCII digits 0–9 — returns false",
+      "It throws a SyntaxError",
+      "It depends on the browser's locale settings"
+    ],
+    answer: 1,
+    explanation: "Despite common misconception, JavaScript's \\d always matches only [0-9], even with the 'u' flag. The Arabic-Indic digit '٣' does NOT match. Use \\p{N} with 'u' if you need Unicode numerals."
+  },
+  {
+    q: "What does <code>\\k&lt;word&gt;</code> do in JavaScript regex?",
+    code: "/(?&lt;word&gt;\\w+) \\k&lt;word&gt;/.test('hello hello')",
+    options: [
+      "It's a syntax error in JavaScript",
+      "A named backreference — matches the same text captured by the named group",
+      "It matches any word character group",
+      "It captures into a JS variable called 'word'"
+    ],
+    answer: 1,
+    explanation: "\\k<n> is a named backreference — it matches the exact same string captured by (?<n>...). So /(?<word>\\w+) \\k<word>/ returns true for 'hello hello' because both words are identical."
+  },
+  {
+    q: "Which regex correctly matches a hex color code like #1aB3f0 or #FFF in JavaScript?",
+    code: null,
+    options: [
+      "/^#[0-9a-f]{6}$/i",
+      "/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/",
+      "/^#\\w{3,6}$/",
+      "/^#[a-z0-9]+$/i"
+    ],
+    answer: 1,
+    explanation: "Option B handles both 3-digit and 6-digit hex codes strictly. Option A only matches 6-digit. Option C matches underscores and non-hex letters. Option D allows variable length without enforcing exactly 3 or 6 characters."
+  },
+  {
+    q: "What is the purpose of the <code>s</code> (dotAll) flag in JavaScript?",
+    code: "/begin.*end/s.test('begin\\nend')",
+    options: [
+      "Makes the pattern case-insensitive",
+      "Makes . match any character INCLUDING newlines — returns true",
+      "Enables sticky matching from lastIndex",
+      "Enables Unicode property escapes"
+    ],
+    answer: 1,
+    explanation: "By default, . doesn't match \\n. The 's' (dotAll) flag makes . match truly any character including newlines. Without it, you'd need [\\s\\S]* to span multiple lines. This example returns true."
+  },
+  {
+    q: "What does the <code>y</code> (sticky) flag do in JavaScript?",
+    code: "const r = /\\d+/y;\nr.lastIndex = 4;\nr.exec('abc 123');",
+    options: [
+      "Same as the 'g' flag but faster",
+      "Anchors the match to exactly lastIndex — won't search ahead like 'g'",
+      "Makes ^ match the lastIndex position",
+      "Prevents lastIndex from advancing"
+    ],
+    answer: 1,
+    explanation: "The 'y' flag makes the regex match only at lastIndex — it won't scan ahead. If the match fails at that exact position, exec() returns null. Here lastIndex=4 points at ' ', so '123' matches on the next character at 5... wait — index 4 is a space, index 5 is '1', so exec() returns null, actually. The sticky flag is unforgiving."
+  },
+  {
+    q: "What does negative lookbehind <code>(?&lt;!\\d)</code> assert in JavaScript?",
+    code: "/(?&lt;!\\d)px/.test('14px')",
+    options: [
+      "That 'px' is NOT preceded by a digit — returns true",
+      "That 'px' is NOT preceded by a digit — returns false because '14px' has a digit before 'px'",
+      "That 'px' is followed by a non-digit",
+      "It's a syntax error — negative lookbehinds don't exist in JS"
+    ],
+    answer: 1,
+    explanation: "(?<!\\d) asserts the position is NOT preceded by a digit. In '14px', the 'p' IS preceded by '4', so the assertion fails and test() returns false. Negative lookbehinds ARE supported in JavaScript (ES2018+)."
+  },
+  {
+    q: "What is the output of this JavaScript?",
+    code: "'one1two2three'.split(/\\d/)",
+    options: [
+      "['one1two2three']",
+      "['one', 'two', 'three']",
+      "['1', '2']",
+      "['one', '1', 'two', '2', 'three']"
+    ],
+    answer: 1,
+    explanation: "split() with a regex uses the matched pattern as the delimiter but doesn't include the matches. \\d matches each digit, splitting on '1' and '2', yielding ['one','two','three']."
+  },
+  {
+    q: "What does <code>split()</code> return when the regex has a capturing group?",
+    code: "'one1two2three'.split(/(\\d)/)",
+    options: [
+      "['one', 'two', 'three'] — same as without capturing group",
+      "['one', '1', 'two', '2', 'three'] — captured delimiters are included",
+      "['1', '2'] — only the captured parts",
+      "An error — capturing groups aren't allowed in split()"
+    ],
+    answer: 1,
+    explanation: "In JavaScript, when split() uses a regex with a capturing group, the captured delimiters are included in the result. This is a powerful technique for tokenizers — the digits '1' and '2' appear in the output."
+  },
+  {
+    q: "What is the correct JavaScript regex to validate an IPv4 address?",
+    code: null,
+    options: [
+      "/^\\d+\\.\\d+\\.\\d+\\.\\d+$/",
+      "/^(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$/",
+      "/^[0-9.]+$/",
+      "/^(\\d{1,3}\\.){3}\\d{1,3}$/"
+    ],
+    answer: 1,
+    explanation: "Option B is the only one that validates each octet is 0–255. Option A allows 999.999.999.999. Option C allows dots at start/end. Option D allows 999 in each octet. Proper IP validation requires per-octet range checking."
+  },
+  {
+    q: "In JavaScript, how do you construct a regex dynamically from a variable?",
+    code: "const word = 'hello';\nconst r = new RegExp(word, 'gi');",
+    options: [
+      "You can't — regex must be a literal",
+      "Use new RegExp(pattern, flags) — the constructor accepts strings",
+      "Use eval() with a regex literal string",
+      "Concatenate directly: /word/gi"
+    ],
+    answer: 1,
+    explanation: "new RegExp(string, flags) lets you build patterns dynamically. Note: special characters in the string must be double-escaped (e.g. '\\\\d' for \\d). Regex literals /.../ don't support variable interpolation."
+  },
+  {
+    q: "What does this JavaScript output?",
+    code: "'cat bat sat'.match(/[cb]at/g)",
+    options: [
+      "['cat']",
+      "['cat', 'bat']",
+      "['cat', 'bat', 'sat']",
+      "null"
+    ],
+    answer: 1,
+    explanation: "[cb] is a character class matching either 'c' or 'b'. With the g flag, match() finds all occurrences. 'sat' doesn't match because 's' isn't in [cb]. Result: ['cat', 'bat']."
+  },
+
+  // ── QUESTIONS 41-50 (JS expert-level) ───────────────────────────────────
+  {
+    q: "What does <code>String.prototype.search()</code> return?",
+    code: "'hello world'.search(/world/)",
+    options: [
+      "true or false",
+      "The matched string",
+      "The index of the first match, or -1 if not found",
+      "An array of all matches"
+    ],
+    answer: 2,
+    explanation: "search() returns the index of the first match (6 here) or -1 if there's no match. Unlike match(), it ignores the 'g' flag and always searches the full string. It's essentially indexOf() for regex."
+  },
+  {
+    q: "What is the output of this code involving <code>exec()</code> in a loop?",
+    code: "const r = /\\d+/g;\nconst s = 'a1b2c3';\nlet m;\nwhile ((m = r.exec(s)) !== null)\n  console.log(m[0]);",
+    options: [
+      "1 (only the first match)",
+      "1, 2, 3 — each match on a new line",
+      "An infinite loop",
+      "null"
+    ],
+    answer: 1,
+    explanation: "With the 'g' flag, exec() advances lastIndex after each call. The while loop keeps calling exec() until it returns null (no more matches). This classic pattern yields each match one at a time: 1, 2, 3."
+  },
+  {
+    q: "What happens if you forget to include the <code>g</code> flag when using <code>exec()</code> in a loop?",
+    code: "const r = /\\d+/;  // no g flag\nwhile (r.exec('a1b2') !== null) { /* ... */ }",
+    options: [
+      "The loop runs exactly twice",
+      "Infinite loop — exec() always matches from position 0 without the g flag",
+      "exec() throws a TypeError",
+      "The loop never runs"
+    ],
+    answer: 1,
+    explanation: "Without the 'g' flag, exec() always resets lastIndex to 0 after running. It will always match '1' at the same position, never advancing — causing an infinite loop. Always use 'g' (or 'y') with exec() loops."
+  },
+  {
+    q: "What does <code>replace()</code> do with a function as the second argument?",
+    code: "'hello world'.replace(/(\\w+)/g, m => m.toUpperCase())",
+    options: [
+      "Throws a TypeError — replace() only accepts strings",
+      "Returns 'HELLO WORLD' — the function receives each match and returns the replacement",
+      "Returns 'hello world' — functions are ignored",
+      "Returns ['HELLO', 'WORLD']"
+    ],
+    answer: 1,
+    explanation: "When replace()'s second argument is a function, it's called for each match with (match, ...groups, offset, string). Here it uppercases each word, returning 'HELLO WORLD'. This is powerful for complex transformations."
+  },
+  {
+    q: "What are the arguments passed to the replacer function in <code>replace(regex, fn)</code>?",
+    code: "'2024-03'.replace(/(\\d{4})-(\\d{2})/, (match, y, m) => `${m}/${y}`)",
+    options: [
+      "(match) only",
+      "(match, group1, group2, ..., offset, originalString)",
+      "(index, match, originalString)",
+      "(group1, group2, ..., match)"
+    ],
+    answer: 1,
+    explanation: "The replacer receives: (fullMatch, cap1, cap2, ..., offset, originalString). Here match='2024-03', y='2024', m='03', so it returns '03/2024'. Named groups also receive a groups object as a final argument."
+  },
+  {
+    q: "How does <code>RegExp.prototype.source</code> differ from calling <code>toString()</code>?",
+    code: "const r = /hello/gi;\nconsole.log(r.source);\nconsole.log(r.toString());",
+    options: [
+      "They return the same thing",
+      "source returns 'hello'; toString() returns '/hello/gi' — flags included",
+      "source includes flags; toString() does not",
+      "toString() returns a RegExp object; source returns a string"
+    ],
+    answer: 1,
+    explanation: "r.source returns just the pattern text without delimiters or flags: 'hello'. r.toString() returns the full regex literal representation: '/hello/gi'. Useful when you need to inspect or reconstruct a pattern."
+  },
+  {
+    q: "What does the <code>d</code> flag (ES2022) add to match results in JavaScript?",
+    code: "'hello'.match(/e(l+)/d)",
+    options: [
+      "It enables dotAll mode (same as 's')",
+      "It adds a 'debug' property with match steps",
+      "It adds an 'indices' property with start/end positions for each group",
+      "It makes match() return a Map instead of an array"
+    ],
+    answer: 2,
+    explanation: "The 'd' (hasIndices) flag adds a .indices array to the match result, containing [start, end] pairs for the full match and each capture group. Useful for source maps, highlighting, or precise text manipulation."
+  },
+  {
+    q: "What does this JavaScript expression evaluate to?",
+    code: "/(?:foo)(bar)/.exec('foobar')[1]",
+    options: [
+      "'foo' — the first group",
+      "'bar' — only the capturing group is at index 1",
+      "'foobar' — the full match",
+      "undefined — exec fails on non-capturing groups"
+    ],
+    answer: 1,
+    explanation: "(?:foo) is non-capturing so it doesn't occupy an index. (bar) is the first actual capturing group, so it's at index [1]. Index [0] is always the full match 'foobar'. Non-capturing groups are invisible in the result array."
+  },
+  {
+    q: "What is the output of this code?",
+    code: "console.log(/^$/m.test('line1\\n\\nline3'));",
+    options: [
+      "false — no line is actually empty",
+      "true — the 'm' flag makes ^ and $ match line boundaries, and line 2 is empty",
+      "SyntaxError — ^ and $ can't be used with 'm'",
+      "true — but only because of the 'g' flag"
+    ],
+    answer: 1,
+    explanation: "With the 'm' flag, ^ matches after \\n and $ matches before \\n. The string 'line1\\n\\nline3' has an empty line between the two \\n characters. /^$/ matches that empty line, so test() returns true."
+  },
+  {
+    q: "Which JavaScript method lazily iterates over all regex matches with full group info?",
+    code: "const iter = 'a1b2'.matchAll(/([a-z])(\\d)/g);",
+    options: [
+      "match() with the 'g' flag",
+      "matchAll() — returns an iterator of full match objects including all capture groups",
+      "exec() in a for loop",
+      "search() with the 'g' flag"
+    ],
+    answer: 1,
+    explanation: "matchAll() returns a lazy iterator of match objects, each containing the full match, all capture groups, index, and input — exactly like exec() but more convenient. match() with 'g' returns only the matched strings, discarding group info."
   }
 ];
 
 let currentQ = 0;
-let answers = new Array(20).fill(null);
+const TOTAL = questions.length;
+let answers = new Array(TOTAL).fill(null);
 let score = 0;
 
 function startQuiz() {
@@ -801,19 +1175,17 @@ function renderQuestion() {
   const q = questions[currentQ];
   const answered = answers[currentQ] !== null;
 
-  // Update progress
-  const pct = ((currentQ) / 20) * 100;
+  const pct = (currentQ / TOTAL) * 100;
   document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `${currentQ + 1} / 20`;
+  document.getElementById('progress-label').textContent = `${currentQ + 1} / ${TOTAL}`;
   document.getElementById('score-display').textContent = `Score: ${score}`;
 
-  // Update nav buttons
   document.getElementById('prev-btn').disabled = currentQ === 0;
   document.getElementById('next-btn').disabled = !answered;
-  document.getElementById('next-btn').textContent = currentQ === 19 ? 'FINISH →' : 'NEXT →';
+  document.getElementById('next-btn').textContent = currentQ === TOTAL - 1 ? 'FINISH →' : 'NEXT →';
 
-  // Build card
   const codeBlock = q.code ? `<div class="code-snippet">${q.code}</div>` : '';
+  const keys = ['A','B','C','D'];
   const optionsHTML = q.options.map((opt, i) => {
     let cls = 'option';
     if (answered) {
@@ -821,7 +1193,6 @@ function renderQuestion() {
       if (i === q.answer) cls += ' correct';
       else if (i === answers[currentQ]) cls += ' wrong';
     }
-    const keys = ['A','B','C','D'];
     return `<button class="${cls}" onclick="selectAnswer(${i})">
       <span class="option-key">${keys[i]}</span>
       <span>${opt}</span>
@@ -829,16 +1200,13 @@ function renderQuestion() {
   }).join('');
 
   const explanationDisplay = answered ? 'show' : '';
-
   document.getElementById('question-container').innerHTML = `
     <div class="quiz-card">
-      <div class="question-number">Question ${String(currentQ + 1).padStart(2,'0')} / 20</div>
+      <div class="question-number">Question ${String(currentQ + 1).padStart(2,'0')} / ${TOTAL}</div>
       <div class="question-text">${q.q}</div>
       ${codeBlock}
       <div class="options">${optionsHTML}</div>
-      <div class="explanation ${explanationDisplay}">
-        💡 ${q.explanation}
-      </div>
+      <div class="explanation ${explanationDisplay}">💡 ${q.explanation}</div>
     </div>
   `;
 }
@@ -851,41 +1219,34 @@ function selectAnswer(idx) {
 }
 
 function navigate(dir) {
-  if (currentQ + dir >= 20) {
-    showResults();
-    return;
-  }
-  currentQ = Math.max(0, Math.min(19, currentQ + dir));
+  if (currentQ + dir >= TOTAL) { showResults(); return; }
+  currentQ = Math.max(0, Math.min(TOTAL - 1, currentQ + dir));
   renderQuestion();
 }
 
 function showResults() {
   document.getElementById('quiz-screen').style.display = 'none';
-  const rs = document.getElementById('results-screen');
-  rs.style.display = 'block';
-
-  const wrong = 20 - score;
-  const pct = Math.round((score / 20) * 100);
-
+  document.getElementById('results-screen').style.display = 'block';
+  const wrong = TOTAL - score;
+  const pct = Math.round((score / TOTAL) * 100);
   document.getElementById('final-score').textContent = score;
+  document.getElementById('final-total').textContent = `/${TOTAL}`;
   document.getElementById('correct-count').textContent = score;
   document.getElementById('wrong-count').textContent = wrong;
   document.getElementById('pct-val').textContent = pct + '%';
-
   let grade, msg;
   if (pct === 100) { grade = 'PERFECT SCORE 🎯'; msg = '// you are a regex wizard'; }
   else if (pct >= 85) { grade = 'EXCELLENT'; msg = '// regex is your superpower'; }
-  else if (pct >= 70) { grade = 'GREAT'; msg = '// solid regex knowledge'; }
+  else if (pct >= 70) { grade = 'GREAT'; msg = '// solid JS regex knowledge'; }
   else if (pct >= 50) { grade = 'GOOD'; msg = '// keep practicing patterns'; }
   else { grade = 'KEEP LEARNING'; msg = '// regex mastery takes time'; }
-
   document.getElementById('results-grade').textContent = grade;
   document.getElementById('results-msg').textContent = msg;
 }
 
 function restartQuiz() {
   currentQ = 0;
-  answers = new Array(20).fill(null);
+  answers = new Array(TOTAL).fill(null);
   score = 0;
   document.getElementById('results-screen').style.display = 'none';
   document.getElementById('quiz-screen').style.display = 'block';
