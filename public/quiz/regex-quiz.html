@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REGEX MASTER — Knowledge Test</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #ff3cac;
+    --accent3: #7b5ea7;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --correct: #00ff88;
+    --wrong: #ff4466;
+    --correct-bg: rgba(0,255,136,0.08);
+    --wrong-bg: rgba(255,68,102,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -40%;
+    right: -20%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(123,94,167,0.12) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 60px 0 50px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    background: rgba(0,229,255,0.05);
+  }
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    margin-bottom: 16px;
+  }
+
+  h1 span.cyan { color: var(--accent); }
+  h1 span.pink { color: var(--accent2); }
+
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  /* Progress bar */
+  .progress-wrapper {
+    background: var(--border);
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 32px;
+  }
+
+  /* Quiz card */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    animation: slideIn 0.35s ease forwards;
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .code-snippet {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.15);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 2px;
+    margin: 14px 0;
+    color: var(--accent);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+  }
+
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    transform: translateX(4px);
+  }
+
+  .option-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+    transition: all 0.18s ease;
+  }
+
+  .option:hover:not(.disabled) .option-key {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .option.correct {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+
+  .option.correct .option-key {
+    border-color: var(--correct);
+    color: var(--correct);
+    background: rgba(0,255,136,0.1);
+  }
+
+  .option.wrong {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+
+  .option.wrong .option-key {
+    border-color: var(--wrong);
+    color: var(--wrong);
+    background: rgba(255,68,102,0.1);
+  }
+
+  .option.disabled { cursor: default; }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 18px;
+    padding: 16px;
+    background: rgba(123,94,167,0.1);
+    border: 1px solid rgba(123,94,167,0.3);
+    border-radius: 3px;
+    font-size: 0.88rem;
+    color: #c8b8e8;
+    line-height: 1.6;
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .explanation.show { display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    gap: 12px;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover { background: #33eeff; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+
+  /* Score indicator inline */
+  .score-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Results screen */
+  #results-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 0;
+    animation: slideIn 0.4s ease forwards;
+  }
+
+  .results-score {
+    font-size: clamp(5rem, 15vw, 9rem);
+    font-weight: 800;
+    line-height: 1;
+    margin: 20px 0;
+    letter-spacing: -4px;
+  }
+
+  .results-score .num { color: var(--accent); }
+  .results-score .denom { color: var(--muted); font-size: 0.55em; }
+
+  .results-grade {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .results-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 44px;
+  }
+
+  .breakdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .breakdown-val {
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  .breakdown-val.c { color: var(--correct); }
+  .breakdown-val.w { color: var(--wrong); }
+
+  .breakdown-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-restart:hover { opacity: 0.85; transform: translateY(-2px); }
+
+  /* Start screen */
+  #start-screen {
+    text-align: center;
+    padding: 20px 0 60px;
+  }
+
+  .start-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 36px 0;
+  }
+
+  .start-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .start-stat-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .start-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .divider {
+    width: 1px;
+    height: 48px;
+    background: var(--border);
+    align-self: center;
+  }
+
+  .topics-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 20px 0 40px;
+  }
+
+  .topic-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  #quiz-screen { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="tag">// knowledge test</div>
+    <h1><span class="cyan">REG</span><span class="pink">EX</span><br>MASTER</h1>
+    <p class="subtitle">20 questions · patterns · syntax · logic</p>
+  </header>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <p style="color: var(--muted); font-size: 0.95rem; max-width: 480px; margin: 0 auto; line-height: 1.7;">
+      Test your knowledge of Regular Expressions — from basic anchors and quantifiers to lookaheads, groups, and real-world pattern matching.
+    </p>
+
+    <div class="start-stats">
+      <div class="start-stat">
+        <span class="start-stat-val">20</span>
+        <span class="start-stat-label">Questions</span>
+      </div>
+      <div class="divider"></div>
+      <div class="start-stat">
+        <span class="start-stat-val">4</span>
+        <span class="start-stat-label">Difficulty Levels</span>
+      </div>
+      <div class="divider"></div>
+      <div class="start-stat">
+        <span class="start-stat-val">∞</span>
+        <span class="start-stat-label">Attempts</span>
+      </div>
+    </div>
+
+    <div class="topics-list">
+      <span class="topic-tag">Anchors</span>
+      <span class="topic-tag">Quantifiers</span>
+      <span class="topic-tag">Character Classes</span>
+      <span class="topic-tag">Groups</span>
+      <span class="topic-tag">Lookaheads</span>
+      <span class="topic-tag">Lookbehinds</span>
+      <span class="topic-tag">Flags</span>
+      <span class="topic-tag">Backreferences</span>
+      <span class="topic-tag">Alternation</span>
+      <span class="topic-tag">Escaping</span>
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()" style="font-size:13px; padding:14px 40px;">START QUIZ →</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen">
+    <div class="progress-wrapper">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 / 20</div>
+
+    <div id="question-container"></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" id="prev-btn" onclick="navigate(-1)">← PREV</button>
+      <span class="score-indicator" id="score-display">Score: 0</span>
+      <button class="btn btn-primary" id="next-btn" onclick="navigate(1)" disabled>NEXT →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="tag">// quiz complete</div>
+    <div class="results-score">
+      <span class="num" id="final-score">0</span><span class="denom" id="final-total">/20</span>
+    </div>
+    <div class="results-grade" id="results-grade">—</div>
+    <div class="results-msg" id="results-msg">—</div>
+    <div class="results-breakdown">
+      <div class="breakdown-item">
+        <span class="breakdown-val c" id="correct-count">0</span>
+        <span class="breakdown-label">Correct</span>
+      </div>
+      <div class="breakdown-item">
+        <span class="breakdown-val w" id="wrong-count">0</span>
+        <span class="breakdown-label">Wrong</span>
+      </div>
+      <div class="breakdown-item">
+        <span class="breakdown-val" id="pct-val" style="color:var(--accent)">0%</span>
+        <span class="breakdown-label">Accuracy</span>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">↺ TRY AGAIN</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "What does the <code>^</code> anchor match in a regex pattern?",
+    code: null,
+    options: [
+      "Any character except newline",
+      "The start of a string (or line in multiline mode)",
+      "A literal caret character",
+      "A negated character class"
+    ],
+    answer: 1,
+    explanation: "^ is a start-of-string anchor. In multiline mode (flag m), it matches the start of each line. Inside a character class like [^a], it negates the class."
+  },
+  {
+    q: "Which regex correctly matches one or more digits?",
+    code: null,
+    options: [
+      "/\\d*/",
+      "/\\d+/",
+      "/\\d?/",
+      "/\\d{0,}/"
+    ],
+    answer: 1,
+    explanation: "\\d+ matches one or more digits. * matches zero or more, ? matches zero or one, and {0,} is equivalent to * (zero or more)."
+  },
+  {
+    q: "What does this regex match?",
+    code: "/^hello$/i",
+    options: [
+      "Only the exact string 'hello'",
+      "'hello' case-insensitively, as the entire string",
+      "Any string containing 'hello'",
+      "'HELLO' only, not 'hello'"
+    ],
+    answer: 1,
+    explanation: "^ anchors to start, $ anchors to end, and the i flag makes it case-insensitive. So it matches 'hello', 'Hello', 'HELLO', etc. — but only as the complete string."
+  },
+  {
+    q: "What is the difference between <code>.</code> and <code>\\s</code> in regex?",
+    code: null,
+    options: [
+      "They are identical",
+      ". matches any char except newline; \\s matches whitespace (spaces, tabs, newlines)",
+      "\\s matches any character; . matches only spaces",
+      ". only matches letters; \\s matches digits"
+    ],
+    answer: 1,
+    explanation: ". matches any character except \\n by default. \\s is a shorthand for whitespace: [ \\t\\r\\n\\f\\v]. With the 's' (dotAll) flag, . also matches newlines."
+  },
+  {
+    q: "What does the <code>?</code> quantifier mean after a character?",
+    code: "/colou?r/",
+    options: [
+      "One or more occurrences of 'u'",
+      "Exactly one 'u'",
+      "Zero or one occurrence of 'u' (makes it optional)",
+      "Any number of 'u' characters"
+    ],
+    answer: 2,
+    explanation: "? makes the preceding element optional — zero or one occurrence. So /colou?r/ matches both 'color' and 'colour'."
+  },
+  {
+    q: "What does a non-capturing group <code>(?:...)</code> do?",
+    code: null,
+    options: [
+      "Captures the match and stores it",
+      "Groups the pattern without creating a capture group",
+      "Creates a named capture group",
+      "Enables lookahead assertions"
+    ],
+    answer: 1,
+    explanation: "(?:...) groups elements for quantifiers or alternation but doesn't capture into $1, $2, etc. This is more efficient when you don't need to reference the group later."
+  },
+  {
+    q: "Which of the following is a positive lookahead?",
+    code: null,
+    options: [
+      "/foo(?<=bar)/",
+      "/foo(?!bar)/",
+      "/foo(?=bar)/",
+      "/(?:foo)bar/"
+    ],
+    answer: 2,
+    explanation: "(?=bar) is a positive lookahead — it asserts that 'foo' is followed by 'bar', without including 'bar' in the match. (?<=) is lookbehind, (?!) is negative lookahead."
+  },
+  {
+    q: "What does this regex match?",
+    code: "/[a-zA-Z0-9_]+/",
+    options: [
+      "Only lowercase letters",
+      "Any alphanumeric character or underscore (word characters)",
+      "Only digits and underscores",
+      "Any Unicode letter"
+    ],
+    answer: 1,
+    explanation: "[a-zA-Z0-9_] is equivalent to \\w — it matches any word character: uppercase and lowercase letters, digits 0–9, and underscore."
+  },
+  {
+    q: "What is the result of applying <code>/^(\\w+)\\s\\1$/</code> to 'hello hello'?",
+    code: null,
+    options: [
+      "No match — backreferences don't work",
+      "A match — \\1 references the first capture group 'hello'",
+      "A match only if the words are different",
+      "A syntax error"
+    ],
+    answer: 1,
+    explanation: "\\1 is a backreference to the first capturing group. Since (\\w+) captures 'hello', \\1 requires the same 'hello' again — so 'hello hello' matches."
+  },
+  {
+    q: "What does the global flag <code>g</code> do in JavaScript regex?",
+    code: "'aaa'.match(/a/g)",
+    options: [
+      "Matches only the first occurrence",
+      "Makes matching case-insensitive",
+      "Finds all occurrences, not just the first",
+      "Enables multiline mode"
+    ],
+    answer: 2,
+    explanation: "With the g flag, match() returns all matches as an array: ['a','a','a']. Without g, it stops at the first match and returns detailed info about that one match."
+  },
+  {
+    q: "What does <code>\\b</code> represent in a regex?",
+    code: "/\\bcat\\b/",
+    options: [
+      "A backspace character",
+      "A word boundary — the position between a word char and a non-word char",
+      "The beginning of a string",
+      "A literal backslash followed by b"
+    ],
+    answer: 1,
+    explanation: "\\b is a zero-width word boundary assertion. /\\bcat\\b/ matches 'cat' in 'the cat sat' but not in 'concatenate', since 'cat' there isn't surrounded by word boundaries."
+  },
+  {
+    q: "What is greedy vs lazy matching? Which quantifier is lazy?",
+    code: "/<.+>/  vs  /<.+?>/",
+    options: [
+      "Greedy matches as little as possible; lazy uses *",
+      "They are identical in behavior",
+      "Greedy matches as much as possible; lazy (?) matches as little as possible",
+      "Lazy only works with character classes"
+    ],
+    answer: 2,
+    explanation: "By default quantifiers are greedy — they consume as much as possible. Adding ? makes them lazy. On '<b>bold</b>', <.+> matches the whole thing; <.+?> matches just '<b>'."
+  },
+  {
+    q: "What does this pattern match?",
+    code: "/^(?!.*foo).*bar.*$/",
+    options: [
+      "Strings containing both 'foo' and 'bar'",
+      "Strings containing 'bar' but NOT 'foo'",
+      "Strings containing 'foo' but not 'bar'",
+      "Strings that start with 'bar'"
+    ],
+    answer: 1,
+    explanation: "(?!.*foo) is a negative lookahead from the start — it asserts 'foo' does NOT appear anywhere. Then .*bar.* requires 'bar' to appear. Combined: 'bar' present, 'foo' absent."
+  },
+  {
+    q: "Which flag enables <strong>multiline</strong> mode, making <code>^</code> and <code>$</code> match line starts/ends?",
+    code: null,
+    options: [
+      "The 'g' flag",
+      "The 's' flag (dotAll)",
+      "The 'm' flag",
+      "The 'i' flag"
+    ],
+    answer: 2,
+    explanation: "The 'm' (multiline) flag changes ^ and $ to match at the start and end of each line, not just the start and end of the entire string."
+  },
+  {
+    q: "What does <code>{2,5}</code> mean as a quantifier?",
+    code: "/a{2,5}/",
+    options: [
+      "Exactly 5 occurrences",
+      "At least 2 occurrences",
+      "Between 2 and 5 occurrences (inclusive)",
+      "2 or 5 occurrences only"
+    ],
+    answer: 2,
+    explanation: "{2,5} is an interval quantifier matching between 2 and 5 occurrences (inclusive). /a{2,5}/ matches 'aa', 'aaa', 'aaaa', or 'aaaaa'."
+  },
+  {
+    q: "What is a named capture group, and which syntax is used?",
+    code: null,
+    options: [
+      "/(?:name)pattern/ — non-capturing with label",
+      "/(?<name>pattern)/ — named capture, accessed via match.groups.name",
+      "/(?=name)pattern/ — lookahead with alias",
+      "/(?[name]pattern)/ — bracket notation"
+    ],
+    answer: 1,
+    explanation: "(?<name>...) creates a named capture group. In JavaScript, you access it via match.groups.name. It makes regex results much more readable than numbered references."
+  },
+  {
+    q: "What does alternation <code>|</code> do in regex?",
+    code: "/cat|dog|bird/",
+    options: [
+      "Matches a literal pipe character",
+      "Matches all three patterns simultaneously",
+      "Acts like OR — matches any one of the alternatives",
+      "Groups the options as non-capturing"
+    ],
+    answer: 2,
+    explanation: "| is the alternation operator — it means OR. /cat|dog|bird/ matches 'cat', 'dog', or 'bird'. It evaluates left-to-right and stops at the first match."
+  },
+  {
+    q: "What does the lookbehind <code>(?<=\\$)\\d+</code> match?",
+    code: null,
+    options: [
+      "Any sequence of digits",
+      "Digits preceded by a dollar sign, without including the $ in the match",
+      "Digits followed by a dollar sign",
+      "A literal string '$\\d+'"
+    ],
+    answer: 1,
+    explanation: "(?<=\\$) is a positive lookbehind — it asserts the match is preceded by '$'. So (?<=\\$)\\d+ matches digits that come after a $, but '$' itself is not part of the matched text."
+  },
+  {
+    q: "Which regex would validate a basic email format?",
+    code: null,
+    options: [
+      "/^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$/",
+      "/^\\w+@\\w+$/",
+      "/.*@.*/",
+      "/^\\d+@\\w+\\.com$/"
+    ],
+    answer: 0,
+    explanation: "/^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$/ covers the major parts: local part with word chars/dots/hyphens, @, domain, dot, and a TLD of 2+ letters. The others are too loose or too strict."
+  },
+  {
+    q: "What is the output of this JavaScript?",
+    code: "'foo bar baz'.replace(/\\b\\w/g, c => c.toUpperCase())",
+    options: [
+      "'Foo bar baz'",
+      "'FOO BAR BAZ'",
+      "'Foo Bar Baz'",
+      "'foo Bar baz'"
+    ],
+    answer: 2,
+    explanation: "\\b\\w matches the first word character at every word boundary. With the g flag, this hits 'f', 'b', and 'b'. Uppercasing each gives 'Foo Bar Baz' — a title-case transform."
+  }
+];
+
+let currentQ = 0;
+let answers = new Array(20).fill(null);
+let score = 0;
+
+function startQuiz() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const answered = answers[currentQ] !== null;
+
+  // Update progress
+  const pct = ((currentQ) / 20) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${currentQ + 1} / 20`;
+  document.getElementById('score-display').textContent = `Score: ${score}`;
+
+  // Update nav buttons
+  document.getElementById('prev-btn').disabled = currentQ === 0;
+  document.getElementById('next-btn').disabled = !answered;
+  document.getElementById('next-btn').textContent = currentQ === 19 ? 'FINISH →' : 'NEXT →';
+
+  // Build card
+  const codeBlock = q.code ? `<div class="code-snippet">${q.code}</div>` : '';
+  const optionsHTML = q.options.map((opt, i) => {
+    let cls = 'option';
+    if (answered) {
+      cls += ' disabled';
+      if (i === q.answer) cls += ' correct';
+      else if (i === answers[currentQ]) cls += ' wrong';
+    }
+    const keys = ['A','B','C','D'];
+    return `<button class="${cls}" onclick="selectAnswer(${i})">
+      <span class="option-key">${keys[i]}</span>
+      <span>${opt}</span>
+    </button>`;
+  }).join('');
+
+  const explanationDisplay = answered ? 'show' : '';
+
+  document.getElementById('question-container').innerHTML = `
+    <div class="quiz-card">
+      <div class="question-number">Question ${String(currentQ + 1).padStart(2,'0')} / 20</div>
+      <div class="question-text">${q.q}</div>
+      ${codeBlock}
+      <div class="options">${optionsHTML}</div>
+      <div class="explanation ${explanationDisplay}">
+        💡 ${q.explanation}
+      </div>
+    </div>
+  `;
+}
+
+function selectAnswer(idx) {
+  if (answers[currentQ] !== null) return;
+  answers[currentQ] = idx;
+  if (idx === questions[currentQ].answer) score++;
+  renderQuestion();
+}
+
+function navigate(dir) {
+  if (currentQ + dir >= 20) {
+    showResults();
+    return;
+  }
+  currentQ = Math.max(0, Math.min(19, currentQ + dir));
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'block';
+
+  const wrong = 20 - score;
+  const pct = Math.round((score / 20) * 100);
+
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('correct-count').textContent = score;
+  document.getElementById('wrong-count').textContent = wrong;
+  document.getElementById('pct-val').textContent = pct + '%';
+
+  let grade, msg;
+  if (pct === 100) { grade = 'PERFECT SCORE 🎯'; msg = '// you are a regex wizard'; }
+  else if (pct >= 85) { grade = 'EXCELLENT'; msg = '// regex is your superpower'; }
+  else if (pct >= 70) { grade = 'GREAT'; msg = '// solid regex knowledge'; }
+  else if (pct >= 50) { grade = 'GOOD'; msg = '// keep practicing patterns'; }
+  else { grade = 'KEEP LEARNING'; msg = '// regex mastery takes time'; }
+
+  document.getElementById('results-grade').textContent = grade;
+  document.getElementById('results-msg').textContent = msg;
+}
+
+function restartQuiz() {
+  currentQ = 0;
+  answers = new Array(20).fill(null);
+  score = 0;
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  renderQuestion();
+}
+</script>
+</body>
+</html>
