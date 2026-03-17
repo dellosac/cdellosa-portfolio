@@ -41,7 +41,7 @@ import ReactGA from "react-ga4";
 import Scoreboard from "../pages/Scoreboard.js";
 import Spotify from "../pages/Spotify.js";
 
-type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
+type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Concept Projects";
 
 // Google Analytics
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID); // replace with your Measurement ID
@@ -80,7 +80,7 @@ function NavigationAndContent() {
         } else if (path.includes("/emails")) {
             setView("Emails");
         } else if (path.includes("/funstuff")) {
-            setView("Fun Stuff");
+            setView("Concept Projects");
             setOpenFunStuff(true);
         } else {
             setView("Home");
@@ -126,7 +126,7 @@ function NavigationAndContent() {
         Resume: "#e3f2fd",
         Prototypes: "#ede7f6",
         Emails: "#fff8e1",
-        "Fun Stuff": "#000000",
+        "Concept Projects": "#000000",
     };
 
     // Filter out Desktop only prototypes in mobile version of website
@@ -138,7 +138,7 @@ function NavigationAndContent() {
     const backgroundView = open
         ? "Prototypes"
         : openFunStuff
-          ? "Fun Stuff"
+          ? "Concept Projects"
           : view;
 
     return (
@@ -306,14 +306,16 @@ function NavigationAndContent() {
                                         </ListItemIcon>
                                         <ListItemText primary="Email Template Examples" />
                                     </ListItemButton>
-                                    {/** Fun Stuff Button */}
+                                    {/** Concept Projects Button */}
                                     <ListItemButton
                                         onClick={() => {
                                             const next = !openFunStuff;
                                             setOpenFunStuff(next);
                                             setOpen(false);
                                             setView(
-                                                next ? "Fun Stuff" : "Home",
+                                                next
+                                                    ? "Concept Projects"
+                                                    : "Home",
                                             );
                                             navigate(next ? "/funstuff" : "/");
                                         }}
@@ -322,7 +324,7 @@ function NavigationAndContent() {
                                         <ListItemIcon>
                                             <AutoAwesomeIcon />
                                         </ListItemIcon>
-                                        <ListItemText primary="Fun Stuff" />
+                                        <ListItemText primary="Concept Projects" />
                                         {openFunStuff ? (
                                             <ExpandLess />
                                         ) : (
@@ -546,13 +548,13 @@ function NavigationAndContent() {
                             </ListItemIcon>
                             <ListItemText primary="Email Template Examples" />
                         </ListItemButton>
-                        {/** Fun Stuff Button */}
+                        {/** Concept Projects Button */}
                         <ListItemButton
                             onClick={() => {
                                 const next = !openFunStuff;
                                 setOpenFunStuff(next);
                                 setOpen(false);
-                                setView(next ? "Fun Stuff" : "Home");
+                                setView(next ? "Concept Projects" : "Home");
                                 navigate(next ? "/funstuff" : "/");
                             }}
                             selected={openFunStuff}
@@ -560,7 +562,7 @@ function NavigationAndContent() {
                             <ListItemIcon>
                                 <AutoAwesomeIcon />
                             </ListItemIcon>
-                            <ListItemText primary="Fun Stuff" />
+                            <ListItemText primary="Concept Projects" />
                             {openFunStuff ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
                         <Collapse

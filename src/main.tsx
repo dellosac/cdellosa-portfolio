@@ -7,7 +7,11 @@ import ReactGA from "react-ga4";
 
 ReactGA.initialize("G-XXXXXXXXXX");
 
-const theme = createTheme();
+const theme = createTheme({
+    typography: {
+        fontFamily: '"Noto Sans", sans-serif',
+    },
+});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>

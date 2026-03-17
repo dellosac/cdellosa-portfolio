@@ -3,14 +3,14 @@ import Box from "@mui/material/Box";
 import { ReactNode } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Fun Stuff";
+type View = "Home" | "Resume" | "Prototypes" | "Emails" | "Concept Projects";
 
 const viewIndex: Record<View, number> = {
     Home: 0,
     Resume: 1,
     Prototypes: 2,
     Emails: 3,
-    "Fun Stuff": 4,
+    "Concept Projects": 4,
 };
 
 interface BackgroundProps {
@@ -21,7 +21,7 @@ interface BackgroundProps {
 function Background({ view, children }: BackgroundProps) {
     const isDesktop = useMediaQuery("(min-width: 1150px)");
 
-    const backgroundTestCss = {
+    const backgroundTextCss = {
         fontSize: `${isDesktop ? "300px" : "100px"}`,
         fontWeight: "bold",
         letterSpacing: `${isDesktop ? "-20px" : "-6px"}`,
@@ -55,28 +55,16 @@ function Background({ view, children }: BackgroundProps) {
                     }}
                 >
                     <Box sx={{ backgroundColor: "#ffffff" }}></Box>
-                    <Box sx={{ backgroundColor: "#fff8e1" }}></Box>
-                    <Box sx={{ backgroundColor: "#e3f2fd" }}></Box>
-                    <Box sx={{ backgroundColor: "#ede7f6" }}></Box>
-                    <Box
-                        sx={{
-                            animation: "funStuffBg 2s ease-in-out infinite",
-                            "@keyframes funStuffBg": {
-                                "0%": { backgroundColor: "#e8f5e9" },
-                                "20%": { backgroundColor: "#fce4ec" },
-                                "40%": { backgroundColor: "#fff8e1" },
-                                "60%": { backgroundColor: "#e3f2fd" },
-                                "80%": { backgroundColor: "#ede7f6" },
-                                "100%": { backgroundColor: "#e8f5e9" },
-                            },
-                        }}
-                    ></Box>
+                    <Box sx={{ backgroundColor: "#4d6be3" }}></Box>
+                    <Box sx={{ backgroundColor: "#ac426c" }}></Box>
+                    <Box sx={{ backgroundColor: "#4d913d" }}></Box>
+                    <Box sx={{ backgroundColor: "#5b5b5b" }}></Box>
                 </Box>
                 <Typography
                     sx={{
                         top: `${100 + backgroundTextOffset}vh`,
                         opacity: view === "Resume" ? 0.25 : 0,
-                        ...backgroundTestCss,
+                        ...backgroundTextCss,
                     }}
                 >
                     Resume
@@ -85,7 +73,7 @@ function Background({ view, children }: BackgroundProps) {
                     sx={{
                         top: `${200 + backgroundTextOffset}vh`,
                         opacity: view === "Prototypes" ? 0.25 : 0,
-                        ...backgroundTestCss,
+                        ...backgroundTextCss,
                     }}
                 >
                     Prototypes
@@ -94,7 +82,7 @@ function Background({ view, children }: BackgroundProps) {
                     sx={{
                         top: `${300 + backgroundTextOffset}vh`,
                         opacity: view === "Emails" ? 0.25 : 0,
-                        ...backgroundTestCss,
+                        ...backgroundTextCss,
                     }}
                 >
                     Emails
@@ -102,11 +90,11 @@ function Background({ view, children }: BackgroundProps) {
                 <Typography
                     sx={{
                         top: `${400 + backgroundTextOffset}vh`,
-                        opacity: view === "Fun Stuff" ? 0.25 : 0,
-                        ...backgroundTestCss,
+                        opacity: view === "Concept Projects" ? 0.25 : 0,
+                        ...backgroundTextCss,
                     }}
                 >
-                    Fun Stuff
+                    Concept Projects
                 </Typography>
             </Box>
             {/* Content on top */}
