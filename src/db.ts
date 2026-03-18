@@ -7,9 +7,12 @@ let pool: pg.Pool | null = null;
 export function getPool(): pg.Pool | null {
     if (!process.env.DATABASE_URL) return null;
     if (!pool) {
+        const isLocal =
+            process.env.DATABASE_URL?.includes("localhost") ||
+            process.env.DATABASE_URL?.includes("127.0.0.1");
         pool = new Pool({
             connectionString: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false },
+            ssl: isLocal ? false : { rejectUnauthorized: false },
         });
         pool.on("error", (err) => {
             console.error("DB pool error:", err.message);

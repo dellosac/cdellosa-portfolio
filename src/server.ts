@@ -80,7 +80,13 @@ interface SpotifyData {
     }[];
 }
 
+let spotifyCache: { data: SpotifyData; expiresAt: number } | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 async function fetchSpotifyData(): Promise<SpotifyData> {
+    if (spotifyCache && Date.now() < spotifyCache.expiresAt) {
+        return spotifyCache.data;
+    }
     const token = await getSpotifyToken();
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -134,12 +140,14 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
             durationMs: a.track!.duration_ms,
         }));
 
-    return {
+    const data: SpotifyData = {
         name: artist.name,
         image: artist.images[0]?.url ?? null,
         monthlyListeners,
         topTracks,
     };
+    spotifyCache = { data, expiresAt: Date.now() + CACHE_TTL_MS };
+    return data;
 }
 
 // Debug: see raw Spotify API response without saving

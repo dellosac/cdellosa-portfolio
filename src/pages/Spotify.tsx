@@ -228,8 +228,8 @@ function HistoryTab() {
                                 showMark: chartData.length <= 30,
                             },
                         ]}
-                        height={220}
-                        margin={{ left: 70, right: 20, top: 20, bottom: 40 }}
+                        height={300}
+                        margin={{ left: 0, right: 20, top: 20, bottom: 40 }}
                     />
                 </Box>
             )}
@@ -353,11 +353,11 @@ function Spotify() {
     return (
         <Container maxWidth="sm" sx={{ pt: 4, pb: 6 }}>
             <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
-                <Tab label="Now" />
                 <Tab label="History" />
+                <Tab label="Now" />
             </Tabs>
-            {tab === 0 && <NowTab artist={artist} />}
-            {tab === 1 && <HistoryTab />}
+            {tab === 0 && <HistoryTab />}
+            {tab === 1 && <NowTab artist={artist} />}
         </Container>
     );
 }
