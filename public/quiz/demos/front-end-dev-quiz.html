@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Front End Engineering — Practice Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a38;
+    --accent: #e8ff47;
+    --accent2: #47c4ff;
+    --danger: #ff4757;
+    --success: #2ecc71;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* --- GRID BG --- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
+
+  /* ---- START SCREEN ---- */
+  #start-screen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    margin-bottom: 48px;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 48px;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+  }
+
+  .info-card .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .info-card .label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,255,71,0.25); }
+  .btn:active { transform: translateY(0); }
+
+  .btn.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn.secondary:hover { border-color: var(--accent); color: var(--accent); box-shadow: none; }
+
+  /* ---- QUIZ SCREEN ---- */
+  #quiz-screen {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .quiz-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .q-counter {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .q-counter strong { color: var(--text); }
+
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    transition: color 0.3s;
+  }
+  .timer-wrap.warning { color: var(--danger); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 300px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .quiz-body {
+    flex: 1;
+    padding: 48px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 780px;
+    width: 100%;
+    margin-bottom: 24px;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .q-text {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.55;
+    margin-bottom: 32px;
+  }
+
+  .q-text code {
+    font-family: 'Space Mono', monospace;
+    background: var(--surface2);
+    color: var(--accent2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 15px;
+  }
+
+  pre.code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #a8d8f8;
+    overflow-x: auto;
+    margin-bottom: 28px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .options { display: grid; gap: 12px; }
+
+  .option {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left;
+  }
+  .option:hover { border-color: var(--accent); background: rgba(232,255,71,0.05); }
+
+  .opt-key {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .option.selected { border-color: var(--accent); background: rgba(232,255,71,0.08); }
+  .option.selected .opt-key { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+  .option.correct { border-color: var(--success); background: rgba(46,204,113,0.1); }
+  .option.correct .opt-key { background: var(--success); border-color: var(--success); color: #fff; }
+
+  .option.wrong { border-color: var(--danger); background: rgba(255,71,87,0.08); }
+  .option.wrong .opt-key { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+  .option.disabled { cursor: default; pointer-events: none; }
+
+  .explanation {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: rgba(71,196,255,0.06);
+    border: 1px solid rgba(71,196,255,0.2);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: #a0c8df;
+    line-height: 1.6;
+    animation: slideUp 0.25s ease;
+  }
+  .explanation strong { color: var(--accent2); }
+
+  .nav-row {
+    display: flex;
+    gap: 12px;
+    max-width: 780px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .nav-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 780px;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 0 2px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .dot.answered { background: var(--accent); }
+  .dot.current { background: var(--accent2); }
+  .dot.correct-dot { background: var(--success); }
+  .dot.wrong-dot { background: var(--danger); }
+
+  /* ---- RESULTS SCREEN ---- */
+  #results-screen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin-bottom: 32px;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--border); stroke-width: 10; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  .score-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .score-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+
+  .result-heading {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .result-sub {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 10px 22px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+  }
+  .stat-pill .s-num { color: var(--accent); font-weight: 700; }
+
+  .review-btn { margin-right: 12px; }
+
+  /* Review */
+  #review-screen {
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px;
+    min-height: 100vh;
+  }
+  .review-header {
+    max-width: 780px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .review-header h2 { font-size: 24px; font-weight: 800; }
+
+  .review-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    max-width: 780px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .review-card.rc-correct { border-color: rgba(46,204,113,0.4); }
+  .review-card.rc-wrong { border-color: rgba(255,71,87,0.35); }
+
+  .rc-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+  .rc-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .rc-icon.ok { background: var(--success); }
+  .rc-icon.bad { background: var(--danger); }
+  .rc-qnum { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .rc-text { font-size: 15px; font-weight: 600; line-height: 1.5; }
+  .rc-answers { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .rc-ans { font-size: 13px; padding: 8px 12px; border-radius: 7px; }
+  .rc-ans.yours { background: rgba(255,71,87,0.12); color: #ff8593; }
+  .rc-ans.correct-ans { background: rgba(46,204,113,0.1); color: #7ff0b3; }
+  .rc-ans.both { background: rgba(46,204,113,0.1); color: #7ff0b3; }
+  .rc-exp { font-size: 13px; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- START -->
+<div id="start-screen" class="screen active">
+  <div class="badge">Practice Exam</div>
+  <h1>Front End<br><span>Engineering</span></h1>
+  <p class="subtitle">50 questions covering HTML, CSS, JavaScript, React, performance, accessibility, and browser APIs.</p>
+  <div class="info-grid">
+    <div class="info-card"><span class="num">50</span><span class="label">Questions</span></div>
+    <div class="info-card"><span class="num">30</span><span class="label">Minutes</span></div>
+    <div class="info-card"><span class="num">4</span><span class="label">Options Each</span></div>
+  </div>
+  <button class="btn" onclick="startQuiz()">Start Exam →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <span class="q-counter">Question <strong id="q-num">1</strong> / 50</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="timer-wrap" id="timer-wrap">⏱ <span id="timer">30:00</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="nav-dots" id="nav-dots"></div>
+    <div class="question-card" id="question-card"></div>
+    <div class="nav-row">
+      <button class="btn secondary" id="prev-btn" onclick="navigate(-1)">← Prev</button>
+      <button class="btn" id="next-btn" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen" class="screen">
+  <div class="score-ring">
+    <svg viewBox="0 0 160 160" width="160" height="160">
+      <circle class="ring-track" cx="80" cy="80" r="65"/>
+      <circle class="ring-fill" id="ring-fill" cx="80" cy="80" r="65" stroke-dasharray="408" stroke-dashoffset="408"/>
+    </svg>
+    <div class="score-text">
+      <span class="score-pct" id="score-pct">0%</span>
+      <span class="score-label">Score</span>
+    </div>
+  </div>
+  <h2 class="result-heading" id="result-heading">—</h2>
+  <p class="result-sub" id="result-sub">—</p>
+  <div class="stats-row">
+    <div class="stat-pill">✅ <span class="s-num" id="r-correct">0</span> Correct</div>
+    <div class="stat-pill">❌ <span class="s-num" id="r-wrong">0</span> Wrong</div>
+    <div class="stat-pill">⏭ <span class="s-num" id="r-skipped">0</span> Skipped</div>
+    <div class="stat-pill">⏱ <span class="s-num" id="r-time">—</span> Used</div>
+  </div>
+  <div>
+    <button class="btn secondary review-btn" onclick="showReview()">Review Answers</button>
+    <button class="btn" onclick="restartQuiz()">Retake Exam</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review-screen" class="screen">
+  <div class="review-header">
+    <h2>Answer Review</h2>
+    <button class="btn secondary" onclick="showScreen('results-screen')">← Back</button>
+  </div>
+  <div id="review-list"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // HTML
+  {
+    category: "HTML",
+    q: "Which HTML element is the correct one to use for the main navigation links of a website?",
+    code: null,
+    options: ["<navigation>", "<nav>", "<navigate>", "<menu>"],
+    answer: 1,
+    explanation: "<nav> is the semantic HTML5 element specifically designed for navigation link groups."
+  },
+  {
+    category: "HTML",
+    q: "What does the <code>defer</code> attribute on a <code>&lt;script&gt;</code> tag do?",
+    code: null,
+    options: [
+      "Loads the script asynchronously and executes it immediately",
+      "Prevents the script from ever executing",
+      "Downloads the script asynchronously but executes it after the DOM is parsed",
+      "Makes the script load synchronously"
+    ],
+    answer: 2,
+    explanation: "defer downloads the script in parallel with HTML parsing and executes it after the document has been fully parsed, preserving execution order."
+  },
+  {
+    category: "HTML",
+    q: "Which attribute makes an input field required in an HTML form?",
+    code: null,
+    options: ["mandatory", "required", "validate", "mustfill"],
+    answer: 1,
+    explanation: "The 'required' attribute is a built-in HTML5 constraint validation attribute that prevents form submission if the field is empty."
+  },
+  {
+    category: "HTML",
+    q: "What is the purpose of the <code>alt</code> attribute on an <code>&lt;img&gt;</code> element?",
+    code: null,
+    options: [
+      "It sets the image title shown on hover",
+      "It provides alternative text for accessibility and when image fails to load",
+      "It defines the image format",
+      "It is required for SEO only"
+    ],
+    answer: 1,
+    explanation: "The alt attribute provides alternative text for screen readers, is shown when images fail to load, and improves SEO."
+  },
+  {
+    category: "HTML",
+    q: "What is the correct way to create a semantic section that represents standalone content that could be syndicated?",
+    code: null,
+    options: ["<section>", "<div>", "<article>", "<aside>"],
+    answer: 2,
+    explanation: "<article> represents self-contained content that could independently appear in a feed or be syndicated, such as blog posts or news stories."
+  },
+  // CSS
+  {
+    category: "CSS",
+    q: "What does the CSS property <code>box-sizing: border-box</code> do?",
+    code: null,
+    options: [
+      "Adds a border to all elements",
+      "Makes padding and border included within the element's total width and height",
+      "Creates a box shadow around the element",
+      "Removes all default margins"
+    ],
+    answer: 1,
+    explanation: "border-box includes padding and border in the element's stated width/height, making layout math much more intuitive."
+  },
+  {
+    category: "CSS",
+    q: "Which CSS selector has the highest specificity?",
+    code: null,
+    options: [".class-name", "element", "#id-name", "* (universal selector)"],
+    answer: 2,
+    explanation: "ID selectors (#id) have a specificity of (0,1,0,0), higher than class selectors (0,0,1,0) or element selectors (0,0,0,1)."
+  },
+  {
+    category: "CSS",
+    q: "What is the default value of the <code>position</code> property in CSS?",
+    code: null,
+    options: ["relative", "absolute", "static", "fixed"],
+    answer: 2,
+    explanation: "Elements are position: static by default, meaning they follow the normal document flow and top/left/right/bottom have no effect."
+  },
+  {
+    category: "CSS",
+    q: "Which flexbox property controls how flex items wrap onto multiple lines?",
+    code: null,
+    options: ["flex-direction", "flex-wrap", "align-content", "justify-content"],
+    answer: 1,
+    explanation: "flex-wrap controls whether flex items are forced onto one line or can wrap onto multiple lines."
+  },
+  {
+    category: "CSS",
+    q: "What does <code>z-index</code> require to take effect on an element?",
+    code: null,
+    options: [
+      "display: block",
+      "A non-static position value",
+      "A defined width and height",
+      "overflow: hidden on the parent"
+    ],
+    answer: 1,
+    explanation: "z-index only works on positioned elements — those with position: relative, absolute, fixed, or sticky."
+  },
+  {
+    category: "CSS",
+    q: "What is the CSS specificity of the selector: <code>div.container > p#intro span</code>?",
+    code: null,
+    options: ["(0,1,1,3)", "(0,1,2,2)", "(0,1,1,2)", "(0,2,1,2)"],
+    answer: 1,
+    explanation: "1 ID (#intro) = (0,1,0,0), 1 class (.container) = (0,0,1,0), 3 elements (div, p, span) = (0,0,0,3) → total: (0,1,1,3). Wait — that's A. Correct: 1 ID, 1 class, 3 type = (0,1,1,3).",
+    // fix: answer should be 0
+  },
+  {
+    category: "CSS",
+    q: "Which CSS pseudo-class targets an element only when it has no children?",
+    code: null,
+    options: [":empty", ":blank", ":void", ":childless"],
+    answer: 0,
+    explanation: ":empty matches elements that have no children at all (including text nodes)."
+  },
+  // JavaScript Core
+  {
+    category: "JavaScript",
+    q: "What will the following code output?",
+    code: `console.log(typeof null);`,
+    options: ["'null'", "'object'", "'undefined'", "'boolean'"],
+    answer: 1,
+    explanation: "typeof null returns 'object' — this is a well-known historical bug in JavaScript that was never fixed to maintain backward compatibility."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the output of this code?",
+    code: `console.log(0.1 + 0.2 === 0.3);`,
+    options: ["true", "false", "NaN", "TypeError"],
+    answer: 1,
+    explanation: "Due to floating-point precision, 0.1 + 0.2 equals 0.30000000000000004 in JavaScript, so the strict equality returns false."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the difference between <code>==</code> and <code>===</code> in JavaScript?",
+    code: null,
+    options: [
+      "They are identical in behavior",
+      "=== checks value only; == checks value and type",
+      "== performs type coercion; === checks value and type without coercion",
+      "== is for numbers only; === is for all types"
+    ],
+    answer: 2,
+    explanation: "== (loose equality) coerces types before comparing; === (strict equality) requires both value AND type to match."
+  },
+  {
+    category: "JavaScript",
+    q: "What will this code output?",
+    code: `var x = 1;
+function test() {
+  console.log(x);
+  var x = 2;
+}
+test();`,
+    options: ["1", "2", "undefined", "ReferenceError"],
+    answer: 2,
+    explanation: "Due to hoisting, var x inside the function is hoisted to the top of the function scope but not initialized, so console.log(x) prints undefined."
+  },
+  {
+    category: "JavaScript",
+    q: "Which method removes the last element from an array and returns it?",
+    code: null,
+    options: [".shift()", ".unshift()", ".pop()", ".splice(-1)"],
+    answer: 2,
+    explanation: "Array.pop() removes the last element from an array, mutates the original, and returns the removed element."
+  },
+  {
+    category: "JavaScript",
+    q: "What does the <code>spread</code> operator do in this context?",
+    code: `const a = [1, 2, 3];
+const b = [...a, 4, 5];`,
+    options: [
+      "b references the same array as a",
+      "Creates a new array with a's elements followed by 4 and 5",
+      "Throws a syntax error",
+      "b is a deep copy including nested objects"
+    ],
+    answer: 1,
+    explanation: "The spread operator (...) expands a's elements into the new array literal, creating a shallow copy merged with the new values."
+  },
+  {
+    category: "JavaScript",
+    q: "What is a closure in JavaScript?",
+    code: null,
+    options: [
+      "A function with no return value",
+      "A way to close the browser tab with JavaScript",
+      "A function that retains access to its outer scope even after the outer function returns",
+      "A function that can only be called once"
+    ],
+    answer: 2,
+    explanation: "A closure is a function bundled with its lexical environment, giving it access to variables from its outer scope even after that scope has finished executing."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the output of this code?",
+    code: `const obj = { a: 1 };
+const copy = Object.assign({}, obj);
+copy.a = 99;
+console.log(obj.a);`,
+    options: ["99", "1", "undefined", "ReferenceError"],
+    answer: 1,
+    explanation: "Object.assign creates a shallow copy. Since 'a' is a primitive value (not a reference type), mutating copy.a doesn't affect obj.a."
+  },
+  // Async / Promises
+  {
+    category: "JavaScript",
+    q: "What does <code>Promise.all()</code> do?",
+    code: null,
+    options: [
+      "Runs promises sequentially and returns all results",
+      "Returns the result of the first promise to resolve",
+      "Waits for all promises to resolve, or rejects if any one rejects",
+      "Ignores rejections and always resolves"
+    ],
+    answer: 2,
+    explanation: "Promise.all() takes an iterable of promises and resolves when all have resolved (returns all results as an array), or rejects immediately if any promise rejects."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the correct way to handle errors with async/await?",
+    code: null,
+    options: [
+      "Using .catch() only",
+      "Using try/catch blocks around await expressions",
+      "Wrapping in Promise.resolve()",
+      "Using the onerror event"
+    ],
+    answer: 1,
+    explanation: "With async/await, you use try/catch blocks to handle rejected promises — it's syntactic sugar over promise chains."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the Event Loop in JavaScript?",
+    code: null,
+    options: [
+      "A CSS animation loop",
+      "A mechanism that allows JS to perform non-blocking operations by offloading tasks to the browser and processing callbacks from the queue",
+      "A built-in for..of loop for DOM events",
+      "A way to create infinite loops safely"
+    ],
+    answer: 1,
+    explanation: "The Event Loop continuously checks if the call stack is empty, then moves callbacks from the task queue (or microtask queue) to the call stack for execution."
+  },
+  {
+    category: "JavaScript",
+    q: "What is the output?",
+    code: `console.log('start');
+setTimeout(() => console.log('timeout'), 0);
+Promise.resolve().then(() => console.log('promise'));
+console.log('end');`,
+    options: [
+      "start, end, timeout, promise",
+      "start, end, promise, timeout",
+      "start, promise, end, timeout",
+      "start, timeout, promise, end"
+    ],
+    answer: 1,
+    explanation: "Synchronous code runs first (start, end), then microtasks like resolved Promises (promise), then macrotasks like setTimeout (timeout)."
+  },
+  // DOM & Browser APIs
+  {
+    category: "DOM",
+    q: "What is the difference between <code>innerHTML</code> and <code>textContent</code>?",
+    code: null,
+    options: [
+      "They are identical",
+      "innerHTML parses HTML tags; textContent treats everything as plain text",
+      "textContent is faster but deprecated",
+      "innerHTML is read-only"
+    ],
+    answer: 1,
+    explanation: "innerHTML parses and renders HTML markup, creating a potential XSS risk. textContent sets/gets raw text, ignoring any HTML tags."
+  },
+  {
+    category: "DOM",
+    q: "What does <code>event.stopPropagation()</code> do?",
+    code: null,
+    options: [
+      "Prevents the default browser action",
+      "Stops the event from bubbling up or capturing down the DOM",
+      "Removes the event listener",
+      "Cancels all future events on the page"
+    ],
+    answer: 1,
+    explanation: "stopPropagation() prevents the event from bubbling up to parent elements (or capturing down). Use preventDefault() to stop browser defaults."
+  },
+  {
+    category: "DOM",
+    q: "What is event delegation?",
+    code: null,
+    options: [
+      "Attaching the same event to every child element individually",
+      "Listening for events on a parent element and using event.target to handle children",
+      "Delegating event handling to web workers",
+      "Using CustomEvent to fire synthetic events"
+    ],
+    answer: 1,
+    explanation: "Event delegation uses bubbling to attach a single listener to a parent, then checks event.target to identify which child triggered it — more efficient for dynamic lists."
+  },
+  {
+    category: "DOM",
+    q: "What does <code>localStorage</code> differ from <code>sessionStorage</code>?",
+    code: null,
+    options: [
+      "localStorage is encrypted; sessionStorage is not",
+      "localStorage persists until explicitly cleared; sessionStorage is cleared when the tab closes",
+      "They have identical behavior but different size limits",
+      "sessionStorage can store objects; localStorage can only store strings"
+    ],
+    answer: 1,
+    explanation: "localStorage persists indefinitely across sessions. sessionStorage is scoped to the current browser tab/session and cleared when the tab is closed."
+  },
+  // React
+  {
+    category: "React",
+    q: "What hook would you use to perform a side effect (like data fetching) after render in a functional component?",
+    code: null,
+    options: ["useState", "useEffect", "useContext", "useReducer"],
+    answer: 1,
+    explanation: "useEffect runs after every render (by default) or when specific dependencies change, making it the right hook for side effects like fetching data or subscriptions."
+  },
+  {
+    category: "React",
+    q: "What is the purpose of the <code>key</code> prop in React lists?",
+    code: null,
+    options: [
+      "It encrypts list items",
+      "It is purely cosmetic and optional",
+      "It helps React identify which items changed, added, or removed for efficient reconciliation",
+      "It sets a CSS class on the list item"
+    ],
+    answer: 2,
+    explanation: "Keys help React's reconciliation algorithm identify which items have changed, been added, or removed, improving performance during re-renders."
+  },
+  {
+    category: "React",
+    q: "What will happen when you call the state setter from <code>useState</code>?",
+    code: null,
+    options: [
+      "The state updates synchronously and the component immediately re-renders",
+      "React schedules a re-render, batching multiple state updates for efficiency",
+      "Only the changed state variable re-renders, not the entire component",
+      "It throws an error if called outside the component"
+    ],
+    answer: 1,
+    explanation: "React batches setState calls and schedules re-renders asynchronously. In React 18+, this batching even applies inside setTimeout and event handlers."
+  },
+  {
+    category: "React",
+    q: "What is the correct way to update an object in React state?",
+    code: null,
+    options: [
+      "state.value = newValue (direct mutation)",
+      "setState(state) after mutating the object",
+      "setState({ ...state, value: newValue }) creating a new object",
+      "useRef to track object changes"
+    ],
+    answer: 2,
+    explanation: "React state must be treated as immutable. You must spread the existing state into a new object and provide the updated property to trigger a re-render."
+  },
+  {
+    category: "React",
+    q: "What does <code>React.memo()</code> do?",
+    code: null,
+    options: [
+      "It memoizes the return value of an expensive function",
+      "It prevents a functional component from re-rendering if its props haven't changed",
+      "It stores data in memory across renders",
+      "It caches API responses"
+    ],
+    answer: 1,
+    explanation: "React.memo is a higher-order component that shallowly compares props. If props haven't changed, it skips re-rendering the wrapped component."
+  },
+  {
+    category: "React",
+    q: "What is the difference between <code>useCallback</code> and <code>useMemo</code>?",
+    code: null,
+    options: [
+      "They are identical",
+      "useCallback memoizes a function reference; useMemo memoizes a computed value",
+      "useMemo is for async functions only",
+      "useCallback can only be used with event handlers"
+    ],
+    answer: 1,
+    explanation: "useCallback returns a memoized function (useful for stable references passed as props). useMemo returns a memoized value from an expensive computation."
+  },
+  // Performance
+  {
+    category: "Performance",
+    q: "What is 'layout thrashing' in browser performance?",
+    code: null,
+    options: [
+      "When CSS animations run too fast",
+      "Repeatedly reading layout properties then writing DOM changes, forcing multiple synchronous reflows",
+      "When images load before CSS",
+      "Using too many CSS grid columns"
+    ],
+    answer: 1,
+    explanation: "Layout thrashing occurs when JS reads layout properties (offsetHeight) then immediately writes DOM changes in a loop, causing the browser to recalculate layout synchronously many times."
+  },
+  {
+    category: "Performance",
+    q: "What does the <code>will-change</code> CSS property do?",
+    code: null,
+    options: [
+      "Schedules future CSS animations",
+      "Hints to the browser to promote the element to its own compositor layer ahead of time",
+      "Prevents repaints on the element",
+      "Marks the element as interactive"
+    ],
+    answer: 1,
+    explanation: "will-change informs the browser of upcoming changes, allowing it to set up optimizations like GPU-accelerated compositing layers in advance."
+  },
+  {
+    category: "Performance",
+    q: "What is code splitting in a web app context?",
+    code: null,
+    options: [
+      "Dividing JavaScript files across multiple developers",
+      "Splitting your CSS from your JavaScript",
+      "Breaking a large JavaScript bundle into smaller chunks loaded on demand",
+      "Minifying JavaScript files"
+    ],
+    answer: 2,
+    explanation: "Code splitting (e.g., via dynamic import() or React.lazy) breaks bundles into smaller chunks that are loaded only when needed, reducing initial load time."
+  },
+  {
+    category: "Performance",
+    q: "What is Cumulative Layout Shift (CLS)?",
+    code: null,
+    options: [
+      "The total amount of JavaScript loaded",
+      "A Core Web Vital measuring unexpected visual shifts in page content during loading",
+      "The time until first user interaction",
+      "How often a page re-renders"
+    ],
+    answer: 1,
+    explanation: "CLS is a Core Web Vital that measures how much visible content unexpectedly moves during page load. Reserve image dimensions and avoid injecting content above existing content."
+  },
+  // Accessibility
+  {
+    category: "Accessibility",
+    q: "What is the purpose of ARIA <code>role</code> attributes?",
+    code: null,
+    options: [
+      "To style elements with CSS",
+      "To define JavaScript behavior",
+      "To communicate the purpose/type of an element to assistive technologies when native semantics are insufficient",
+      "To prevent click events from firing"
+    ],
+    answer: 2,
+    explanation: "ARIA roles tell assistive technologies (like screen readers) what an element is and how to interact with it when native HTML semantics don't convey the right meaning."
+  },
+  {
+    category: "Accessibility",
+    q: "What minimum contrast ratio does WCAG AA require for normal text?",
+    code: null,
+    options: ["2:1", "3:1", "4.5:1", "7:1"],
+    answer: 2,
+    explanation: "WCAG 2.1 Level AA requires a minimum contrast ratio of 4.5:1 for normal text and 3:1 for large text (18pt or 14pt bold)."
+  },
+  {
+    category: "Accessibility",
+    q: "What does <code>tabindex=\"-1\"</code> do?",
+    code: null,
+    options: [
+      "Removes the element from the page",
+      "Makes the element focusable via JavaScript only, removing it from the tab order",
+      "Makes the element the first in tab order",
+      "Disables all click events on the element"
+    ],
+    answer: 1,
+    explanation: "tabindex=\"-1\" removes an element from the natural tab sequence but allows it to be focused programmatically via element.focus() — useful for modals."
+  },
+  // TypeScript
+  {
+    category: "TypeScript",
+    q: "What is the difference between <code>interface</code> and <code>type</code> in TypeScript?",
+    code: null,
+    options: [
+      "They are completely identical",
+      "Interfaces can only describe objects; type aliases can also represent unions, intersections, and primitives",
+      "Type aliases support declaration merging; interfaces do not",
+      "Interfaces compile to JavaScript classes"
+    ],
+    answer: 1,
+    explanation: "Both describe shapes, but type aliases are more flexible (unions, mapped types, etc.). Interfaces support declaration merging (open-ended), which type aliases don't."
+  },
+  {
+    category: "TypeScript",
+    q: "What does the <code>unknown</code> type mean in TypeScript?",
+    code: null,
+    options: [
+      "The same as 'any' — all operations are allowed",
+      "A value whose type must be narrowed before performing operations on it",
+      "A type that only accepts null and undefined",
+      "A type used only in generics"
+    ],
+    answer: 1,
+    explanation: "unknown is the type-safe counterpart of any. You must perform type-checking (typeof, instanceof, type guards) before using the value."
+  },
+  // CSS Advanced
+  {
+    category: "CSS",
+    q: "What does <code>CSS Grid's minmax(100px, 1fr)</code> mean?",
+    code: null,
+    options: [
+      "Column is exactly 100px wide",
+      "Column is at least 100px wide but can grow to fill available space proportionally",
+      "Column switches between 100px and 1fr based on viewport",
+      "Column maxes out at 100px"
+    ],
+    answer: 1,
+    explanation: "minmax(min, max) defines a size range. minmax(100px, 1fr) means the track is never smaller than 100px but can grow to take 1 fraction of remaining space."
+  },
+  {
+    category: "CSS",
+    q: "What is a CSS custom property (CSS variable) and how is it declared?",
+    code: null,
+    options: [
+      "A SCSS variable declared with $name: value",
+      "A native CSS variable declared with --name: value on an element, accessed via var(--name)",
+      "A JavaScript-injected style value",
+      "A browser-specific vendor prefix"
+    ],
+    answer: 1,
+    explanation: "CSS custom properties are declared with -- prefix (e.g., --primary: #ff0) and consumed with var(--primary). They cascade and are inherited like normal CSS properties."
+  },
+  // Security
+  {
+    category: "Security",
+    q: "What is Cross-Site Scripting (XSS)?",
+    code: null,
+    options: [
+      "A technique to embed fonts from external servers",
+      "A vulnerability where attackers inject malicious scripts into web pages viewed by other users",
+      "A CORS misconfiguration",
+      "Embedding iframes from third-party sites"
+    ],
+    answer: 1,
+    explanation: "XSS allows attackers to inject client-side scripts into pages. Prevention includes escaping output, using textContent instead of innerHTML, and implementing CSP headers."
+  },
+  {
+    category: "Security",
+    q: "What does Content Security Policy (CSP) do?",
+    code: null,
+    options: [
+      "Encrypts all network traffic",
+      "An HTTP header that tells the browser which content sources are trusted, mitigating XSS",
+      "Prevents CSRF attacks",
+      "Blocks all third-party cookies"
+    ],
+    answer: 1,
+    explanation: "CSP is an HTTP response header that restricts which scripts, styles, and resources can load, effectively neutralizing injected malicious scripts."
+  },
+  // Module System
+  {
+    category: "JavaScript",
+    q: "What is the difference between <code>import</code> (ESM) and <code>require()</code> (CommonJS)?",
+    code: null,
+    options: [
+      "They are identical in all environments",
+      "ESM imports are static and tree-shakeable; require() is dynamic and evaluated at runtime",
+      "require() only works in the browser",
+      "ESM can only import JSON files"
+    ],
+    answer: 1,
+    explanation: "ES Modules (import/export) are static (analyzed at parse time), enabling tree-shaking. CommonJS require() is dynamic and synchronous, evaluated at runtime."
+  },
+  // Testing
+  {
+    category: "Testing",
+    q: "What does a 'snapshot test' in Jest/Vitest do?",
+    code: null,
+    options: [
+      "Takes a screenshot of the browser",
+      "Records the rendered output of a component and fails if future renders differ unexpectedly",
+      "Tests the performance of the component",
+      "Validates API responses"
+    ],
+    answer: 1,
+    explanation: "Snapshot tests serialize the component's output (a JSON tree) to a file. Future test runs compare against this snapshot — failing if unexpected changes occur."
+  },
+  {
+    category: "Testing",
+    q: "What is the purpose of mocking in unit tests?",
+    code: null,
+    options: [
+      "To make tests run in a browser",
+      "To replace real dependencies with controlled fake implementations so tests are isolated and predictable",
+      "To style test results",
+      "To automatically generate tests"
+    ],
+    answer: 1,
+    explanation: "Mocking replaces real modules, APIs, or functions with controlled fakes, isolating the code under test from external systems and making tests deterministic."
+  },
+  // Network
+  {
+    category: "Network",
+    q: "What is the purpose of HTTP caching headers like <code>Cache-Control</code>?",
+    code: null,
+    options: [
+      "To encrypt HTTP responses",
+      "To instruct browsers and CDNs how long to store and reuse responses, reducing server load and improving performance",
+      "To block certain requests",
+      "To compress HTTP responses"
+    ],
+    answer: 1,
+    explanation: "Cache-Control headers like max-age, no-cache, and immutable tell browsers and proxies how to cache responses, avoiding redundant network requests."
+  },
+  {
+    category: "Network",
+    q: "What is CORS and when is it triggered?",
+    code: null,
+    options: [
+      "A compression algorithm for HTTP responses",
+      "A browser security mechanism that restricts cross-origin requests unless the server explicitly allows them",
+      "A protocol for WebSockets",
+      "A way to share cookies between domains"
+    ],
+    answer: 1,
+    explanation: "CORS (Cross-Origin Resource Sharing) is enforced by browsers when a web page makes requests to a different origin (domain, protocol, or port). The server must respond with appropriate Access-Control-Allow-Origin headers."
+  },
+];
+
+// Fix the specificity question answer
+QUESTIONS[10].answer = 0;
+QUESTIONS[10].explanation = "1 ID (#intro) = (0,1,0,0), 1 class (.container) = (0,0,1,0), 3 type selectors (div, p, span) = (0,0,0,3) → total: (0,1,1,3).";
+
+let currentQ = 0;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let timerInterval = null;
+let timeLeft = 30 * 60;
+let startTime = null;
+let quizFinished = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  showScreen('quiz-screen');
+  buildDots();
+  renderQuestion();
+  startTimer();
+  startTime = Date.now();
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  const s = (timeLeft % 60).toString().padStart(2, '0');
+  document.getElementById('timer').textContent = `${m}:${s}`;
+  if (timeLeft <= 300) {
+    document.getElementById('timer-wrap').classList.add('warning');
+  }
+}
+
+function buildDots() {
+  const container = document.getElementById('nav-dots');
+  container.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.title = `Q${i+1}`;
+    d.onclick = () => { currentQ = i; renderQuestion(); };
+    container.appendChild(d);
+  });
+}
+
+function updateDots() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((d, i) => {
+    d.className = 'dot';
+    if (i === currentQ) d.classList.add('current');
+    else if (userAnswers[i] !== null) d.classList.add('answered');
+  });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const card = document.getElementById('question-card');
+  const answered = userAnswers[currentQ] !== null;
+
+  // Clear card
+  card.innerHTML = '';
+
+  // Q number
+  const qNum = document.createElement('div');
+  qNum.className = 'q-number';
+  qNum.innerHTML = `Question ${currentQ + 1} / ${QUESTIONS.length} &nbsp;·&nbsp; ${q.category}`;
+  card.appendChild(qNum);
+
+  // Q text
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.innerHTML = q.q;
+  card.appendChild(qText);
+
+  // Code block
+  if (q.code) {
+    const pre = document.createElement('pre');
+    pre.className = 'code-block';
+    pre.textContent = q.code;
+    card.appendChild(pre);
+  }
+
+  // Options container
+  const optionsDiv = document.createElement('div');
+  optionsDiv.className = 'options';
+
+  const keys = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    let cls = 'option';
+    if (answered) {
+      cls += ' disabled';
+      if (i === q.answer) cls += ' correct';
+      else if (i === userAnswers[currentQ]) cls += ' wrong';
+    }
+    div.className = cls;
+
+    const keySpan = document.createElement('span');
+    keySpan.className = 'opt-key';
+    keySpan.textContent = keys[i];
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = opt;
+
+    div.appendChild(keySpan);
+    div.appendChild(textSpan);
+
+    if (!answered) {
+      div.addEventListener('click', () => selectAnswer(i));
+    }
+
+    optionsDiv.appendChild(div);
+  });
+
+  card.appendChild(optionsDiv);
+
+  // Explanation
+  if (answered) {
+    const isRight = userAnswers[currentQ] === q.answer;
+    const exp = document.createElement('div');
+    exp.className = 'explanation';
+    exp.innerHTML = `<strong>${isRight ? '✓ Correct!' : '✗ Incorrect.'}</strong> ${q.explanation}`;
+    card.appendChild(exp);
+  }
+
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = '';
+
+  // progress
+  const pct = ((currentQ + 1) / QUESTIONS.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num').textContent = currentQ + 1;
+
+  // nav buttons
+  document.getElementById('prev-btn').style.visibility = currentQ > 0 ? 'visible' : 'hidden';
+  const nextBtn = document.getElementById('next-btn');
+  if (currentQ === QUESTIONS.length - 1) {
+    nextBtn.textContent = 'Finish Exam →';
+    nextBtn.onclick = finishQuiz;
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = () => navigate(1);
+  }
+
+  updateDots();
+}
+
+function selectAnswer(i) {
+  if (userAnswers[currentQ] !== null) return;
+  userAnswers[currentQ] = i;
+  renderQuestion();
+}
+
+function navigate(dir) {
+  const next = currentQ + dir;
+  if (next >= 0 && next < QUESTIONS.length) {
+    currentQ = next;
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  if (quizFinished) return;
+  quizFinished = true;
+  clearInterval(timerInterval);
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (userAnswers[i] === null) skipped++;
+    else if (userAnswers[i] === q.answer) correct++;
+    else wrong++;
+  });
+
+  const pct = Math.round((correct / QUESTIONS.length) * 100);
+
+  // populate results
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-wrong').textContent = wrong;
+  document.getElementById('r-skipped').textContent = skipped;
+
+  const em = Math.floor(elapsed / 60);
+  const es = (elapsed % 60).toString().padStart(2, '0');
+  document.getElementById('r-time').textContent = `${em}:${es}`;
+
+  let heading, sub;
+  if (pct >= 90) { heading = 'Excellent Work!'; sub = "You've nailed the fundamentals."; }
+  else if (pct >= 75) { heading = 'Great Job!'; sub = 'Solid performance — review the missed ones.'; }
+  else if (pct >= 60) { heading = 'Good Effort'; sub = 'Keep studying — you\'re getting there.'; }
+  else { heading = 'Keep Practicing'; sub = 'Review the topics you missed and try again.'; }
+
+  document.getElementById('result-heading').textContent = heading;
+  document.getElementById('result-sub').textContent = sub;
+
+  showScreen('results-screen');
+
+  // animate ring
+  setTimeout(() => {
+    const circumference = 408;
+    const offset = circumference - (pct / 100) * circumference;
+    document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  }, 100);
+}
+
+function showReview() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+
+  QUESTIONS.forEach((q, i) => {
+    const ua = userAnswers[i];
+    const isCorrect = ua === q.answer;
+    const skipped = ua === null;
+
+    const card = document.createElement('div');
+    card.className = `review-card ${skipped ? '' : isCorrect ? 'rc-correct' : 'rc-wrong'}`;
+
+    let answers = '';
+    if (!skipped && !isCorrect) {
+      answers += `<div class="rc-ans yours">Your answer: ${q.options[ua]}</div>`;
+      answers += `<div class="rc-ans correct-ans">Correct: ${q.options[q.answer]}</div>`;
+    } else if (isCorrect) {
+      answers += `<div class="rc-ans both">✓ ${q.options[q.answer]}</div>`;
+    } else {
+      answers += `<div class="rc-ans yours">Skipped — Correct: ${q.options[q.answer]}</div>`;
+    }
+
+    const icon = skipped ? '⏭' : isCorrect ? '✓' : '✗';
+    const iconCls = skipped ? '' : isCorrect ? 'ok' : 'bad';
+
+    card.innerHTML = `
+      <div class="rc-top">
+        <div class="rc-icon ${iconCls}">${icon}</div>
+        <div>
+          <div class="rc-qnum">Q${i+1} · ${q.category}</div>
+          <div class="rc-text">${q.q}</div>
+        </div>
+      </div>
+      <div class="rc-answers">${answers}</div>
+      <div class="rc-exp">${q.explanation}</div>`;
+
+    list.appendChild(card);
+  });
+
+  showScreen('review-screen');
+}
+
+function restartQuiz() {
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  currentQ = 0;
+  timeLeft = 30 * 60;
+  quizFinished = false;
+  startTime = Date.now();
+  document.getElementById('timer-wrap').classList.remove('warning');
+  updateTimerDisplay();
+  clearInterval(timerInterval);
+  buildDots();
+  renderQuestion();
+  startTimer();
+  showScreen('quiz-screen');
+}
+</script>
+</body>
+</html>
