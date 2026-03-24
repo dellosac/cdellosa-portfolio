@@ -1,1214 +1,1851 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CCAT Practice Test</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #111318;
-    --surface2: #1a1d24;
-    --border: #2a2d36;
-    --accent: #00e5ff;
-    --accent2: #7c3aed;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --success: #10b981;
-    --text: #e2e8f0;
-    --text-muted: #64748b;
-    --text-dim: #94a3b8;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .screen {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  /* ── INTRO SCREEN ── */
-  #intro-screen .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 52px 56px;
-    max-width: 620px;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-  }
-
-  #intro-screen .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-  }
-
-  .tag {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .tag::before {
-    content: '';
-    display: inline-block;
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  h1 {
-    font-size: 36px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 8px;
-  }
-
-  .subtitle {
-    color: var(--text-dim);
-    font-size: 15px;
-    margin-bottom: 36px;
-    font-weight: 300;
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 36px;
-  }
-
-  .stat {
-    background: var(--surface2);
-    padding: 18px 20px;
-    text-align: center;
-  }
-
-  .stat-value {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--accent);
-    display: block;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .info-list {
-    list-style: none;
-    margin-bottom: 36px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .info-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  .info-list li::before {
-    content: '→';
-    color: var(--accent);
-    font-family: 'IBM Plex Mono', monospace;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .btn-primary {
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    border-radius: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-primary:hover {
-    background: #33ecff;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(0,229,255,0.25);
-  }
-
-  /* ── TEST SCREEN ── */
-  #test-screen {
-    display: none;
-    flex-direction: column;
-    padding: 0;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-
-  #test-screen.active {
-    display: flex;
-  }
-
-  .test-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .test-logo {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-  }
-
-  .progress-info {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .progress-info span {
-    color: var(--text);
-    font-weight: 500;
-  }
-
-  .timer-block {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .timer-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  #timer-display {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--accent);
-    min-width: 60px;
-    transition: color 0.3s;
-  }
-
-  #timer-display.warn { color: var(--warn); }
-  #timer-display.danger { color: var(--danger); animation: blink 0.5s ease-in-out infinite; }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-
-  .progress-bar-wrap {
-    height: 3px;
-    background: var(--border);
-    position: relative;
-  }
-
-  #progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    transition: width 0.4s ease;
-    width: 2%;
-  }
-
-  /* Question area */
-  .test-body {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 48px 20px 40px;
-    min-height: calc(100vh - 60px);
-  }
-
-  .question-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    width: 100%;
-    max-width: 700px;
-    overflow: hidden;
-    animation: slideIn 0.25s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .question-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .q-number {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-
-  .q-category {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    padding: 4px 10px;
-    border: 1px solid;
-    border-radius: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .cat-verbal { color: #818cf8; border-color: #818cf840; background: #818cf810; }
-  .cat-math { color: #34d399; border-color: #34d39940; background: #34d39910; }
-  .cat-logic { color: #f472b6; border-color: #f472b640; background: #f472b610; }
-  .cat-spatial { color: var(--warn); border-color: #f59e0b40; background: #f59e0b10; }
-
-  .question-body {
-    padding: 32px 28px 24px;
-  }
-
-  .question-text {
-    font-size: 17px;
-    font-weight: 400;
-    line-height: 1.65;
-    margin-bottom: 28px;
-    color: var(--text);
-  }
-
-  /* Name matching table */
-  .name-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: -4px 0 20px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-  }
-
-  .name-table td {
-    padding: 9px 16px;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-  }
-
-  .name-table tr:nth-child(odd) td { background: var(--surface2); }
-
-  .options-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .option-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.12s;
-    text-align: left;
-    width: 100%;
-    color: var(--text-dim);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .option-btn:hover {
-    border-color: var(--accent);
-    color: var(--text);
-    background: rgba(0,229,255,0.05);
-  }
-
-  .option-btn.selected {
-    border-color: var(--accent);
-    background: rgba(0,229,255,0.08);
-    color: var(--text);
-  }
-
-  .option-key {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent);
-    flex-shrink: 0;
-    width: 20px;
-    text-transform: uppercase;
-  }
-
-  .question-footer {
-    padding: 16px 28px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid var(--border);
-  }
-
-  .skip-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    padding: 10px 20px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: all 0.12s;
-  }
-
-  .skip-btn:hover { border-color: var(--text-muted); color: var(--text); }
-
-  .next-btn {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 11px 28px;
-    border-radius: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .next-btn:hover { background: #33ecff; }
-  .next-btn:disabled { opacity: 0.3; cursor: default; }
-  .next-btn:disabled:hover { background: var(--accent); }
-
-  /* Progress dots */
-  .dots-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 12px 32px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: all 0.2s;
-    cursor: default;
-  }
-
-  .dot.answered { background: var(--accent2); }
-  .dot.current { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-  .dot.skipped { background: var(--warn); }
-
-  /* ── RESULTS SCREEN ── */
-  #results-screen {
-    display: none;
-  }
-
-  #results-screen.active {
-    display: flex;
-  }
-
-  .results-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 52px 56px;
-    max-width: 660px;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .results-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--success), var(--accent));
-  }
-
-  .score-display {
-    text-align: center;
-    margin: 24px 0 40px;
-  }
-
-  .score-circle {
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    border: 3px solid var(--accent);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    position: relative;
-  }
-
-  .score-circle::before {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,229,255,0.08), transparent);
-  }
-
-  .score-num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 42px;
-    font-weight: 600;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .score-total {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-
-  .score-label {
-    font-size: 15px;
-    color: var(--text-dim);
-    font-weight: 300;
-  }
-
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 32px;
-  }
-
-  .result-stat {
-    background: var(--surface2);
-    padding: 18px 16px;
-    text-align: center;
-  }
-
-  .result-stat-value {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 22px;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .result-stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .green { color: var(--success); }
-  .red { color: var(--danger); }
-  .yellow { color: var(--warn); }
-
-  .breakdown-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 14px;
-  }
-
-  .breakdown-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 32px;
-  }
-
-  .breakdown-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .breakdown-bar-wrap {
-    flex: 1;
-    height: 6px;
-    background: var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .breakdown-bar {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 1s ease;
-  }
-
-  .breakdown-name {
-    font-size: 12px;
-    color: var(--text-dim);
-    width: 70px;
-    flex-shrink: 0;
-  }
-
-  .breakdown-score {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    width: 36px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .results-actions {
-    display: flex;
-    gap: 12px;
-  }
-
-  .btn-secondary {
-    flex: 1;
-    padding: 13px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-primary-sm {
-    flex: 1;
-    padding: 13px;
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    border-radius: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-
-  .btn-primary-sm:hover { background: #33ecff; }
-
-  /* Review modal */
-  .review-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 1000;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 20px;
-    overflow-y: auto;
-  }
-
-  .review-overlay.open { display: flex; }
-
-  .review-modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    width: 100%;
-    max-width: 680px;
-    overflow: hidden;
-    margin-top: auto;
-    margin-bottom: auto;
-  }
-
-  .review-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .review-header h3 {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: 0.05em;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-  }
-
-  .close-btn:hover { color: var(--text); }
-
-  .review-item {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .review-item:last-child { border-bottom: none; }
-
-  .review-q {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .review-qnum {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-    padding-top: 2px;
-  }
-
-  .review-qtext {
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.5;
-  }
-
-  .review-answers {
-    display: flex;
-    gap: 20px;
-    padding-left: 28px;
-    font-size: 13px;
-  }
-
-  .review-answer {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .review-answer-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .review-correct { color: var(--success); font-weight: 500; }
-  .review-wrong { color: var(--danger); font-weight: 500; text-decoration: line-through; }
-  .review-skipped-text { color: var(--warn); font-style: italic; }
-  .correct-marker { color: var(--success); }
-  .wrong-marker { color: var(--danger); }
-
-  @media (max-width: 600px) {
-    #intro-screen .card, .results-card { padding: 32px 24px; }
-    h1 { font-size: 28px; }
-    .test-header { padding: 12px 16px; }
-    .test-body { padding: 24px 12px; }
-    .question-body { padding: 24px 18px 18px; }
-    .question-footer { padding: 14px 18px 20px; }
-    .dots-container { padding: 10px 16px; }
-  }
-</style>
-</head>
-<body>
-
-<!-- INTRO -->
-<div class="screen" id="intro-screen">
-  <div class="card">
-    <div class="tag">Practice Assessment</div>
-    <h1>CCAT Simulator</h1>
-    <p class="subtitle">Criteria Cognitive Aptitude Test — Full Simulation</p>
-    <div class="stats-row">
-      <div class="stat">
-        <span class="stat-value">50</span>
-        <span class="stat-label">Questions</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">15</span>
-        <span class="stat-label">Minutes</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">18</span>
-        <span class="stat-label">Avg score</span>
-      </div>
-    </div>
-    <ul class="info-list">
-      <li>Questions span verbal, mathematical, logical, and spatial reasoning</li>
-      <li>Work quickly — most test-takers do not finish all 50 questions</li>
-      <li>No penalty for guessing; unanswered questions count as wrong</li>
-      <li>Target score for competitive roles is typically 24–31+</li>
-    </ul>
-    <button class="btn-primary" onclick="startTest()">Begin Test →</button>
-  </div>
-</div>
-
-<!-- TEST -->
-<div class="screen" id="test-screen">
-  <div style="width:100%; display:flex; flex-direction:column; min-height:100vh;">
-    <div class="test-header">
-      <div class="header-left">
-        <span class="test-logo">CCAT</span>
-        <span class="progress-info">Question <span id="q-current">1</span> of <span id="q-total">50</span></span>
-      </div>
-      <div class="timer-block">
-        <span class="timer-label">Time</span>
-        <span id="timer-display">15:00</span>
-      </div>
-    </div>
-    <div class="progress-bar-wrap">
-      <div id="progress-bar"></div>
-    </div>
-    <div class="dots-container" id="dots-container"></div>
-    <div class="test-body">
-      <div class="question-card" id="question-card">
-        <div class="question-header">
-          <span class="q-number" id="q-label">Question 1</span>
-          <span class="q-category" id="q-cat">Verbal</span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CCAT Practice Test</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg: #0a0c10;
+                --surface: #111318;
+                --surface2: #1a1d24;
+                --border: #2a2d36;
+                --accent: #00e5ff;
+                --accent2: #7c3aed;
+                --warn: #f59e0b;
+                --danger: #ef4444;
+                --success: #10b981;
+                --text: #e2e8f0;
+                --text-muted: #64748b;
+                --text-dim: #94a3b8;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text);
+                font-family: "IBM Plex Sans", sans-serif;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            /* Grid background */
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background-image:
+                    linear-gradient(
+                        rgba(0, 229, 255, 0.03) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(0, 229, 255, 0.03) 1px,
+                        transparent 1px
+                    );
+                background-size: 40px 40px;
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .screen {
+                position: relative;
+                z-index: 1;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            /* ── INTRO SCREEN ── */
+            #intro-screen .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                padding: 52px 56px;
+                max-width: 620px;
+                width: 100%;
+                position: relative;
+                overflow: hidden;
+            }
+
+            #intro-screen .card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(
+                    90deg,
+                    var(--accent2),
+                    var(--accent)
+                );
+            }
+
+            .tag {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                letter-spacing: 0.15em;
+                color: var(--accent);
+                text-transform: uppercase;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .tag::before {
+                content: "";
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                background: var(--accent);
+                border-radius: 50%;
+                animation: pulse 2s ease-in-out infinite;
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 0.4;
+                    transform: scale(0.8);
+                }
+            }
+
+            h1 {
+                font-size: 36px;
+                font-weight: 600;
+                letter-spacing: -0.02em;
+                line-height: 1.1;
+                margin-bottom: 8px;
+            }
+
+            .subtitle {
+                color: var(--text-dim);
+                font-size: 15px;
+                margin-bottom: 36px;
+                font-weight: 300;
+            }
+
+            .stats-row {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                background: var(--border);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                overflow: hidden;
+                margin-bottom: 36px;
+            }
+
+            .stat {
+                background: var(--surface2);
+                padding: 18px 20px;
+                text-align: center;
+            }
+
+            .stat-value {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 28px;
+                font-weight: 600;
+                color: var(--accent);
+                display: block;
+                line-height: 1;
+                margin-bottom: 6px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .info-list {
+                list-style: none;
+                margin-bottom: 36px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .info-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                font-size: 14px;
+                color: var(--text-dim);
+                line-height: 1.5;
+            }
+
+            .info-list li::before {
+                content: "→";
+                color: var(--accent);
+                font-family: "IBM Plex Mono", monospace;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                padding: 16px;
+                background: var(--accent);
+                color: var(--bg);
+                border: none;
+                border-radius: 3px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 13px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+
+            .btn-primary:hover {
+                background: #33ecff;
+                transform: translateY(-1px);
+                box-shadow: 0 8px 30px rgba(0, 229, 255, 0.25);
+            }
+
+            /* ── TEST SCREEN ── */
+            #test-screen {
+                display: none;
+                flex-direction: column;
+                padding: 0;
+                align-items: stretch;
+                justify-content: flex-start;
+            }
+
+            #test-screen.active {
+                display: flex;
+            }
+
+            .test-header {
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                padding: 14px 32px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+            }
+
+            .test-logo {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--accent);
+                letter-spacing: 0.1em;
+            }
+
+            .progress-info {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            .progress-info span {
+                color: var(--text);
+                font-weight: 500;
+            }
+
+            .timer-block {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .timer-label {
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            #timer-display {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 22px;
+                font-weight: 600;
+                color: var(--accent);
+                min-width: 60px;
+                transition: color 0.3s;
+            }
+
+            #timer-display.warn {
+                color: var(--warn);
+            }
+            #timer-display.danger {
+                color: var(--danger);
+                animation: blink 0.5s ease-in-out infinite;
+            }
+
+            @keyframes blink {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            .progress-bar-wrap {
+                height: 3px;
+                background: var(--border);
+                position: relative;
+            }
+
+            #progress-bar {
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    var(--accent2),
+                    var(--accent)
+                );
+                transition: width 0.4s ease;
+                width: 2%;
+            }
+
+            /* Question area */
+            .test-body {
+                flex: 1;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+                padding: 48px 20px 40px;
+                min-height: calc(100vh - 60px);
+            }
+
+            .question-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                width: 100%;
+                max-width: 700px;
+                overflow: hidden;
+                animation: slideIn 0.25s ease;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .question-header {
+                padding: 20px 28px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .q-number {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+            }
+
+            .q-category {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 10px;
+                padding: 4px 10px;
+                border: 1px solid;
+                border-radius: 2px;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .cat-verbal {
+                color: #818cf8;
+                border-color: #818cf840;
+                background: #818cf810;
+            }
+            .cat-math {
+                color: #34d399;
+                border-color: #34d39940;
+                background: #34d39910;
+            }
+            .cat-logic {
+                color: #f472b6;
+                border-color: #f472b640;
+                background: #f472b610;
+            }
+            .cat-spatial {
+                color: var(--warn);
+                border-color: #f59e0b40;
+                background: #f59e0b10;
+            }
+
+            .question-body {
+                padding: 32px 28px 24px;
+            }
+
+            .question-text {
+                font-size: 17px;
+                font-weight: 400;
+                line-height: 1.65;
+                margin-bottom: 28px;
+                color: var(--text);
+            }
+
+            /* Name matching table */
+            .name-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: -4px 0 20px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 13px;
+            }
+
+            .name-table td {
+                padding: 9px 16px;
+                border: 1px solid var(--border);
+                color: var(--text-dim);
+            }
+
+            .name-table tr:nth-child(odd) td {
+                background: var(--surface2);
+            }
+
+            .options-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .option-btn {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 14px 18px;
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: 3px;
+                cursor: pointer;
+                transition: all 0.12s;
+                text-align: left;
+                width: 100%;
+                color: var(--text-dim);
+                font-family: "IBM Plex Sans", sans-serif;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .option-btn:hover {
+                border-color: var(--accent);
+                color: var(--text);
+                background: rgba(0, 229, 255, 0.05);
+            }
+
+            .option-btn.selected {
+                border-color: var(--accent);
+                background: rgba(0, 229, 255, 0.08);
+                color: var(--text);
+            }
+
+            .option-key {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--accent);
+                flex-shrink: 0;
+                width: 20px;
+                text-transform: uppercase;
+            }
+
+            .question-footer {
+                padding: 16px 28px 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-top: 1px solid var(--border);
+            }
+
+            .skip-btn {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                padding: 10px 20px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                transition: all 0.12s;
+            }
+
+            .skip-btn:hover {
+                border-color: var(--text-muted);
+                color: var(--text);
+            }
+
+            .next-btn {
+                background: var(--accent);
+                color: var(--bg);
+                border: none;
+                padding: 11px 28px;
+                border-radius: 3px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.12s;
+            }
+
+            .next-btn:hover {
+                background: #33ecff;
+            }
+            .next-btn:disabled {
+                opacity: 0.3;
+                cursor: default;
+            }
+            .next-btn:disabled:hover {
+                background: var(--accent);
+            }
+
+            /* Progress dots */
+            .dots-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                padding: 12px 32px;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+            }
+
+            .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: var(--border);
+                transition: all 0.2s;
+                cursor: default;
+            }
+
+            .dot.answered {
+                background: var(--accent2);
+            }
+            .dot.current {
+                background: var(--accent);
+                box-shadow: 0 0 6px var(--accent);
+            }
+            .dot.skipped {
+                background: var(--warn);
+            }
+
+            /* ── RESULTS SCREEN ── */
+            #results-screen {
+                display: none;
+            }
+
+            #results-screen.active {
+                display: flex;
+            }
+
+            .results-card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                padding: 52px 56px;
+                max-width: 660px;
+                width: 100%;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .results-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(
+                    90deg,
+                    var(--success),
+                    var(--accent)
+                );
+            }
+
+            .score-display {
+                text-align: center;
+                margin: 24px 0 40px;
+            }
+
+            .score-circle {
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                border: 3px solid var(--accent);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 20px;
+                position: relative;
+            }
+
+            .score-circle::before {
+                content: "";
+                position: absolute;
+                inset: 6px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    rgba(0, 229, 255, 0.08),
+                    transparent
+                );
+            }
+
+            .score-num {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 42px;
+                font-weight: 600;
+                color: var(--accent);
+                line-height: 1;
+            }
+
+            .score-total {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 13px;
+                color: var(--text-muted);
+                margin-top: 4px;
+            }
+
+            .score-label {
+                font-size: 15px;
+                color: var(--text-dim);
+                font-weight: 300;
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                background: var(--border);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                overflow: hidden;
+                margin-bottom: 32px;
+            }
+
+            .result-stat {
+                background: var(--surface2);
+                padding: 18px 16px;
+                text-align: center;
+            }
+
+            .result-stat-value {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 22px;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 4px;
+            }
+
+            .result-stat-label {
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .green {
+                color: var(--success);
+            }
+            .red {
+                color: var(--danger);
+            }
+            .yellow {
+                color: var(--warn);
+            }
+
+            .breakdown-title {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                margin-bottom: 14px;
+            }
+
+            .breakdown-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 32px;
+            }
+
+            .breakdown-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .breakdown-bar-wrap {
+                flex: 1;
+                height: 6px;
+                background: var(--border);
+                border-radius: 3px;
+                overflow: hidden;
+            }
+
+            .breakdown-bar {
+                height: 100%;
+                border-radius: 3px;
+                transition: width 1s ease;
+            }
+
+            .breakdown-name {
+                font-size: 12px;
+                color: var(--text-dim);
+                width: 70px;
+                flex-shrink: 0;
+            }
+
+            .breakdown-score {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 12px;
+                color: var(--text-muted);
+                width: 36px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+
+            .results-actions {
+                display: flex;
+                gap: 12px;
+            }
+
+            .btn-secondary {
+                flex: 1;
+                padding: 13px;
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-dim);
+                border-radius: 3px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.12s;
+            }
+
+            .btn-secondary:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .btn-primary-sm {
+                flex: 1;
+                padding: 13px;
+                background: var(--accent);
+                color: var(--bg);
+                border: none;
+                border-radius: 3px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                cursor: pointer;
+                transition: all 0.12s;
+            }
+
+            .btn-primary-sm:hover {
+                background: #33ecff;
+            }
+
+            /* Review modal */
+            .review-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 1000;
+                align-items: flex-start;
+                justify-content: center;
+                padding: 40px 20px;
+                overflow-y: auto;
+            }
+
+            .review-overlay.open {
+                display: flex;
+            }
+
+            .review-modal {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                width: 100%;
+                max-width: 680px;
+                overflow: hidden;
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+
+            .review-header {
+                padding: 20px 28px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .review-header h3 {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text);
+                letter-spacing: 0.05em;
+            }
+
+            .close-btn {
+                background: none;
+                border: none;
+                color: var(--text-muted);
+                font-size: 20px;
+                cursor: pointer;
+                padding: 0;
+                line-height: 1;
+            }
+
+            .close-btn:hover {
+                color: var(--text);
+            }
+
+            .review-item {
+                padding: 20px 28px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .review-item:last-child {
+                border-bottom: none;
+            }
+
+            .review-q {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .review-qnum {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                color: var(--text-muted);
+                flex-shrink: 0;
+                padding-top: 2px;
+            }
+
+            .review-qtext {
+                font-size: 14px;
+                color: var(--text-dim);
+                line-height: 1.5;
+            }
+
+            .review-answers {
+                display: flex;
+                gap: 20px;
+                padding-left: 28px;
+                font-size: 13px;
+            }
+
+            .review-answer {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .review-answer-label {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 10px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            .review-correct {
+                color: var(--success);
+                font-weight: 500;
+            }
+            .review-wrong {
+                color: var(--danger);
+                font-weight: 500;
+                text-decoration: line-through;
+            }
+            .review-skipped-text {
+                color: var(--warn);
+                font-style: italic;
+            }
+            .correct-marker {
+                color: var(--success);
+            }
+            .wrong-marker {
+                color: var(--danger);
+            }
+
+            @media (max-width: 600px) {
+                #intro-screen .card,
+                .results-card {
+                    padding: 32px 24px;
+                }
+                h1 {
+                    font-size: 28px;
+                }
+                .test-header {
+                    padding: 12px 16px;
+                }
+                .test-body {
+                    padding: 24px 12px;
+                }
+                .question-body {
+                    padding: 24px 18px 18px;
+                }
+                .question-footer {
+                    padding: 14px 18px 20px;
+                }
+                .dots-container {
+                    padding: 10px 16px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- INTRO -->
+        <div class="screen" id="intro-screen">
+            <div class="card">
+                <div class="tag">Practice Assessment</div>
+                <h1>CCAT Simulator</h1>
+                <p class="subtitle">
+                    Criteria Cognitive Aptitude Test — Full Simulation
+                </p>
+                <div class="stats-row">
+                    <div class="stat">
+                        <span class="stat-value">50</span>
+                        <span class="stat-label">Questions</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">15</span>
+                        <span class="stat-label">Minutes</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">18</span>
+                        <span class="stat-label">Avg score</span>
+                    </div>
+                </div>
+                <ul class="info-list">
+                    <li>
+                        Questions span verbal, mathematical, logical, and
+                        spatial reasoning
+                    </li>
+                    <li>
+                        Work quickly — most test-takers do not finish all 50
+                        questions
+                    </li>
+                    <li>
+                        No penalty for guessing; unanswered questions count as
+                        wrong
+                    </li>
+                    <li>
+                        Target score for competitive roles is typically 24–31+
+                    </li>
+                </ul>
+                <button class="btn-primary" onclick="startTest()">
+                    Begin Test →
+                </button>
+            </div>
         </div>
-        <div class="question-body">
-          <div class="question-text" id="q-text"></div>
-          <div class="options-list" id="options-list"></div>
+
+        <!-- TEST -->
+        <div class="screen" id="test-screen">
+            <div
+                style="
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                "
+            >
+                <div class="test-header">
+                    <div class="header-left">
+                        <span class="test-logo">CCAT</span>
+                        <span class="progress-info"
+                            >Question <span id="q-current">1</span> of
+                            <span id="q-total">50</span></span
+                        >
+                    </div>
+                    <div class="timer-block">
+                        <span class="timer-label">Time</span>
+                        <span id="timer-display">15:00</span>
+                    </div>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div id="progress-bar"></div>
+                </div>
+                <div class="dots-container" id="dots-container"></div>
+                <div class="test-body">
+                    <div class="question-card" id="question-card">
+                        <div class="question-header">
+                            <span class="q-number" id="q-label"
+                                >Question 1</span
+                            >
+                            <span class="q-category" id="q-cat">Verbal</span>
+                        </div>
+                        <div class="question-body">
+                            <div class="question-text" id="q-text"></div>
+                            <div class="options-list" id="options-list"></div>
+                        </div>
+                        <div class="question-footer">
+                            <button class="skip-btn" onclick="skipQuestion()">
+                                Skip
+                            </button>
+                            <button
+                                class="next-btn"
+                                id="next-btn"
+                                onclick="nextQuestion()"
+                                disabled
+                            >
+                                Next →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="question-footer">
-          <button class="skip-btn" onclick="skipQuestion()">Skip</button>
-          <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>
-            Next →
-          </button>
+
+        <!-- RESULTS -->
+        <div class="screen" id="results-screen">
+            <div class="results-card">
+                <div class="tag">Test Complete</div>
+                <h1>Your Results</h1>
+                <div class="score-display">
+                    <div class="score-circle">
+                        <span class="score-num" id="score-num">0</span>
+                        <span class="score-total">out of 50</span>
+                    </div>
+                    <p class="score-label" id="score-label">Calculating...</p>
+                </div>
+                <div class="results-grid">
+                    <div class="result-stat">
+                        <span class="result-stat-value green" id="r-correct"
+                            >0</span
+                        >
+                        <span class="result-stat-label">Correct</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat-value red" id="r-wrong"
+                            >0</span
+                        >
+                        <span class="result-stat-label">Incorrect</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat-value yellow" id="r-skipped"
+                            >0</span
+                        >
+                        <span class="result-stat-label">Skipped</span>
+                    </div>
+                </div>
+                <div class="breakdown-title">Performance by Category</div>
+                <div class="breakdown-list" id="breakdown-list"></div>
+                <div class="results-actions">
+                    <button class="btn-secondary" onclick="showReview()">
+                        Review Answers
+                    </button>
+                    <button class="btn-primary-sm" onclick="restartTest()">
+                        Retake Test
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- RESULTS -->
-<div class="screen" id="results-screen">
-  <div class="results-card">
-    <div class="tag">Test Complete</div>
-    <h1>Your Results</h1>
-    <div class="score-display">
-      <div class="score-circle">
-        <span class="score-num" id="score-num">0</span>
-        <span class="score-total">out of 50</span>
-      </div>
-      <p class="score-label" id="score-label">Calculating...</p>
-    </div>
-    <div class="results-grid">
-      <div class="result-stat">
-        <span class="result-stat-value green" id="r-correct">0</span>
-        <span class="result-stat-label">Correct</span>
-      </div>
-      <div class="result-stat">
-        <span class="result-stat-value red" id="r-wrong">0</span>
-        <span class="result-stat-label">Incorrect</span>
-      </div>
-      <div class="result-stat">
-        <span class="result-stat-value yellow" id="r-skipped">0</span>
-        <span class="result-stat-label">Skipped</span>
-      </div>
-    </div>
-    <div class="breakdown-title">Performance by Category</div>
-    <div class="breakdown-list" id="breakdown-list"></div>
-    <div class="results-actions">
-      <button class="btn-secondary" onclick="showReview()">Review Answers</button>
-      <button class="btn-primary-sm" onclick="restartTest()">Retake Test</button>
-    </div>
-  </div>
-</div>
+        <!-- REVIEW MODAL -->
+        <div class="review-overlay" id="review-overlay">
+            <div class="review-modal">
+                <div class="review-header">
+                    <h3>Answer Review</h3>
+                    <button class="close-btn" onclick="closeReview()">×</button>
+                </div>
+                <div id="review-body"></div>
+            </div>
+        </div>
 
-<!-- REVIEW MODAL -->
-<div class="review-overlay" id="review-overlay">
-  <div class="review-modal">
-    <div class="review-header">
-      <h3>Answer Review</h3>
-      <button class="close-btn" onclick="closeReview()">×</button>
-    </div>
-    <div id="review-body"></div>
-  </div>
-</div>
+        <script>
+            const QUESTIONS = [
+                // VERBAL
+                {
+                    id: 1,
+                    cat: "verbal",
+                    text: "Choose the word most nearly OPPOSITE to: FAST",
+                    options: ["Large", "Cold", "Slow", "Afraid", "Hard"],
+                    answer: 2,
+                },
+                {
+                    id: 2,
+                    cat: "logic",
+                    text: "GREEN is to GRASS as _____ is to _____.",
+                    options: [
+                        "RUNNING is to WALKING",
+                        "SMALL is to CIRCLE",
+                        "CAR is to TYRE",
+                        "PEN is to PENCIL",
+                        "SKY is to BLUE",
+                    ],
+                    answer: 4,
+                },
+                {
+                    id: 3,
+                    cat: "verbal",
+                    text: "Choose the word that best fills the blank:\nMaria wanted to ___ her important client with her upcoming presentation.",
+                    options: [
+                        "innocent",
+                        "impress",
+                        "patient",
+                        "brave",
+                        "laugh",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 4,
+                    cat: "math",
+                    text: "If Sam can bake 10 pies per hour, how many pies can he bake in 8 hours?",
+                    options: ["60", "70", "80", "90", "100"],
+                    answer: 2,
+                },
+                {
+                    id: 5,
+                    cat: "math",
+                    text: "Which of the following is the smallest value?",
+                    options: ["3.99", "2.665", "3.66", "1.476", "3.871"],
+                    answer: 3,
+                },
+                {
+                    id: 6,
+                    cat: "logic",
+                    text: "What would be the next number in the series?\n1 … 3 … 5 … 7 … 9 … ?",
+                    options: ["11", "5", "20", "8", "15"],
+                    answer: 0,
+                },
+                {
+                    id: 7,
+                    cat: "math",
+                    text: "If the usual price of a lamp is $10 but it's on sale for 50% off, how much does the lamp currently cost?",
+                    options: ["$10", "$1", "$12", "$5", "$8"],
+                    answer: 3,
+                },
+                {
+                    id: 8,
+                    cat: "verbal",
+                    text: "Which of the following words is spelled INCORRECTLY?",
+                    options: ["after", "purple", "sleap", "clear", "carpet"],
+                    answer: 2,
+                },
+                {
+                    id: 9,
+                    cat: "verbal",
+                    text: "Choose the word most nearly OPPOSITE to: BRAVE",
+                    options: ["Strong", "Timid", "Quick", "Loyal", "Proud"],
+                    answer: 1,
+                },
+                {
+                    id: 10,
+                    cat: "math",
+                    text: "A store sells apples for $0.75 each. How much would 12 apples cost?",
+                    options: ["$7.50", "$8.00", "$9.00", "$9.75", "$6.75"],
+                    answer: 2,
+                },
+                {
+                    id: 11,
+                    cat: "logic",
+                    text: "What comes next in the series?\n2 … 4 … 8 … 16 … 32 … ?",
+                    options: ["48", "64", "56", "40", "128"],
+                    answer: 1,
+                },
+                {
+                    id: 12,
+                    cat: "verbal",
+                    text: "DOCTOR is to HOSPITAL as TEACHER is to:",
+                    options: [
+                        "Lesson",
+                        "Student",
+                        "School",
+                        "Book",
+                        "Learning",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 13,
+                    cat: "math",
+                    text: "If a train travels 60 miles per hour, how far will it travel in 2.5 hours?",
+                    options: [
+                        "100 miles",
+                        "120 miles",
+                        "150 miles",
+                        "130 miles",
+                        "90 miles",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 14,
+                    cat: "verbal",
+                    text: "Choose the word that best fills the blank:\nThe scientist needed to ___ her hypothesis with experimental evidence.",
+                    options: [
+                        "ignore",
+                        "support",
+                        "confuse",
+                        "reduce",
+                        "empty",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 15,
+                    cat: "logic",
+                    text: "If all Bloops are Razzies and all Razzies are Lazzies, are all Bloops definitely Lazzies?",
+                    options: [
+                        "Yes",
+                        "No",
+                        "Cannot be determined",
+                        "Only sometimes",
+                        "Only if Razzies exist",
+                    ],
+                    answer: 0,
+                },
+                {
+                    id: 16,
+                    cat: "math",
+                    text: "What is 15% of 200?",
+                    options: ["20", "25", "30", "35", "40"],
+                    answer: 2,
+                },
+                {
+                    id: 17,
+                    cat: "verbal",
+                    text: "Which of the following words is spelled INCORRECTLY?",
+                    options: [
+                        "receive",
+                        "beleive",
+                        "achieve",
+                        "conceive",
+                        "deceive",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 18,
+                    cat: "logic",
+                    text: "What comes next in the series?\n100 … 90 … 81 … 73 … 66 … ?",
+                    options: ["59", "60", "61", "58", "62"],
+                    answer: 1,
+                },
+                {
+                    id: 19,
+                    cat: "math",
+                    text: "A rectangle has a length of 12 cm and a width of 5 cm. What is its area?",
+                    options: [
+                        "17 cm²",
+                        "34 cm²",
+                        "60 cm²",
+                        "120 cm²",
+                        "70 cm²",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 20,
+                    cat: "verbal",
+                    text: "Choose the word most nearly OPPOSITE to: GENEROUS",
+                    options: [
+                        "Wealthy",
+                        "Stingy",
+                        "Humble",
+                        "Cheerful",
+                        "Active",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 21,
+                    cat: "logic",
+                    text: "FINGER is to HAND as TOE is to:",
+                    options: ["Shoe", "Nail", "Foot", "Leg", "Walk"],
+                    answer: 2,
+                },
+                {
+                    id: 22,
+                    cat: "math",
+                    text: "If you divide 144 by 12, then multiply by 3, what do you get?",
+                    options: ["24", "30", "36", "42", "48"],
+                    answer: 2,
+                },
+                {
+                    id: 23,
+                    cat: "verbal",
+                    text: "Choose the word that best fills the blank:\nThe manager asked her team to ___ the new process carefully before implementation.",
+                    options: [
+                        "forget",
+                        "celebrate",
+                        "evaluate",
+                        "produce",
+                        "resist",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 24,
+                    cat: "logic",
+                    text: "What comes next in the series?\nA … C … E … G … I … ?",
+                    options: ["J", "K", "L", "M", "N"],
+                    answer: 1,
+                },
+                {
+                    id: 25,
+                    cat: "math",
+                    text: "If a shirt costs $45 after a 10% discount, what was the original price?",
+                    options: ["$48", "$49.50", "$50", "$54", "$55"],
+                    answer: 2,
+                },
+                {
+                    id: 26,
+                    cat: "verbal",
+                    text: "COLD is to HOT as NIGHT is to:",
+                    options: ["Moon", "Dark", "Day", "Stars", "Sleep"],
+                    answer: 2,
+                },
+                {
+                    id: 27,
+                    cat: "math",
+                    text: "How many minutes are in 2 hours and 45 minutes?",
+                    options: ["145", "155", "160", "165", "170"],
+                    answer: 3,
+                },
+                {
+                    id: 28,
+                    cat: "logic",
+                    text: "What comes next in the series?\n1 … 1 … 2 … 3 … 5 … 8 … ?",
+                    options: ["10", "11", "12", "13", "14"],
+                    answer: 3,
+                },
+                {
+                    id: 29,
+                    cat: "verbal",
+                    text: "Which of the following words is spelled INCORRECTLY?",
+                    options: [
+                        "necessary",
+                        "accomodate",
+                        "calendar",
+                        "beginning",
+                        "privilege",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 30,
+                    cat: "math",
+                    text: "A car uses 8 liters of fuel per 100 km. How many liters are needed for a 250 km trip?",
+                    options: ["16", "18", "20", "22", "24"],
+                    answer: 2,
+                },
+                {
+                    id: 31,
+                    cat: "verbal",
+                    text: "Choose the word most nearly OPPOSITE to: ANCIENT",
+                    options: [
+                        "Historical",
+                        "Rare",
+                        "Modern",
+                        "Extinct",
+                        "Antique",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 32,
+                    cat: "logic",
+                    text: "If some Greens are Blues and no Blues are Reds, can any Greens be Reds?",
+                    options: [
+                        "Yes, all Greens",
+                        "Possibly, some Greens",
+                        "No, definitely not",
+                        "Only if there are no Blues",
+                        "Cannot be determined",
+                    ],
+                    answer: 4,
+                },
+                {
+                    id: 33,
+                    cat: "math",
+                    text: "What is the average of 14, 18, 22, and 26?",
+                    options: ["18", "19", "20", "21", "22"],
+                    answer: 2,
+                },
+                {
+                    id: 34,
+                    cat: "verbal",
+                    text: "BOOK is to LIBRARY as PAINTING is to:",
+                    options: ["Artist", "Canvas", "Gallery", "Frame", "Color"],
+                    answer: 2,
+                },
+                {
+                    id: 35,
+                    cat: "math",
+                    text: "If 5 workers can complete a job in 12 days, how many days would it take 10 workers?",
+                    options: ["3", "4", "5", "6", "7"],
+                    answer: 3,
+                },
+                {
+                    id: 36,
+                    cat: "logic",
+                    text: "What comes next in the series?\n3 … 6 … 12 … 24 … 48 … ?",
+                    options: ["72", "84", "96", "100", "108"],
+                    answer: 2,
+                },
+                {
+                    id: 37,
+                    cat: "verbal",
+                    text: "Choose the word that best fills the blank:\nThe new policy will ___ all employees, regardless of their department.",
+                    options: [
+                        "select",
+                        "ignore",
+                        "affect",
+                        "promote",
+                        "replace",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 38,
+                    cat: "math",
+                    text: "What is 3/4 expressed as a decimal?",
+                    options: ["0.34", "0.50", "0.67", "0.75", "0.80"],
+                    answer: 3,
+                },
+                {
+                    id: 39,
+                    cat: "verbal",
+                    text: "LOUD is to QUIET as ROUGH is to:",
+                    options: ["Harsh", "Sharp", "Smooth", "Noisy", "Strong"],
+                    answer: 2,
+                },
+                {
+                    id: 40,
+                    cat: "math",
+                    text: "A bag contains 5 red, 3 blue, and 2 green marbles. What fraction of marbles are blue?",
+                    options: ["1/5", "3/10", "1/3", "2/5", "3/5"],
+                    answer: 1,
+                },
+                {
+                    id: 41,
+                    cat: "logic",
+                    text: "What comes next in the series?\n81 … 27 … 9 … 3 … ?",
+                    options: ["0", "1", "2", "1/3", "3"],
+                    answer: 1,
+                },
+                {
+                    id: 42,
+                    cat: "verbal",
+                    text: "Which of the following words is spelled INCORRECTLY?",
+                    options: [
+                        "occurrence",
+                        "committment",
+                        "particularly",
+                        "embarrass",
+                        "category",
+                    ],
+                    answer: 1,
+                },
+                {
+                    id: 43,
+                    cat: "math",
+                    text: "If a jacket is marked up 40% from its wholesale price of $75, what is the retail price?",
+                    options: ["$100", "$105", "$110", "$115", "$105.50"],
+                    answer: 1,
+                },
+                {
+                    id: 44,
+                    cat: "verbal",
+                    text: "PILOT is to AIRPLANE as CAPTAIN is to:",
+                    options: ["Army", "Crew", "Ship", "Port", "Anchor"],
+                    answer: 2,
+                },
+                {
+                    id: 45,
+                    cat: "logic",
+                    text: "What comes next in the series?\n2 … 5 … 10 … 17 … 26 … ?",
+                    options: ["35", "36", "37", "38", "39"],
+                    answer: 2,
+                },
+                {
+                    id: 46,
+                    cat: "math",
+                    text: "A square has a perimeter of 36 cm. What is the area?",
+                    options: [
+                        "36 cm²",
+                        "64 cm²",
+                        "81 cm²",
+                        "100 cm²",
+                        "49 cm²",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 47,
+                    cat: "verbal",
+                    text: "Choose the word most nearly OPPOSITE to: TRANSPARENT",
+                    options: [
+                        "Clear",
+                        "Visible",
+                        "Opaque",
+                        "Brittle",
+                        "Colorless",
+                    ],
+                    answer: 2,
+                },
+                {
+                    id: 48,
+                    cat: "logic",
+                    text: "If today is Wednesday, what day will it be in 100 days?",
+                    options: [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                    ],
+                    answer: 4,
+                },
+                {
+                    id: 49,
+                    cat: "math",
+                    text: "What is 120% of 50?",
+                    options: ["50", "55", "60", "65", "70"],
+                    answer: 2,
+                },
+                {
+                    id: 50,
+                    cat: "verbal",
+                    text: "Choose the word that best fills the blank:\nHer ___ approach to problem-solving helped the team find creative solutions quickly.",
+                    options: [
+                        "careless",
+                        "innovative",
+                        "timid",
+                        "ordinary",
+                        "absent",
+                    ],
+                    answer: 1,
+                },
+            ];
 
-<script>
-const QUESTIONS = [
-  // VERBAL
-  { id:1, cat:'verbal', text:'Choose the word most nearly OPPOSITE to: FAST', options:['Large','Cold','Slow','Afraid','Hard'], answer:2 },
-  { id:2, cat:'logic', text:'GREEN is to GRASS as _____ is to _____.', options:['RUNNING is to WALKING','SMALL is to CIRCLE','CAR is to TYRE','PEN is to PENCIL','SKY is to BLUE'], answer:4 },
-  { id:3, cat:'verbal', text:'Choose the word that best fills the blank:\nMaria wanted to ___ her important client with her upcoming presentation.', options:['innocent','impress','patient','brave','laugh'], answer:1 },
-  { id:4, cat:'math', text:'If Sam can bake 10 pies per hour, how many pies can he bake in 8 hours?', options:['60','70','80','90','100'], answer:2 },
-  { id:5, cat:'math', text:'Which of the following is the smallest value?', options:['3.99','2.665','3.66','1.476','3.871'], answer:3 },
-  { id:6, cat:'logic', text:'What would be the next number in the series?\n1 … 3 … 5 … 7 … 9 … ?', options:['11','5','20','8','15'], answer:0 },
-  { id:7, cat:'math', text:'If the usual price of a lamp is $10 but it\'s on sale for 50% off, how much does the lamp currently cost?', options:['$10','$1','$12','$5','$8'], answer:3 },
-  { id:8, cat:'verbal', text:'Which of the following words is spelled INCORRECTLY?', options:['after','purple','sleap','clear','carpet'], answer:2 },
-  { id:9, cat:'verbal', text:'Choose the word most nearly OPPOSITE to: BRAVE', options:['Strong','Timid','Quick','Loyal','Proud'], answer:1 },
-  { id:10, cat:'math', text:'A store sells apples for $0.75 each. How much would 12 apples cost?', options:['$7.50','$8.00','$9.00','$9.75','$6.75'], answer:2 },
-  { id:11, cat:'logic', text:'What comes next in the series?\n2 … 4 … 8 … 16 … 32 … ?', options:['48','64','56','40','128'], answer:1 },
-  { id:12, cat:'verbal', text:'DOCTOR is to HOSPITAL as TEACHER is to:', options:['Lesson','Student','School','Book','Learning'], answer:2 },
-  { id:13, cat:'math', text:'If a train travels 60 miles per hour, how far will it travel in 2.5 hours?', options:['100 miles','120 miles','150 miles','130 miles','90 miles'], answer:2 },
-  { id:14, cat:'verbal', text:'Choose the word that best fills the blank:\nThe scientist needed to ___ her hypothesis with experimental evidence.', options:['ignore','support','confuse','reduce','empty'], answer:1 },
-  { id:15, cat:'logic', text:'If all Bloops are Razzies and all Razzies are Lazzies, are all Bloops definitely Lazzies?', options:['Yes','No','Cannot be determined','Only sometimes','Only if Razzies exist'], answer:0 },
-  { id:16, cat:'math', text:'What is 15% of 200?', options:['20','25','30','35','40'], answer:2 },
-  { id:17, cat:'verbal', text:'Which of the following words is spelled INCORRECTLY?', options:['receive','beleive','achieve','conceive','deceive'], answer:1 },
-  { id:18, cat:'logic', text:'What comes next in the series?\n100 … 90 … 81 … 73 … 66 … ?', options:['59','60','61','58','62'], answer:1 },
-  { id:19, cat:'math', text:'A rectangle has a length of 12 cm and a width of 5 cm. What is its area?', options:['17 cm²','34 cm²','60 cm²','120 cm²','70 cm²'], answer:2 },
-  { id:20, cat:'verbal', text:'Choose the word most nearly OPPOSITE to: GENEROUS', options:['Wealthy','Stingy','Humble','Cheerful','Active'], answer:1 },
-  { id:21, cat:'logic', text:'FINGER is to HAND as TOE is to:', options:['Shoe','Nail','Foot','Leg','Walk'], answer:2 },
-  { id:22, cat:'math', text:'If you divide 144 by 12, then multiply by 3, what do you get?', options:['24','30','36','42','48'], answer:2 },
-  { id:23, cat:'verbal', text:'Choose the word that best fills the blank:\nThe manager asked her team to ___ the new process carefully before implementation.', options:['forget','celebrate','evaluate','produce','resist'], answer:2 },
-  { id:24, cat:'logic', text:'What comes next in the series?\nA … C … E … G … I … ?', options:['J','K','L','M','N'], answer:1 },
-  { id:25, cat:'math', text:'If a shirt costs $45 after a 10% discount, what was the original price?', options:['$48','$49.50','$50','$54','$55'], answer:2 },
-  { id:26, cat:'verbal', text:'COLD is to HOT as NIGHT is to:', options:['Moon','Dark','Day','Stars','Sleep'], answer:2 },
-  { id:27, cat:'math', text:'How many minutes are in 2 hours and 45 minutes?', options:['145','155','160','165','170'], answer:3 },
-  { id:28, cat:'logic', text:'What comes next in the series?\n1 … 1 … 2 … 3 … 5 … 8 … ?', options:['10','11','12','13','14'], answer:3 },
-  { id:29, cat:'verbal', text:'Which of the following words is spelled INCORRECTLY?', options:['necessary','accomodate','calendar','beginning','privilege'], answer:1 },
-  { id:30, cat:'math', text:'A car uses 8 liters of fuel per 100 km. How many liters are needed for a 250 km trip?', options:['16','18','20','22','24'], answer:2 },
-  { id:31, cat:'verbal', text:'Choose the word most nearly OPPOSITE to: ANCIENT', options:['Historical','Rare','Modern','Extinct','Antique'], answer:2 },
-  { id:32, cat:'logic', text:'If some Greens are Blues and no Blues are Reds, can any Greens be Reds?', options:['Yes, all Greens','Possibly, some Greens','No, definitely not','Only if there are no Blues','Cannot be determined'], answer:4 },
-  { id:33, cat:'math', text:'What is the average of 14, 18, 22, and 26?', options:['18','19','20','21','22'], answer:2 },
-  { id:34, cat:'verbal', text:'BOOK is to LIBRARY as PAINTING is to:', options:['Artist','Canvas','Gallery','Frame','Color'], answer:2 },
-  { id:35, cat:'math', text:'If 5 workers can complete a job in 12 days, how many days would it take 10 workers?', options:['3','4','5','6','7'], answer:3 },
-  { id:36, cat:'logic', text:'What comes next in the series?\n3 … 6 … 12 … 24 … 48 … ?', options:['72','84','96','100','108'], answer:2 },
-  { id:37, cat:'verbal', text:'Choose the word that best fills the blank:\nThe new policy will ___ all employees, regardless of their department.', options:['select','ignore','affect','promote','replace'], answer:2 },
-  { id:38, cat:'math', text:'What is 3/4 expressed as a decimal?', options:['0.34','0.50','0.67','0.75','0.80'], answer:3 },
-  { id:39, cat:'verbal', text:'LOUD is to QUIET as ROUGH is to:', options:['Harsh','Sharp','Smooth','Noisy','Strong'], answer:2 },
-  { id:40, cat:'math', text:'A bag contains 5 red, 3 blue, and 2 green marbles. What fraction of marbles are blue?', options:['1/5','3/10','1/3','2/5','3/5'], answer:1 },
-  { id:41, cat:'logic', text:'What comes next in the series?\n81 … 27 … 9 … 3 … ?', options:['0','1','2','1/3','3'], answer:1 },
-  { id:42, cat:'verbal', text:'Which of the following words is spelled INCORRECTLY?', options:['occurrence','committment','particularly','embarrass','category'], answer:1 },
-  { id:43, cat:'math', text:'If a jacket is marked up 40% from its wholesale price of $75, what is the retail price?', options:['$100','$105','$110','$115','$105.50'], answer:1 },
-  { id:44, cat:'verbal', text:'PILOT is to AIRPLANE as CAPTAIN is to:', options:['Army','Crew','Ship','Port','Anchor'], answer:2 },
-  { id:45, cat:'logic', text:'What comes next in the series?\n2 … 5 … 10 … 17 … 26 … ?', options:['35','36','37','38','39'], answer:2 },
-  { id:46, cat:'math', text:'A square has a perimeter of 36 cm. What is the area?', options:['36 cm²','64 cm²','81 cm²','100 cm²','49 cm²'], answer:2 },
-  { id:47, cat:'verbal', text:'Choose the word most nearly OPPOSITE to: TRANSPARENT', options:['Clear','Visible','Opaque','Brittle','Colorless'], answer:2 },
-  { id:48, cat:'logic', text:'If today is Wednesday, what day will it be in 100 days?', options:['Monday','Tuesday','Wednesday','Thursday','Friday'], answer:3 },
-  { id:49, cat:'math', text:'What is 120% of 50?', options:['50','55','60','65','70'], answer:2 },
-  { id:50, cat:'verbal', text:'Choose the word that best fills the blank:\nHer ___ approach to problem-solving helped the team find creative solutions quickly.', options:['careless','innovative','timid','ordinary','absent'], answer:1 },
-];
+            // NAME-MATCHING: Replace question 9's display
+            const NAME_MATCHING_Q = {
+                id: 9, // We'll slot this as question 9 index (index 8)
+                cat: "verbal",
+                text: "How many of the five names in the left column are EXACTLY the same as the corresponding entry in the right column?",
+                isNameMatch: true,
+                pairs: [
+                    ["Xavier Smyth", "Xaviar Smyth"],
+                    ["Henry Wyatt", "Henry Wyatt"],
+                    ["Sarah Collins", "Sarah Colins"],
+                    ["Wendy Hall", "Wendy Hall"],
+                    ["Bruce Raynelds", "Bruce Raynalds"],
+                ],
+                options: ["1", "2", "3", "4", "5"],
+                answer: 1,
+            };
 
-// NAME-MATCHING: Replace question 9's display
-const NAME_MATCHING_Q = {
-  id: 9, // We'll slot this as question 9 index (index 8)
-  cat: 'verbal',
-  text: 'How many of the five names in the left column are EXACTLY the same as the corresponding entry in the right column?',
-  isNameMatch: true,
-  pairs: [
-    ['Xavier Smyth', 'Xaviar Smyth'],
-    ['Henry Wyatt', 'Henry Wyatt'],
-    ['Sarah Collins', 'Sarah Colins'],
-    ['Wendy Hall', 'Wendy Hall'],
-    ['Bruce Raynelds', 'Bruce Raynalds'],
-  ],
-  options: ['1','2','3','4','5'],
-  answer: 1
-};
+            // Replace index 8 (question 9) with name matching
+            QUESTIONS[8] = NAME_MATCHING_Q;
 
-// Replace index 8 (question 9) with name matching
-QUESTIONS[8] = NAME_MATCHING_Q;
+            const CAT_LABELS = {
+                verbal: "Verbal",
+                math: "Math",
+                logic: "Logic",
+                spatial: "Spatial",
+            };
+            const CAT_CLASSES = {
+                verbal: "cat-verbal",
+                math: "cat-math",
+                logic: "cat-logic",
+                spatial: "cat-spatial",
+            };
+            const KEYS = ["a", "b", "c", "d", "e"];
+            const TOTAL_TIME = 15 * 60;
 
-const CAT_LABELS = { verbal:'Verbal', math:'Math', logic:'Logic', spatial:'Spatial' };
-const CAT_CLASSES = { verbal:'cat-verbal', math:'cat-math', logic:'cat-logic', spatial:'cat-spatial' };
-const KEYS = ['a','b','c','d','e'];
-const TOTAL_TIME = 15 * 60;
+            let currentQ = 0;
+            let answers = new Array(QUESTIONS.length).fill(null); // null=unanswered, -1=skipped, 0-4=answer
+            let timerInterval = null;
+            let timeLeft = TOTAL_TIME;
+            let testStarted = false;
 
-let currentQ = 0;
-let answers = new Array(QUESTIONS.length).fill(null); // null=unanswered, -1=skipped, 0-4=answer
-let timerInterval = null;
-let timeLeft = TOTAL_TIME;
-let testStarted = false;
+            function startTest() {
+                document.getElementById("intro-screen").style.display = "none";
+                const ts = document.getElementById("test-screen");
+                ts.style.display = "flex";
+                ts.classList.add("active");
+                document.getElementById("q-total").textContent =
+                    QUESTIONS.length;
+                buildDots();
+                renderQuestion(0);
+                startTimer();
+            }
 
-function startTest() {
-  document.getElementById('intro-screen').style.display = 'none';
-  const ts = document.getElementById('test-screen');
-  ts.style.display = 'flex';
-  ts.classList.add('active');
-  document.getElementById('q-total').textContent = QUESTIONS.length;
-  buildDots();
-  renderQuestion(0);
-  startTimer();
-}
+            function buildDots() {
+                const container = document.getElementById("dots-container");
+                container.innerHTML = "";
+                QUESTIONS.forEach((_, i) => {
+                    const dot = document.createElement("div");
+                    dot.className = "dot";
+                    dot.id = `dot-${i}`;
+                    container.appendChild(dot);
+                });
+            }
 
-function buildDots() {
-  const container = document.getElementById('dots-container');
-  container.innerHTML = '';
-  QUESTIONS.forEach((_, i) => {
-    const dot = document.createElement('div');
-    dot.className = 'dot';
-    dot.id = `dot-${i}`;
-    container.appendChild(dot);
-  });
-}
+            function updateDots() {
+                QUESTIONS.forEach((_, i) => {
+                    const dot = document.getElementById(`dot-${i}`);
+                    dot.className = "dot";
+                    if (i === currentQ) dot.classList.add("current");
+                    else if (answers[i] === -1) dot.classList.add("skipped");
+                    else if (answers[i] !== null) dot.classList.add("answered");
+                });
+            }
 
-function updateDots() {
-  QUESTIONS.forEach((_, i) => {
-    const dot = document.getElementById(`dot-${i}`);
-    dot.className = 'dot';
-    if (i === currentQ) dot.classList.add('current');
-    else if (answers[i] === -1) dot.classList.add('skipped');
-    else if (answers[i] !== null) dot.classList.add('answered');
-  });
-}
+            function renderQuestion(idx) {
+                currentQ = idx;
+                const q = QUESTIONS[idx];
+                document.getElementById("q-current").textContent = idx + 1;
+                document.getElementById("q-label").textContent =
+                    `Question ${idx + 1}`;
+                document.getElementById("q-cat").textContent =
+                    CAT_LABELS[q.cat] || q.cat;
+                document.getElementById("q-cat").className =
+                    `q-category ${CAT_CLASSES[q.cat] || ""}`;
 
-function renderQuestion(idx) {
-  currentQ = idx;
-  const q = QUESTIONS[idx];
-  document.getElementById('q-current').textContent = idx + 1;
-  document.getElementById('q-label').textContent = `Question ${idx + 1}`;
-  document.getElementById('q-cat').textContent = CAT_LABELS[q.cat] || q.cat;
-  document.getElementById('q-cat').className = `q-category ${CAT_CLASSES[q.cat] || ''}`;
+                // Question text
+                const qText = document.getElementById("q-text");
+                if (q.isNameMatch) {
+                    // Build table HTML
+                    let tableHtml = `<div>${q.text}</div><table class="name-table" style="margin-top:16px"><tbody>`;
+                    q.pairs.forEach(([l, r]) => {
+                        tableHtml += `<tr><td>${l}</td><td>${r}</td></tr>`;
+                    });
+                    tableHtml += "</tbody></table>";
+                    qText.innerHTML = tableHtml;
+                } else {
+                    qText.textContent = q.text;
+                }
 
-  // Question text
-  const qText = document.getElementById('q-text');
-  if (q.isNameMatch) {
-    // Build table HTML
-    let tableHtml = `<div>${q.text}</div><table class="name-table" style="margin-top:16px"><tbody>`;
-    q.pairs.forEach(([l,r]) => {
-      tableHtml += `<tr><td>${l}</td><td>${r}</td></tr>`;
-    });
-    tableHtml += '</tbody></table>';
-    qText.innerHTML = tableHtml;
-  } else {
-    qText.textContent = q.text;
-  }
+                // Options
+                const optList = document.getElementById("options-list");
+                optList.innerHTML = "";
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement("button");
+                    btn.className = "option-btn";
+                    if (answers[idx] === i) btn.classList.add("selected");
+                    btn.innerHTML = `<span class="option-key">${KEYS[i]}.</span><span>${opt}</span>`;
+                    btn.onclick = () => selectAnswer(i);
+                    optList.appendChild(btn);
+                });
 
-  // Options
-  const optList = document.getElementById('options-list');
-  optList.innerHTML = '';
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    if (answers[idx] === i) btn.classList.add('selected');
-    btn.innerHTML = `<span class="option-key">${KEYS[i]}.</span><span>${opt}</span>`;
-    btn.onclick = () => selectAnswer(i);
-    optList.appendChild(btn);
-  });
+                // Next button state
+                document.getElementById("next-btn").disabled =
+                    (answers[idx] === null || answers[idx] === -1) &&
+                    answers[idx] !== 0;
+                // If already answered
+                if (answers[idx] !== null && answers[idx] !== -1) {
+                    document.getElementById("next-btn").disabled = false;
+                }
 
-  // Next button state
-  document.getElementById('next-btn').disabled = (answers[idx] === null || answers[idx] === -1)
-    && answers[idx] !== 0;
-  // If already answered
-  if (answers[idx] !== null && answers[idx] !== -1) {
-    document.getElementById('next-btn').disabled = false;
-  }
+                updateDots();
+                updateProgressBar();
 
-  updateDots();
-  updateProgressBar();
+                // Label last question
+                const nextBtn = document.getElementById("next-btn");
+                nextBtn.textContent =
+                    idx === QUESTIONS.length - 1 ? "Finish ✓" : "Next →";
+            }
 
-  // Label last question
-  const nextBtn = document.getElementById('next-btn');
-  nextBtn.textContent = idx === QUESTIONS.length - 1 ? 'Finish ✓' : 'Next →';
-}
+            function selectAnswer(optIdx) {
+                answers[currentQ] = optIdx;
+                // Update UI
+                document.querySelectorAll(".option-btn").forEach((btn, i) => {
+                    btn.classList.toggle("selected", i === optIdx);
+                });
+                document.getElementById("next-btn").disabled = false;
+            }
 
-function selectAnswer(optIdx) {
-  answers[currentQ] = optIdx;
-  // Update UI
-  document.querySelectorAll('.option-btn').forEach((btn, i) => {
-    btn.classList.toggle('selected', i === optIdx);
-  });
-  document.getElementById('next-btn').disabled = false;
-}
+            function skipQuestion() {
+                answers[currentQ] = -1;
+                advanceQuestion();
+            }
 
-function skipQuestion() {
-  answers[currentQ] = -1;
-  advanceQuestion();
-}
+            function nextQuestion() {
+                if (currentQ === QUESTIONS.length - 1) {
+                    endTest();
+                    return;
+                }
+                advanceQuestion();
+            }
 
-function nextQuestion() {
-  if (currentQ === QUESTIONS.length - 1) {
-    endTest();
-    return;
-  }
-  advanceQuestion();
-}
+            function advanceQuestion() {
+                // Find next unanswered question starting after current
+                let next = -1;
+                for (let i = currentQ + 1; i < QUESTIONS.length; i++) {
+                    if (answers[i] === null) {
+                        next = i;
+                        break;
+                    }
+                }
+                if (next === -1) {
+                    // All answered (or skipped), just go to next sequentially, or end
+                    if (currentQ < QUESTIONS.length - 1) {
+                        next = currentQ + 1;
+                    } else {
+                        endTest();
+                        return;
+                    }
+                }
+                // Rebuild question card for animation
+                const card = document.getElementById("question-card");
+                card.style.animation = "none";
+                card.offsetHeight; // reflow
+                card.style.animation = "";
+                renderQuestion(next);
+            }
 
-function advanceQuestion() {
-  // Find next unanswered question starting after current
-  let next = -1;
-  for (let i = currentQ + 1; i < QUESTIONS.length; i++) {
-    if (answers[i] === null) { next = i; break; }
-  }
-  if (next === -1) {
-    // All answered (or skipped), just go to next sequentially, or end
-    if (currentQ < QUESTIONS.length - 1) {
-      next = currentQ + 1;
-    } else {
-      endTest();
-      return;
-    }
-  }
-  // Rebuild question card for animation
-  const card = document.getElementById('question-card');
-  card.style.animation = 'none';
-  card.offsetHeight; // reflow
-  card.style.animation = '';
-  renderQuestion(next);
-}
+            function updateProgressBar() {
+                const answered = answers.filter((a) => a !== null).length;
+                const pct = (answered / QUESTIONS.length) * 100;
+                document.getElementById("progress-bar").style.width =
+                    Math.max(pct, 2) + "%";
+            }
 
-function updateProgressBar() {
-  const answered = answers.filter(a => a !== null).length;
-  const pct = (answered / QUESTIONS.length) * 100;
-  document.getElementById('progress-bar').style.width = Math.max(pct, 2) + '%';
-}
+            function startTimer() {
+                timeLeft = TOTAL_TIME;
+                updateTimerDisplay();
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        endTest();
+                    }
+                }, 1000);
+            }
 
-function startTimer() {
-  timeLeft = TOTAL_TIME;
-  updateTimerDisplay();
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      endTest();
-    }
-  }, 1000);
-}
+            function updateTimerDisplay() {
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                const display = document.getElementById("timer-display");
+                display.textContent = `${m}:${String(s).padStart(2, "0")}`;
+                display.className = "";
+                if (timeLeft <= 60) display.classList.add("danger");
+                else if (timeLeft <= 180) display.classList.add("warn");
+            }
 
-function updateTimerDisplay() {
-  const m = Math.floor(timeLeft / 60);
-  const s = timeLeft % 60;
-  const display = document.getElementById('timer-display');
-  display.textContent = `${m}:${String(s).padStart(2,'0')}`;
-  display.className = '';
-  if (timeLeft <= 60) display.classList.add('danger');
-  else if (timeLeft <= 180) display.classList.add('warn');
-}
+            function endTest() {
+                clearInterval(timerInterval);
+                // Mark remaining unanswered as skipped
+                answers = answers.map((a) => (a === null ? -1 : a));
 
-function endTest() {
-  clearInterval(timerInterval);
-  // Mark remaining unanswered as skipped
-  answers = answers.map(a => a === null ? -1 : a);
+                document.getElementById("test-screen").style.display = "none";
+                const rs = document.getElementById("results-screen");
+                rs.style.display = "flex";
+                rs.classList.add("active");
 
-  document.getElementById('test-screen').style.display = 'none';
-  const rs = document.getElementById('results-screen');
-  rs.style.display = 'flex';
-  rs.classList.add('active');
+                calculateResults();
+            }
 
-  calculateResults();
-}
+            function calculateResults() {
+                let correct = 0,
+                    wrong = 0,
+                    skipped = 0;
+                const catStats = {
+                    verbal: { c: 0, t: 0 },
+                    math: { c: 0, t: 0 },
+                    logic: { c: 0, t: 0 },
+                    spatial: { c: 0, t: 0 },
+                };
 
-function calculateResults() {
-  let correct = 0, wrong = 0, skipped = 0;
-  const catStats = { verbal:{c:0,t:0}, math:{c:0,t:0}, logic:{c:0,t:0}, spatial:{c:0,t:0} };
+                QUESTIONS.forEach((q, i) => {
+                    const cat = q.cat;
+                    if (!catStats[cat]) catStats[cat] = { c: 0, t: 0 };
+                    catStats[cat].t++;
+                    if (answers[i] === -1) {
+                        skipped++;
+                    } else if (answers[i] === q.answer) {
+                        correct++;
+                        catStats[cat].c++;
+                    } else {
+                        wrong++;
+                    }
+                });
 
-  QUESTIONS.forEach((q, i) => {
-    const cat = q.cat;
-    if (!catStats[cat]) catStats[cat] = {c:0,t:0};
-    catStats[cat].t++;
-    if (answers[i] === -1) { skipped++; }
-    else if (answers[i] === q.answer) { correct++; catStats[cat].c++; }
-    else { wrong++; }
-  });
+                document.getElementById("score-num").textContent = correct;
+                document.getElementById("r-correct").textContent = correct;
+                document.getElementById("r-wrong").textContent = wrong;
+                document.getElementById("r-skipped").textContent = skipped;
 
-  document.getElementById('score-num').textContent = correct;
-  document.getElementById('r-correct').textContent = correct;
-  document.getElementById('r-wrong').textContent = wrong;
-  document.getElementById('r-skipped').textContent = skipped;
+                const pct = Math.round((correct / QUESTIONS.length) * 100);
+                let label = "";
+                if (pct >= 60)
+                    label = "Excellent performance — competitive score range";
+                else if (pct >= 40)
+                    label = "Good performance — near average range";
+                else label = "Keep practicing — focus on speed and accuracy";
+                document.getElementById("score-label").textContent = label;
 
-  const pct = Math.round((correct / QUESTIONS.length) * 100);
-  let label = '';
-  if (pct >= 60) label = 'Excellent performance — competitive score range';
-  else if (pct >= 40) label = 'Good performance — near average range';
-  else label = 'Keep practicing — focus on speed and accuracy';
-  document.getElementById('score-label').textContent = label;
-
-  // Breakdown
-  const breakdown = document.getElementById('breakdown-list');
-  breakdown.innerHTML = '';
-  const catColors = { verbal:'#818cf8', math:'#34d399', logic:'#f472b6', spatial:'#f59e0b' };
-  Object.entries(catStats).forEach(([cat, {c, t}]) => {
-    if (t === 0) return;
-    const pctCat = Math.round((c/t)*100);
-    breakdown.innerHTML += `
+                // Breakdown
+                const breakdown = document.getElementById("breakdown-list");
+                breakdown.innerHTML = "";
+                const catColors = {
+                    verbal: "#818cf8",
+                    math: "#34d399",
+                    logic: "#f472b6",
+                    spatial: "#f59e0b",
+                };
+                Object.entries(catStats).forEach(([cat, { c, t }]) => {
+                    if (t === 0) return;
+                    const pctCat = Math.round((c / t) * 100);
+                    breakdown.innerHTML += `
       <div class="breakdown-item">
         <span class="breakdown-name">${CAT_LABELS[cat]}</span>
         <div class="breakdown-bar-wrap">
@@ -1216,81 +1853,108 @@ function calculateResults() {
         </div>
         <span class="breakdown-score">${c}/${t}</span>
       </div>`;
-  });
-}
+                });
+            }
 
-function showReview() {
-  const body = document.getElementById('review-body');
-  body.innerHTML = '';
-  QUESTIONS.forEach((q, i) => {
-    const userAns = answers[i];
-    const correct = q.answer;
-    const isCorrect = userAns === correct;
-    const isSkipped = userAns === -1;
+            function showReview() {
+                const body = document.getElementById("review-body");
+                body.innerHTML = "";
+                QUESTIONS.forEach((q, i) => {
+                    const userAns = answers[i];
+                    const correct = q.answer;
+                    const isCorrect = userAns === correct;
+                    const isSkipped = userAns === -1;
 
-    let userText = isSkipped ? 'Skipped' : `${KEYS[userAns]}. ${q.options[userAns]}`;
-    let correctText = `${KEYS[correct]}. ${q.options[correct]}`;
+                    let userText = isSkipped
+                        ? "Skipped"
+                        : `${KEYS[userAns]}. ${q.options[userAns]}`;
+                    let correctText = `${KEYS[correct]}. ${q.options[correct]}`;
 
-    const shortQ = q.isNameMatch ? q.text : (q.text.length > 80 ? q.text.substring(0,80)+'…' : q.text);
+                    const shortQ = q.isNameMatch
+                        ? q.text
+                        : q.text.length > 80
+                          ? q.text.substring(0, 80) + "…"
+                          : q.text;
 
-    body.innerHTML += `
+                    body.innerHTML += `
       <div class="review-item">
         <div class="review-q">
-          <span class="review-qnum">Q${i+1}</span>
+          <span class="review-qnum">Q${i + 1}</span>
           <span class="review-qtext">${shortQ}</span>
         </div>
         <div class="review-answers">
           <div class="review-answer">
             <span class="review-answer-label">Your answer:</span>
-            <span class="${isSkipped ? 'review-skipped-text' : isCorrect ? 'review-correct' : 'review-wrong'}">${userText}</span>
-            <span>${isCorrect ? '✓' : (isSkipped ? '' : '✗')}</span>
+            <span class="${isSkipped ? "review-skipped-text" : isCorrect ? "review-correct" : "review-wrong"}">${userText}</span>
+            <span>${isCorrect ? "✓" : isSkipped ? "" : "✗"}</span>
           </div>
-          ${!isCorrect ? `<div class="review-answer">
+          ${
+              !isCorrect
+                  ? `<div class="review-answer">
             <span class="review-answer-label">Correct:</span>
             <span class="review-correct">${correctText}</span>
-          </div>` : ''}
+          </div>`
+                  : ""
+          }
         </div>
       </div>`;
-  });
-  document.getElementById('review-overlay').classList.add('open');
-}
+                });
+                document.getElementById("review-overlay").classList.add("open");
+            }
 
-function closeReview() {
-  document.getElementById('review-overlay').classList.remove('open');
-}
+            function closeReview() {
+                document
+                    .getElementById("review-overlay")
+                    .classList.remove("open");
+            }
 
-function restartTest() {
-  clearInterval(timerInterval);
-  answers = new Array(QUESTIONS.length).fill(null);
-  currentQ = 0;
-  timeLeft = TOTAL_TIME;
+            function restartTest() {
+                clearInterval(timerInterval);
+                answers = new Array(QUESTIONS.length).fill(null);
+                currentQ = 0;
+                timeLeft = TOTAL_TIME;
 
-  document.getElementById('results-screen').style.display = 'none';
-  document.getElementById('results-screen').classList.remove('active');
+                document.getElementById("results-screen").style.display =
+                    "none";
+                document
+                    .getElementById("results-screen")
+                    .classList.remove("active");
 
-  const ts = document.getElementById('test-screen');
-  ts.style.display = 'flex';
-  buildDots();
-  renderQuestion(0);
-  startTimer();
-}
+                const ts = document.getElementById("test-screen");
+                ts.style.display = "flex";
+                buildDots();
+                renderQuestion(0);
+                startTimer();
+            }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('test-screen').classList.contains('active')) return;
-  if (document.getElementById('review-overlay').classList.contains('open')) {
-    if (e.key === 'Escape') closeReview();
-    return;
-  }
-  const key = e.key.toLowerCase();
-  const idx = KEYS.indexOf(key);
-  if (idx !== -1 && idx < QUESTIONS[currentQ].options.length) {
-    selectAnswer(idx);
-  }
-  if (e.key === 'Enter' && !document.getElementById('next-btn').disabled) {
-    nextQuestion();
-  }
-});
-</script>
-</body>
+            // Keyboard shortcuts
+            document.addEventListener("keydown", (e) => {
+                if (
+                    !document
+                        .getElementById("test-screen")
+                        .classList.contains("active")
+                )
+                    return;
+                if (
+                    document
+                        .getElementById("review-overlay")
+                        .classList.contains("open")
+                ) {
+                    if (e.key === "Escape") closeReview();
+                    return;
+                }
+                const key = e.key.toLowerCase();
+                const idx = KEYS.indexOf(key);
+                if (idx !== -1 && idx < QUESTIONS[currentQ].options.length) {
+                    selectAnswer(idx);
+                }
+                if (
+                    e.key === "Enter" &&
+                    !document.getElementById("next-btn").disabled
+                ) {
+                    nextQuestion();
+                }
+            });
+        </script>
+    </body>
 </html>
