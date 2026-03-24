@@ -100,6 +100,9 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
         getMonthlyListeners(ARTIST_ID),
     ]);
 
+    if (!artistRes.ok) throw new Error(`Spotify artist fetch failed: ${artistRes.status} ${await artistRes.text()}`);
+    if (!albumsRes.ok) throw new Error(`Spotify albums fetch failed: ${albumsRes.status} ${await albumsRes.text()}`);
+
     const artist = (await artistRes.json()) as {
         name: string;
         images: { url: string }[];
@@ -115,7 +118,7 @@ async function fetchSpotifyData(): Promise<SpotifyData> {
                 `https://api.spotify.com/v1/albums/${album.id}/tracks?market=US&limit=1`,
                 { headers }
             )
-                .then((r) => r.json())
+                .then((r) => { if (!r.ok) throw new Error(`Spotify tracks fetch failed: ${r.status}`); return r.json(); })
                 .then(
                     (data: {
                         items: { id: string; name: string; duration_ms: number }[];

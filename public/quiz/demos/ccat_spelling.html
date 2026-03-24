@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCAT Spelling Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #e8c547;
+    --accent2: #5ee7a0;
+    --danger: #ff5c5c;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── Header ── */
+  header {
+    width: 100%;
+    max-width: 820px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+
+  .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Timer bar ── */
+  .timer-wrap {
+    width: 100%;
+    max-width: 820px;
+    margin-bottom: 28px;
+  }
+
+  .timer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .timer-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .timer-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent);
+    transition: color 0.3s;
+  }
+  .timer-display.warn { color: var(--danger); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+  .progress-fill.warn { background: var(--danger); }
+
+  /* ── Score pill ── */
+  .score-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .score-pill strong { color: var(--text); }
+
+  /* ── Question card ── */
+  .card {
+    width: 100%;
+    max-width: 820px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px 36px;
+    margin-bottom: 16px;
+    position: relative;
+    transition: border-color 0.25s;
+  }
+
+  .q-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .q-prompt {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.92rem;
+    padding: 12px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #1f1f28;
+    color: var(--accent);
+  }
+
+  .option-btn .opt-key {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 14px;
+  }
+
+  .option-btn.correct {
+    background: rgba(94,231,160,0.1);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .option-btn.wrong {
+    background: rgba(255,92,92,0.08);
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(94,231,160,0.08); color: var(--accent2); border: 1px solid rgba(94,231,160,0.2); }
+  .feedback.wrong-fb { background: rgba(255,92,92,0.06); color: #ff8080; border: 1px solid rgba(255,92,92,0.2); }
+
+  /* ── Navigation ── */
+  .nav-row {
+    width: 100%;
+    max-width: 820px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .nav-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 11px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+  }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0d0d0f;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: #f0d060; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-finish {
+    background: var(--accent2);
+    color: #0d0d0f;
+    border-color: var(--accent2);
+  }
+  .btn-finish:hover { background: #7aefba; }
+
+  /* ── Progress dots ── */
+  .dot-row {
+    width: 100%;
+    max-width: 820px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 20px 0 4px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .dot.answered { background: var(--muted); }
+  .dot.active { background: var(--accent); }
+  .dot.correct-dot { background: var(--accent2); }
+  .dot.wrong-dot { background: var(--danger); }
+
+  /* ── Screen overlays ── */
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .screen-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+
+  .screen-sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    max-width: 420px;
+  }
+
+  .big-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 5rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .grade {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 36px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 36px;
+  }
+
+  .result-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .result-box .rb-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .result-box .rb-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .rb-correct { color: var(--accent2); }
+  .rb-wrong { color: var(--danger); }
+  .rb-time { color: var(--accent); }
+
+  /* ── Start screen ── */
+  .start-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    background: rgba(232,197,71,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(232,197,71,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .info-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    text-align: left;
+    width: 100%;
+    margin-bottom: 28px;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .info-item:last-child { border-bottom: none; }
+
+  .info-icon {
+    font-size: 1rem;
+    min-width: 20px;
+    margin-top: 1px;
+  }
+
+  /* ── Missed words list ── */
+  .missed-section {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 0;
+    text-align: left;
+    display: none;
+  }
+  .missed-section.show { display: block; }
+
+  .missed-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .missed-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .missed-tag {
+    background: rgba(255,92,92,0.08);
+    border: 1px solid rgba(255,92,92,0.25);
+    color: #ff8080;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+
+  /* ── Quiz container ── */
+  #quiz-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
+  #quiz-screen.active { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ START SCREEN ═══════════════ -->
+<div id="start-screen" class="screen active">
+  <div class="start-badge">CCAT Prep · Spelling Module</div>
+  <h1 class="screen-title">Master the<br><span style="color:var(--accent)">Hard Words.</span></h1>
+  <p class="screen-sub">50 questions drawn from the most commonly misspelled words on cognitive ability tests. Identify the correct spelling from four choices.</p>
+
+  <div class="info-list">
+    <div class="info-item"><span class="info-icon">⏱</span><span><strong>15 minutes</strong> — same pressure as the real CCAT</span></div>
+    <div class="info-item"><span class="info-icon">📝</span><span><strong>50 questions</strong> — multiple-choice, one correct spelling per question</span></div>
+    <div class="info-item"><span class="info-icon">💡</span><span>Instant feedback after each answer to reinforce correct spelling</span></div>
+    <div class="info-item"><span class="info-icon">🎯</span><span>Score report + missed-words list at the end</span></div>
+  </div>
+
+  <button class="nav-btn btn-primary" onclick="startQuiz()" style="width:100%;padding:16px;font-size:0.9rem;">Begin Test →</button>
+</div>
+
+<!-- ═══════════════ QUIZ SCREEN ═══════════════ -->
+<div id="quiz-screen">
+  <header>
+    <div class="logo">Spell<span>Check</span></div>
+    <div class="meta">CCAT Spelling · 50 Questions</div>
+  </header>
+
+  <div class="timer-wrap">
+    <div class="timer-row">
+      <span class="timer-label">Time Remaining</span>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="score-pill">Q <strong id="q-counter">1</strong> of 50</span>
+        <div id="timer-display" class="timer-display">15:00</div>
+      </div>
+    </div>
+    <div class="progress-track"><div id="timer-bar" class="progress-fill" style="width:100%"></div></div>
+  </div>
+
+  <div class="card" id="question-card">
+    <div class="q-number" id="q-num-label">Question 01 / 50</div>
+    <div class="q-prompt" id="q-text"></div>
+    <div class="options" id="options-grid"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="dot-row" id="dot-row"></div>
+
+  <div class="nav-row">
+    <button class="nav-btn btn-secondary" id="prev-btn" onclick="navigate(-1)">← Prev</button>
+    <button class="nav-btn btn-primary" id="next-btn" onclick="navigate(1)">Next →</button>
+    <button class="nav-btn btn-finish" id="finish-btn" onclick="finishQuiz()" style="display:none">Finish Test</button>
+  </div>
+</div>
+
+<!-- ═══════════════ RESULTS SCREEN ═══════════════ -->
+<div id="results-screen" class="screen">
+  <div class="big-score" id="final-score">0/50</div>
+  <div class="grade" id="final-grade"></div>
+  <div class="result-grid">
+    <div class="result-box"><div class="rb-val rb-correct" id="res-correct">0</div><div class="rb-label">Correct</div></div>
+    <div class="result-box"><div class="rb-val rb-wrong" id="res-wrong">0</div><div class="rb-label">Incorrect</div></div>
+    <div class="result-box"><div class="rb-val rb-time" id="res-time">—</div><div class="rb-label">Time Used</div></div>
+  </div>
+  <button class="nav-btn btn-primary" onclick="restartQuiz()" style="width:100%;padding:14px;font-size:0.85rem;margin-bottom:16px;">Retake Test</button>
+</div>
+
+<div class="missed-section" id="missed-section">
+  <div class="missed-title">Words to Review</div>
+  <div class="missed-list" id="missed-list"></div>
+</div>
+
+<script>
+const TOTAL_TIME = 15 * 60; // 900 seconds
+
+const questions = [
+  { prompt: "Which is spelled correctly?", options: ["Accomodate","Accommodate","Acommodate","Accommodaet"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Achieve","Acheive","Achiev","Acheve"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Occurance","Occurence","Occurrence","Occurrance"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Seperate","Separate","Seperrate","Separrate"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Definately","Definitly","Definiteley","Definitely"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Neccessary","Necassary","Necessary","Neccesary"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Recieve","Receive","Recive","Receieve"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Beleive","Belive","Believe","Beleave"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Embarass","Embaras","Embarrass","Embarrase"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Maintainance","Maintenance","Maintenence","Maintennce"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Existance","Existence","Existense","Existince"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Persistance","Persistense","Persistence","Persistince"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Resistance","Resistanse","Resistence","Resistince"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Consience","Conscence","Conscience","Conscieance"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Mischevious","Mischeivous","Mischievous","Mischeivious"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Priviledge","Privilege","Privelege","Privlige"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Reccomend","Recomend","Recomend","Recommend"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Begining","Beggining","Beginning","Beginnnig"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Apparant","Apparent","Apparrent","Apparient"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Noticeable","Noticable","Noteceable","Noticeible"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Irresistable","Irresistible","Irresistibel","Iresistible"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Independant","Independant","Independente","Independent"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Pronunciation","Pronounciation","Prononciation","Pronounsiation"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Concious","Conscious","Consious","Conscous"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Collegue","Colleage","Colleague","Colleegue"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Writting","Writing","Writeing","Wrtiting"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Excede","Exceed","Exced","Exceedde"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Excelent","Excellent","Excellant","Excelant"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Perseverance","Perserverance","Perseveance","Perserverence"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Liason","Laison","Liaison","Liasion"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Milennium","Millenium","Milenium","Millennium"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Questionaire","Questionnair","Questionnare","Questionnaire"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Possesion","Possession","Posession","Possecion"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Harrasment","Harasment","Harassment","Harassement"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Vaccum","Vacuum","Vacum","Vacuume"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Witheld","Withheld","Withheled","Withhelld"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Accesory","Accessory","Acessory","Accesssory"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Benefitted","Benifited","Benefited","Beneffited"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Bureaucracy","Burocracy","Bureaucasy","Bureacracy"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Supercede","Superseed","Superceed","Supersede"], answer: 3 },
+  { prompt: "Which is spelled correctly?", options: ["Sacrilegious","Sacreligious","Sacriligious","Sacrilegous"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Inadvertant","Inadvertent","Inadvertint","Inadvertente"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Referrence","Refference","Reference","Referense"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Abscense","Absence","Abscence","Absense"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Indispensable","Indispensible","Indispenseable","Indispensabel"], answer: 0 },
+  { prompt: "Which is spelled correctly?", options: ["Occassional","Occasional","Ocassional","Occassionall"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Categorie","Category","Catagory","Catergory"], answer: 1 },
+  { prompt: "Which is spelled correctly?", options: ["Comittee","Commitee","Committee","Committe"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Hierachy","Heirarchy","Hierarchy","Hierarcy"], answer: 2 },
+  { prompt: "Which is spelled correctly?", options: ["Tendancy","Tendency","Tendencies","Tendencey"], answer: 1 },
+];
+
+const correctWords = questions.map(q => q.options[q.answer]);
+
+let current = 0;
+let userAnswers = new Array(50).fill(null);
+let timerInterval = null;
+let timeLeft = TOTAL_TIME;
+let startTime = null;
+let quizStarted = false;
+
+const optKeys = ['A','B','C','D'];
+
+function startQuiz() {
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('quiz-screen').classList.add('active');
+  quizStarted = true;
+  startTime = Date.now();
+  buildDots();
+  renderQuestion(0);
+  startTimer();
+}
+
+function buildDots() {
+  const row = document.getElementById('dot-row');
+  row.innerHTML = '';
+  for (let i = 0; i < 50; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.title = `Q${i+1}`;
+    d.onclick = () => jumpTo(i);
+    d.id = `dot-${i}`;
+    row.appendChild(d);
+  }
+}
+
+function updateDots() {
+  for (let i = 0; i < 50; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    d.className = 'dot';
+    if (i === current) { d.classList.add('active'); return; }
+    if (userAnswers[i] !== null) {
+      d.classList.add(userAnswers[i] === questions[i].answer ? 'correct-dot' : 'wrong-dot');
+    }
+  }
+}
+
+function jumpTo(i) {
+  current = i;
+  renderQuestion(i);
+}
+
+function renderQuestion(i) {
+  const q = questions[i];
+  document.getElementById('q-num-label').textContent = `Question ${String(i+1).padStart(2,'0')} / 50`;
+  document.getElementById('q-counter').textContent = i+1;
+  document.getElementById('q-text').textContent = q.prompt;
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-key">${optKeys[idx]}</span> ${opt}`;
+    btn.disabled = userAnswers[i] !== null;
+
+    if (userAnswers[i] !== null) {
+      if (idx === q.answer) btn.classList.add('correct');
+      else if (idx === userAnswers[i]) btn.classList.add('wrong');
+    }
+
+    btn.onclick = () => selectAnswer(i, idx);
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  if (userAnswers[i] !== null) {
+    const correct = userAnswers[i] === q.answer;
+    fb.className = `feedback show ${correct ? 'correct-fb' : 'wrong-fb'}`;
+    fb.textContent = correct
+      ? `✓ Correct! The right spelling is: ${q.options[q.answer]}`
+      : `✗ Incorrect. The correct spelling is: ${q.options[q.answer]}`;
+  }
+
+  // Nav buttons
+  document.getElementById('prev-btn').style.display = i === 0 ? 'none' : '';
+  const isLast = i === 49;
+  document.getElementById('next-btn').style.display = isLast ? 'none' : '';
+  document.getElementById('finish-btn').style.display = isLast ? '' : 'none';
+
+  updateDots();
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (userAnswers[qIdx] !== null) return;
+  userAnswers[qIdx] = optIdx;
+  renderQuestion(qIdx);
+
+  // Auto-advance after short delay
+  if (qIdx < 49) {
+    setTimeout(() => { current = qIdx + 1; renderQuestion(current); }, 900);
+  }
+}
+
+function navigate(dir) {
+  const next = current + dir;
+  if (next < 0 || next >= 50) return;
+  current = next;
+  renderQuestion(current);
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); finishQuiz(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const disp = document.getElementById('timer-display');
+  const bar = document.getElementById('timer-bar');
+  const pct = (timeLeft / TOTAL_TIME) * 100;
+  disp.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  bar.style.width = pct + '%';
+  const warn = timeLeft <= 120;
+  disp.className = 'timer-display' + (warn ? ' warn' : '');
+  bar.className = 'progress-fill' + (warn ? ' warn' : '');
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+  document.getElementById('quiz-screen').classList.remove('active');
+
+  const correct = userAnswers.reduce((acc, ans, i) => acc + (ans === questions[i].answer ? 1 : 0), 0);
+  const wrong = userAnswers.reduce((acc, ans) => acc + (ans !== null && ans !== questions.filter((_,i)=>userAnswers[i]===questions[i].answer)[0] ? 1 : 0), 0);
+  const wrong2 = userAnswers.filter((a, i) => a !== null && a !== questions[i].answer).length;
+  const timeUsed = TOTAL_TIME - timeLeft;
+  const mu = Math.floor(timeUsed / 60);
+  const ms = timeUsed % 60;
+
+  document.getElementById('final-score').textContent = `${correct}/50`;
+  const pct = Math.round((correct/50)*100);
+  let grade = pct >= 90 ? '🏆 Excellent' : pct >= 75 ? '✅ Good' : pct >= 60 ? '📘 Passing' : '⚠️ Needs Work';
+  document.getElementById('final-grade').textContent = `${pct}% — ${grade}`;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong2;
+  document.getElementById('res-time').textContent = `${String(mu).padStart(2,'0')}:${String(ms).padStart(2,'0')}`;
+
+  const resultsScreen = document.getElementById('results-screen');
+  resultsScreen.classList.add('active');
+
+  // Missed words
+  const missedWords = [];
+  userAnswers.forEach((ans, i) => { if (ans !== questions[i].answer) missedWords.push(correctWords[i]); });
+  if (missedWords.length > 0) {
+    const sec = document.getElementById('missed-section');
+    const list = document.getElementById('missed-list');
+    list.innerHTML = '';
+    missedWords.forEach(w => {
+      const tag = document.createElement('div');
+      tag.className = 'missed-tag';
+      tag.textContent = w;
+      list.appendChild(tag);
+    });
+    sec.classList.add('show');
+  }
+}
+
+function restartQuiz() {
+  clearInterval(timerInterval);
+  timeLeft = TOTAL_TIME;
+  current = 0;
+  userAnswers = new Array(50).fill(null);
+  startTime = null;
+
+  document.getElementById('results-screen').classList.remove('active');
+  document.getElementById('missed-section').classList.remove('show');
+  document.getElementById('missed-list').innerHTML = '';
+  document.getElementById('timer-display').textContent = '15:00';
+  document.getElementById('timer-bar').style.width = '100%';
+  document.getElementById('timer-display').className = 'timer-display';
+  document.getElementById('timer-bar').className = 'progress-fill';
+
+  document.getElementById('quiz-screen').classList.add('active');
+  buildDots();
+  renderQuestion(0);
+  startTimer();
+}
+</script>
+</body>
+</html>
