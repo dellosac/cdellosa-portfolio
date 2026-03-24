@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麻将 Mahjong Character Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a4d2e;
+    --green-mid: #2d6a4f;
+    --green-light: #40916c;
+    --gold: #d4a017;
+    --gold-light: #f0c040;
+    --ivory: #f5f0e8;
+    --ivory-dark: #e8dfc8;
+    --red: #c0392b;
+    --tile-bg: #f7f2e3;
+    --tile-shadow: rgba(0,0,0,0.35);
+    --ink: #1a1008;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--green);
+    background-image:
+      radial-gradient(ellipse at 20% 20%, #2d6a4f88 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, #1a4d2e 0%, transparent 50%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(0,0,0,0.04) 40px, rgba(0,0,0,0.04) 41px),
+      repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(0,0,0,0.04) 40px, rgba(0,0,0,0.04) 41px);
+    min-height: 100vh;
+    font-family: 'Lora', serif;
+    color: var(--ivory);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 16px 60px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  header .chinese-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-shadow: 3px 3px 0 #000, 0 0 40px rgba(212,160,23,0.4);
+    line-height: 1;
+  }
+
+  header .subtitle {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(0.75rem, 2.5vw, 1rem);
+    color: var(--ivory-dark);
+    letter-spacing: 0.3em;
+    margin-top: 8px;
+    opacity: 0.85;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(212,160,23,0.3);
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 8px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .progress-label {
+    font-size: 0.82rem;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+    margin-bottom: 28px;
+    font-family: 'Cinzel Decorative', cursive;
+  }
+
+  /* === TILE === */
+  .tile-container {
+    perspective: 900px;
+    margin-bottom: 36px;
+    animation: fadeDown 0.5s ease both;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .tile {
+    width: clamp(130px, 30vw, 180px);
+    height: clamp(170px, 40vw, 230px);
+    background: var(--tile-bg);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 2px 0 #bbb,
+      0 4px 0 #aaa,
+      0 6px 0 #999,
+      0 8px 20px rgba(0,0,0,0.5),
+      inset 0 1px 3px rgba(255,255,255,0.9),
+      inset 0 -1px 3px rgba(0,0,0,0.1);
+    border: 2px solid rgba(212,160,23,0.5);
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+
+  .tile:hover { transform: translateY(-4px) rotateY(4deg); }
+
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .tile-character {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(5rem, 14vw, 8rem);
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+    user-select: none;
+  }
+
+  .tile-category {
+    font-family: 'Lora', serif;
+    font-size: 0.7rem;
+    color: rgba(26,16,8,0.45);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* === OPTIONS === */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 560px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .option-btn {
+    background: rgba(245,240,227,0.07);
+    border: 1.5px solid rgba(212,160,23,0.35);
+    border-radius: 10px;
+    padding: 16px 12px;
+    cursor: pointer;
+    font-family: 'Lora', serif;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    color: var(--ivory);
+    text-align: center;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    backdrop-filter: blur(4px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+    pointer-events: none;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    background: rgba(212,160,23,0.15);
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  .option-btn.correct {
+    background: rgba(40,167,69,0.25);
+    border-color: #4caf50;
+    color: #a8f0b0;
+    transform: scale(1.02);
+  }
+
+  .option-btn.wrong {
+    background: rgba(192,57,43,0.25);
+    border-color: var(--red);
+    color: #f0a8a0;
+  }
+
+  .option-btn.reveal-correct {
+    background: rgba(40,167,69,0.15);
+    border-color: #4caf50;
+    color: #a8f0b0;
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* === FEEDBACK === */
+  .feedback {
+    margin-top: 22px;
+    min-height: 56px;
+    text-align: center;
+    font-size: 1.05rem;
+    animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  .feedback.correct-msg { color: #7ee89a; }
+  .feedback.wrong-msg { color: #f0a0a0; }
+
+  .feedback .pinyin {
+    display: block;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--gold-light);
+    margin-top: 4px;
+    opacity: 0.9;
+  }
+
+  .explanation-box {
+    margin-top: 14px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(212,160,23,0.25);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--ivory-dark);
+    line-height: 1.65;
+    text-align: left;
+    max-width: 560px;
+    animation: fadeUp 0.4s ease 0.1s both;
+  }
+
+  .explanation-box .exp-label {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 5px;
+    opacity: 0.8;
+  }
+
+  /* === NEXT BUTTON === */
+  .next-btn {
+    margin-top: 22px;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    border: none;
+    border-radius: 8px;
+    padding: 13px 42px;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 0.9rem;
+    color: #1a0f00;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  }
+
+  /* === SCORE SCREEN === */
+  .score-screen {
+    text-align: center;
+    animation: fadeDown 0.7s ease both;
+    max-width: 500px;
+  }
+
+  .score-screen .big-score {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(5rem, 18vw, 9rem);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 3px 3px 0 #000, 0 0 60px rgba(212,160,23,0.5);
+    line-height: 1;
+  }
+
+  .score-screen .score-label {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+    color: var(--ivory-dark);
+    letter-spacing: 0.25em;
+    margin-bottom: 24px;
+  }
+
+  .score-screen .grade {
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    color: var(--ivory);
+    margin-bottom: 28px;
+    line-height: 1.7;
+    opacity: 0.9;
+  }
+
+  .restart-btn {
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    border: none;
+    border-radius: 8px;
+    padding: 14px 48px;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 0.95rem;
+    color: #1a0f00;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+    margin-top: 8px;
+  }
+  .restart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  }
+
+  /* === DECORATIVE DIVIDER === */
+  .divider {
+    width: 180px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 20px auto;
+    opacity: 0.5;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes tileEnter {
+    from { opacity: 0; transform: rotateY(-30deg) scale(0.9); }
+    to { opacity: 1; transform: rotateY(0) scale(1); }
+  }
+
+  .tile-enter { animation: tileEnter 0.45s cubic-bezier(0.34,1.2,0.64,1) both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="chinese-title">麻将</div>
+  <div class="subtitle">Mahjong Character Quiz</div>
+</header>
+
+<div id="app"></div>
+
+<script>
+const ALL_TILES = [
+  // Numbers (万 characters)
+  { char: '一', pinyin: 'yī', meaning: 'One (1 of 10,000)', category: 'Numbers', explanation: 'A single horizontal stroke — the simplest Chinese numeral, unchanged for over 3,000 years. Oracle bone inscriptions from the Shang dynasty (c. 1200 BCE) show 一 as exactly this: one line. The ancient logic was pure tally-mark counting. In the Man (万) suit, tiles run 一 through 九.' },
+  { char: '二', pinyin: 'èr', meaning: 'Two (2 of 10,000)', category: 'Numbers', explanation: 'Two horizontal strokes, one atop the other — a direct visual tally for the number 2. This pictographic system dates to oracle bones, where the earliest scribes simply stacked lines to count. The bottom stroke is slightly longer to give the character balance and prevent confusion with 一.' },
+  { char: '三', pinyin: 'sān', meaning: 'Three (3 of 10,000)', category: 'Numbers', explanation: 'Three horizontal strokes for the number 3 — again, pure tally logic from oracle bone script. Ancient Chinese numerals 一, 二, 三 are among the clearest examples of pictographic writing: the shape IS the concept. Beyond three strokes, the system switched to more complex forms (四, 五…) to avoid ambiguity.' },
+  { char: '四', pinyin: 'sì', meaning: 'Four (4 of 10,000)', category: 'Numbers', explanation: 'Originally, 四 was written as four horizontal strokes. Over centuries of writing, scribes condensed it into a box enclosing two short strokes — faster to write and harder to miscount. The modern form stabilized during the Han dynasty (206 BCE–220 CE). 四 (sì) also sounds like 死 (death), making it unlucky in Chinese culture.' },
+  { char: '五', pinyin: 'wǔ', meaning: 'Five (5 of 10,000)', category: 'Numbers', explanation: '五 originally depicted two crossed lines — an X shape representing an intersection or crossing. Early bronze inscriptions show it evolving into its current form with a horizontal top, crossed middle, and enclosed base. Some scholars link it to an ancient counting device. It is the midpoint of the 1–9 suit.' },
+  { char: '六', pinyin: 'liù', meaning: 'Six (6 of 10,000)', category: 'Numbers', explanation: '六 is believed to derive from an ancient pictograph of a small hut or dwelling — the roof-like top stroke and open base reflect this origin. It departed early from the tally-mark system. The number 6 is very lucky in Chinese culture; 六六大順 ("66, everything goes smoothly") is a beloved blessing.' },
+  { char: '七', pinyin: 'qī', meaning: 'Seven (7 of 10,000)', category: 'Numbers', explanation: '七 originally looked like a cross (+) in oracle bone script, possibly representing a "cut" or intersection. Over time the vertical stroke curved into a hook at the bottom, giving the modern form. Some linguists suggest it once depicted a notched tally stick. Its resemblance to a Western "7" is coincidental but a great memory aid.' },
+  { char: '八', pinyin: 'bā', meaning: 'Eight (8 of 10,000)', category: 'Numbers', explanation: '八 originally depicted two objects being divided or split apart — the two diverging strokes represent separation. In oracle bone script it looks like a simple V-split. This root meaning of "divide" is preserved in the character 分 (to divide). Eight is the luckiest number in Chinese culture as 八 (bā) echoes 發 (fā), "to prosper."' },
+  { char: '九', pinyin: 'jiǔ', meaning: 'Nine (9 of 10,000)', category: 'Numbers', explanation: '九 in oracle bone script depicted an arm with a bent elbow — a human limb coiling inward. Over time it abstracted into a hook-like stroke. Since 9 was the largest single digit, 九 also became a word for "many" or "numerous" in Classical Chinese. 九 (jiǔ) sounds like 久 (long-lasting), giving it an auspicious ring.' },
+  { char: '万', pinyin: 'wàn', meaning: '10,000 / Man suit', category: 'Suits', explanation: '万 originally depicted a scorpion in oracle bone script — the curling tail and claws are visible in ancient forms. How did a scorpion come to mean 10,000? The scorpion was associated with vast, uncountable swarms in early Chinese thought, and the word shifted to mean an enormous quantity. By the Zhou dynasty it meant "ten thousand" or "myriad."' },
+  // Winds
+  { char: '東', pinyin: 'dōng', meaning: 'East Wind', category: 'Winds', explanation: '東 is a pictograph of a sun (日) seen through or behind a tree (木) — the sun rising at dawn, entangled in branches on the eastern horizon. Oracle bone forms show a circle (sun) with a vertical stroke (tree) through it. This vivid image has remained essentially unchanged for 3,000 years. East is the dealer\'s seat in Mahjong.' },
+  { char: '南', pinyin: 'nán', meaning: 'South Wind', category: 'Winds', explanation: '南 is debated among scholars. One theory says it depicted a bronze bell or musical instrument associated with southern ceremonies. Another links it to a plant growing toward the sun (south). By the Shang dynasty it had already become abstract. Its consistent association with warmth and sunshine made it the natural word for "south."' },
+  { char: '西', pinyin: 'xī', meaning: 'West Wind', category: 'Winds', explanation: '西 originally depicted a bird settling into its nest at dusk — in oracle bone script you can see a bird shape inside a container. Birds return to roost as the sun sets in the west, making this a poetic pictograph. Over centuries, the bird form eroded into the angular shape we see today. Wind tiles only score if they match your seat or round wind.' },
+  { char: '北', pinyin: 'běi', meaning: 'North Wind', category: 'Winds', explanation: '北 depicts two people (人) standing back-to-back. In oracle bone script, two human figures face away from each other — the ancient concept being that one turns their back to the cold north wind. This is why 北 also carried the meaning "to flee" or "defeat" in Classical Chinese (turning your back = retreating). A set of all four winds is a rare winning hand.' },
+  // Dragons
+  { char: '中', pinyin: 'zhōng', meaning: 'Red Dragon / Center', category: 'Dragons', explanation: '中 originally depicted a flagpole or standard planted in the middle of a gathering place — the vertical stroke is the pole, the rectangle its banner or drum, and the lines extending from the middle mark the center. Oracle bone inscriptions confirm it was used to call people to the center of a settlement. China calls itself 中國 (Middle Kingdom) using this character.' },
+  { char: '發', pinyin: 'fā', meaning: 'Green Dragon / Prosperity', category: 'Dragons', explanation: '發 (traditional) is a complex character combining components suggesting feet/motion (癶), a bow (弓), and a strike (殳) — together evoking the release of an arrow, and by extension, something launching outward or flourishing. The idea of release became "to emit," then "to prosper." Simplified Chinese writes it as 发. Its sound (fā) is identical to the lucky word for wealth, making it the most auspicious tile.' },
+  { char: '白', pinyin: 'bái', meaning: 'White Dragon / White', category: 'Dragons', explanation: '白 is a pictograph of a thumb held up, or alternatively the first ray of sunlight at dawn — a small bright point (the dot or short stroke at top) above the sun (日). The "first light" interpretation gave it the meaning of whiteness and brightness. On the mahjong tile, 白 appears as a completely blank face or just a border — the character\'s meaning of "empty/pure" made a blank tile the perfect representation.' },
+  // Suits
+  { char: '筒', pinyin: 'tǒng', meaning: 'Circle / Barrel suit', category: 'Suits', explanation: '筒 combines the bamboo radical 竹 (top) with 同 (same/together) as its phonetic component. Bamboo tubes were ubiquitous in ancient China — used as containers, instruments, and early writing surfaces. The character literally means a hollow bamboo cylinder. On Circle suit tiles, each circle represents a coin (方孔錢), the round copper cash with a square hole used in imperial China.' },
+  { char: '條', pinyin: 'tiáo', meaning: 'Bamboo / Strip suit', category: 'Suits', explanation: '條 combines the wood radical 木 (tree/wood) with 攸 as a phonetic element, originally meaning a long, slender branch. It evolved to mean any long thin strip or strand. Bamboo suit tiles show bundled sticks — one stick for 1-Bamboo (though usually depicted as a bird), two sticks for 2, and so on. The bird on the 1-Bamboo tile is thought to represent a crane or peacock perched on a single stalk.' },
+  // Seasons & Flowers
+  { char: '春', pinyin: 'chūn', meaning: 'Spring (Flower tile)', category: 'Flowers', explanation: '春 combines 艸 (grass/plants, at top), 屯 (sprout pushing through soil), and 日 (sun) — a perfect pictorial recipe for spring: the sun warming the ground as new shoots push upward. Oracle bone forms show a plant emerging from earth beneath the sun. It is one of the most visually logical compound characters in Chinese. In Mahjong, Spring pairs with the East seat.' },
+  { char: '夏', pinyin: 'xià', meaning: 'Summer (Flower tile)', category: 'Flowers', explanation: '夏 originally depicted a large, imposing person — in oracle bone script, a figure with a large head, outstretched arms, and prominent feet. This "grand person" represented the Xia dynasty (夏朝), China\'s legendary first dynasty, and the season name came later. The grandeur and fullness of the figure evokes the abundance of summer. It corresponds to the South seat in Mahjong.' },
+  { char: '秋', pinyin: 'qiū', meaning: 'Autumn (Flower tile)', category: 'Flowers', explanation: '秋 originally depicted a locust or cricket above a fire — the character shows 禾 (grain/crops) combined with 火 (fire). In ancient China, farmers burned fields after the harvest to clear them and ward off crop-devouring locusts. This vivid image of burning stubble after the grain harvest became the symbol for autumn. It corresponds to the West seat in Mahjong.' },
+  { char: '冬', pinyin: 'dōng', meaning: 'Winter (Flower tile)', category: 'Flowers', explanation: '冬 originally depicted two knots at the ends of a cord — the ancient idea of something "tied off" or ended, representing the end of the year. The two dots (originally knots) at the bottom represent this. Over time, the ice radical 仌 was added to reinforce the cold meaning. Crucially: 冬 (winter) and 東 (East wind) sound identical — a trap for beginners!' },
+  { char: '梅', pinyin: 'méi', meaning: 'Plum Blossom (Flower tile)', category: 'Flowers', explanation: '梅 combines the wood/tree radical 木 (left) with 每 (every/each) as a phonetic component. The tree radical grounds it as a plant; 每 lends the sound. The plum tree (Prunus mume) has been celebrated in Chinese poetry since the Han dynasty for blooming in snow — its delicate flowers persisting through winter became a powerful metaphor for resilience and elegance.' },
+  { char: '蘭', pinyin: 'lán', meaning: 'Orchid (Flower tile)', category: 'Flowers', explanation: '蘭 (traditional) is a dense character with the grass radical 艸 at top (indicating a plant), 門 (gate), and 柬 inside — together suggesting a refined plant growing in a secluded, gated space. Confucius famously compared a virtuous person to an orchid growing in an empty valley, fragrant even with no audience. Simplified Chinese reduces it to 兰, stripping away most of the complexity.' },
+  { char: '菊', pinyin: 'jú', meaning: 'Chrysanthemum (Flower tile)', category: 'Flowers', explanation: '菊 combines the grass radical 艸 (top, indicating a plant) with 匊 (cupped hands holding grain) as a phonetic-semantic component — evoking the dense, rounded flower head that looks like clustered petals cupped together. The chrysanthemum was cultivated in China as early as the 15th century BCE, and Tao Yuanming\'s famous poetry immortalized it as a symbol of reclusive simplicity.' },
+  { char: '竹', pinyin: 'zhú', meaning: 'Bamboo plant (Flower tile)', category: 'Flowers', explanation: '竹 is a pictograph of two bamboo stalks with drooping leaves — the two vertical strokes are the stems and the angled strokes are the characteristic downward-hanging leaves of bamboo. Oracle bone forms are nearly identical to the modern character, making it one of the most visually stable pictographs over 3,000 years. As a radical, 竹 appears in hundreds of characters for objects traditionally made from bamboo: 筒 (tube), 篮 (basket), 筆 (brush), 籠 (cage).' },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateQuestions(n = 20) {
+  const pool = shuffle(ALL_TILES).slice(0, n);
+  return pool.map(correct => {
+    const distractors = shuffle(ALL_TILES.filter(t => t.char !== correct.char)).slice(0, 3);
+    const options = shuffle([correct, ...distractors]);
+    return { correct, options };
+  });
+}
+
+// === STATE ===
+let questions = generateQuestions(30);
+let current = 0;
+let score = 0;
+let answered = false;
+
+function render() {
+  const app = document.getElementById('app');
+  if (current >= questions.length) {
+    renderScore(app);
+    return;
+  }
+  const q = questions[current];
+  const pct = (current / questions.length) * 100;
+
+  app.innerHTML = `
+    <div class="progress-bar-wrap" style="width:100%;max-width:560px">
+      <div class="progress-bar" style="width:${pct}%"></div>
+    </div>
+    <div class="progress-label">Question ${current + 1} of ${questions.length} &nbsp;·&nbsp; Score: ${score}</div>
+    <div class="tile-container">
+      <div class="tile tile-enter">
+        <div class="tile-character">${q.correct.char}</div>
+      </div>
+    </div>
+    <div class="options-grid" id="options">
+      ${q.options.map((o, i) => `
+        <button class="option-btn" onclick="choose(${i})" data-index="${i}">
+          ${o.meaning}
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div id="next-wrap"></div>
+  `;
+  answered = false;
+}
+
+function choose(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const chosen = q.options[idx];
+  const btns = document.querySelectorAll('.option-btn');
+  const feedback = document.getElementById('feedback');
+  const nextWrap = document.getElementById('next-wrap');
+  btns.forEach(b => b.disabled = true);
+
+  const correctIdx = q.options.indexOf(q.correct);
+
+  const expBox = `<div class="explanation-box"><span class="exp-label">✦ Did You Know</span>${q.correct.explanation}</div>`;
+
+  if (chosen === q.correct) {
+    score++;
+    btns[idx].classList.add('correct');
+    feedback.className = 'feedback correct-msg';
+    feedback.innerHTML = `✓ Correct! <span class="pinyin">${q.correct.char} (${q.correct.pinyin}) — ${q.correct.meaning}</span>`;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[correctIdx].classList.add('reveal-correct');
+    feedback.className = 'feedback wrong-msg';
+    feedback.innerHTML = `✗ Not quite. <span class="pinyin">It was ${q.correct.char} (${q.correct.pinyin}) — ${q.correct.meaning}</span>`;
+  }
+
+  feedback.innerHTML += expBox;
+  nextWrap.innerHTML = `<button class="next-btn" onclick="next()">${current + 1 < questions.length ? 'Next Tile →' : 'See Results'}</button>`;
+}
+
+function next() {
+  current++;
+  render();
+}
+
+function renderScore(app) {
+  const pct = Math.round((score / questions.length) * 100);
+  let grade, msg;
+  if (pct === 100) { grade = '完璧 · Perfect'; msg = 'Flawless mastery! You are a true Mahjong scholar.'; }
+  else if (pct >= 85) { grade = '優秀 · Excellent'; msg = 'Outstanding! Nearly every tile is in your mind.'; }
+  else if (pct >= 70) { grade = '良好 · Good'; msg = 'Solid knowledge. A few more rounds and you\'ll be unstoppable.'; }
+  else if (pct >= 50) { grade = '普通 · Passing'; msg = 'A respectable start. The tiles will reveal themselves with practice.'; }
+  else { grade = '加油 · Keep Going'; msg = 'Every master was once a beginner. Play again and the patterns will emerge.'; }
+
+  app.innerHTML = `
+    <div class="score-screen">
+      <div class="big-score">${score}<span style="font-size:0.45em;opacity:0.6">/${questions.length}</span></div>
+      <div class="divider"></div>
+      <div class="score-label">${grade}</div>
+      <div class="grade">${msg}</div>
+      <button class="restart-btn" onclick="restart()">Play Again</button>
+    </div>
+  `;
+}
+
+function restart() {
+  questions = generateQuestions(30);
+  current = 0;
+  score = 0;
+  answered = false;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
