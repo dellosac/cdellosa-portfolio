@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>麻将 Mahjong Character Quiz</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Cinzel+Decorative:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Zhi+Mang+Xing&family=Liu+Jian+Mao+Cao&family=Cinzel+Decorative:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --green: #1a4d2e;
@@ -133,13 +133,54 @@
   }
 
   .tile-character {
-    font-family: 'Noto Serif SC', serif;
+    font-family: var(--tile-font, 'Noto Serif SC', serif);
     font-size: clamp(5rem, 14vw, 8rem);
     font-weight: 900;
     color: var(--ink);
     line-height: 1;
     text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
     user-select: none;
+    transition: font-family 0.2s;
+  }
+
+  /* === FONT PICKER === */
+  .font-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 560px;
+    animation: fadeDown 0.6s ease 0.2s both;
+  }
+  .font-picker-label {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  .font-btn {
+    background: rgba(245,240,227,0.07);
+    border: 1.5px solid rgba(212,160,23,0.3);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    color: var(--ivory-dark);
+    font-size: 0.78rem;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .font-btn:hover {
+    background: rgba(212,160,23,0.15);
+    border-color: var(--gold);
+  }
+  .font-btn.active {
+    background: rgba(212,160,23,0.2);
+    border-color: var(--gold);
+    color: var(--gold-light);
   }
 
   .tile-category {
@@ -372,12 +413,20 @@
   <div class="subtitle">Mahjong Character Quiz</div>
 </header>
 
+<div class="font-picker" id="font-picker">
+  <span class="font-picker-label">Tile Font</span>
+  <button class="font-btn active" onclick="setFont('Noto Serif SC', this)">Noto Serif</button>
+  <button class="font-btn" onclick="setFont('Ma Shan Zheng', this)">Ma Shan Zheng</button>
+  <button class="font-btn" onclick="setFont('ZCOOL XiaoWei', this)">ZCOOL XiaoWei</button>
+  <button class="font-btn" onclick="setFont('Zhi Mang Xing', this)">Zhi Mang Xing</button>
+  <button class="font-btn" onclick="setFont('Liu Jian Mao Cao', this)">Liu Jian Mao Cao</button>
+</div>
 <div id="app"></div>
 
 <script>
 const ALL_TILES = [
-  // Numbers (万 characters)
-  { char: '一', pinyin: 'yī', meaning: 'One (1 of 10,000)', category: 'Numbers', explanation: 'A single horizontal stroke — the simplest Chinese numeral, unchanged for over 3,000 years. Oracle bone inscriptions from the Shang dynasty (c. 1200 BCE) show 一 as exactly this: one line. The ancient logic was pure tally-mark counting. In the Man (万) suit, tiles run 一 through 九.' },
+  // Numbers (萬 characters)
+  { char: '一', pinyin: 'yī', meaning: 'One (1 of 10,000)', category: 'Numbers', explanation: 'A single horizontal stroke — the simplest Chinese numeral, unchanged for over 3,000 years. Oracle bone inscriptions from the Shang dynasty (c. 1200 BCE) show 一 as exactly this: one line. The ancient logic was pure tally-mark counting. In the Man (萬) suit, tiles run 一 through 九.' },
   { char: '二', pinyin: 'èr', meaning: 'Two (2 of 10,000)', category: 'Numbers', explanation: 'Two horizontal strokes, one atop the other — a direct visual tally for the number 2. This pictographic system dates to oracle bones, where the earliest scribes simply stacked lines to count. The bottom stroke is slightly longer to give the character balance and prevent confusion with 一.' },
   { char: '三', pinyin: 'sān', meaning: 'Three (3 of 10,000)', category: 'Numbers', explanation: 'Three horizontal strokes for the number 3 — again, pure tally logic from oracle bone script. Ancient Chinese numerals 一, 二, 三 are among the clearest examples of pictographic writing: the shape IS the concept. Beyond three strokes, the system switched to more complex forms (四, 五…) to avoid ambiguity.' },
   { char: '四', pinyin: 'sì', meaning: 'Four (4 of 10,000)', category: 'Numbers', explanation: 'Originally, 四 was written as four horizontal strokes. Over centuries of writing, scribes condensed it into a box enclosing two short strokes — faster to write and harder to miscount. The modern form stabilized during the Han dynasty (206 BCE–220 CE). 四 (sì) also sounds like 死 (death), making it unlucky in Chinese culture.' },
@@ -386,7 +435,7 @@ const ALL_TILES = [
   { char: '七', pinyin: 'qī', meaning: 'Seven (7 of 10,000)', category: 'Numbers', explanation: '七 originally looked like a cross (+) in oracle bone script, possibly representing a "cut" or intersection. Over time the vertical stroke curved into a hook at the bottom, giving the modern form. Some linguists suggest it once depicted a notched tally stick. Its resemblance to a Western "7" is coincidental but a great memory aid.' },
   { char: '八', pinyin: 'bā', meaning: 'Eight (8 of 10,000)', category: 'Numbers', explanation: '八 originally depicted two objects being divided or split apart — the two diverging strokes represent separation. In oracle bone script it looks like a simple V-split. This root meaning of "divide" is preserved in the character 分 (to divide). Eight is the luckiest number in Chinese culture as 八 (bā) echoes 發 (fā), "to prosper."' },
   { char: '九', pinyin: 'jiǔ', meaning: 'Nine (9 of 10,000)', category: 'Numbers', explanation: '九 in oracle bone script depicted an arm with a bent elbow — a human limb coiling inward. Over time it abstracted into a hook-like stroke. Since 9 was the largest single digit, 九 also became a word for "many" or "numerous" in Classical Chinese. 九 (jiǔ) sounds like 久 (long-lasting), giving it an auspicious ring.' },
-  { char: '万', pinyin: 'wàn', meaning: '10,000 / Man suit', category: 'Suits', explanation: '万 originally depicted a scorpion in oracle bone script — the curling tail and claws are visible in ancient forms. How did a scorpion come to mean 10,000? The scorpion was associated with vast, uncountable swarms in early Chinese thought, and the word shifted to mean an enormous quantity. By the Zhou dynasty it meant "ten thousand" or "myriad."' },
+  { char: '萬', pinyin: 'wàn', meaning: '10,000 / Man suit', category: 'Suits', explanation: '萬 originally depicted a scorpion in oracle bone script — the curling tail and claws are visible in ancient forms. How did a scorpion come to mean 10,000? The scorpion was associated with vast, uncountable swarms in early Chinese thought, and the word shifted to mean an enormous quantity. By the Zhou dynasty it meant "ten thousand" or "myriad."' },
   // Winds
   { char: '東', pinyin: 'dōng', meaning: 'East Wind', category: 'Winds', explanation: '東 is a pictograph of a sun (日) seen through or behind a tree (木) — the sun rising at dawn, entangled in branches on the eastern horizon. Oracle bone forms show a circle (sun) with a vertical stroke (tree) through it. This vivid image has remained essentially unchanged for 3,000 years. East is the dealer\'s seat in Mahjong.' },
   { char: '南', pinyin: 'nán', meaning: 'South Wind', category: 'Winds', explanation: '南 is debated among scholars. One theory says it depicted a bronze bell or musical instrument associated with southern ceremonies. Another links it to a plant growing toward the sun (south). By the Shang dynasty it had already become abstract. Its consistent association with warmth and sunshine made it the natural word for "south."' },
@@ -527,6 +576,12 @@ function restart() {
   score = 0;
   answered = false;
   render();
+}
+
+function setFont(fontName, btn) {
+  document.documentElement.style.setProperty('--tile-font', "'" + fontName + "', serif");
+  document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 render();
