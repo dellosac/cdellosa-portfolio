@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Async — Interview Prep Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a38;
+    --accent: #00e5a0;
+    --accent2: #7b5ea7;
+    --danger: #ff4d6d;
+    --warn: #ffbe0b;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --code-bg: #0d0d16;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 48px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin: 32px 0 12px;
+    background: var(--surface2);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    border-radius: 2px;
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 12px;
+    position: relative;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.35s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    color: #c8c8e0;
+  }
+
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 14px;
+    line-height: 1.5;
+    font-family: 'Space Mono', monospace;
+    text-align: left;
+    color: var(--text);
+    width: 100%;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0, 229, 160, 0.05);
+  }
+
+  .option .letter {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .option.selected .letter {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+  }
+
+  .option.correct {
+    border-color: var(--accent) !important;
+    background: rgba(0, 229, 160, 0.08) !important;
+  }
+
+  .option.correct .letter {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .option.wrong {
+    border-color: var(--danger) !important;
+    background: rgba(255, 77, 109, 0.08) !important;
+  }
+
+  .option.wrong .letter {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+  }
+
+  .option:disabled { cursor: default; }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+    background: rgba(0, 229, 160, 0.04);
+    font-size: 13px;
+    line-height: 1.7;
+    color: #b0b0c8;
+    font-family: 'Space Mono', monospace;
+    display: none;
+  }
+
+  .explanation.visible { display: block; }
+
+  .explanation strong { color: var(--accent); }
+
+  /* Nav buttons */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    padding: 12px 28px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { background: #00ffb3; box-shadow: 0 0 20px rgba(0,229,160,0.4); }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: default; box-shadow: none; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Score screen */
+  #score-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .score-big {
+    font-size: 7rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .score-big.excellent { color: var(--accent); text-shadow: 0 0 60px var(--accent); }
+  .score-big.good      { color: var(--warn);  text-shadow: 0 0 60px var(--warn); }
+  .score-big.retry     { color: var(--danger); text-shadow: 0 0 60px var(--danger); }
+
+  .score-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .score-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin: 32px 0;
+  }
+
+  .score-stat {
+    text-align: center;
+  }
+
+  .score-stat .val {
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  .score-stat .val.c { color: var(--accent); }
+  .score-stat .val.w { color: var(--danger); }
+
+  .score-stat .lbl {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .verdict {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 16px 0 32px;
+    color: var(--text);
+  }
+
+  /* Review section */
+  #review-section { display: none; margin-top: 48px; }
+
+  .review-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    margin-bottom: 12px;
+  }
+
+  .review-card .status {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .review-card .status.c { color: var(--accent); }
+  .review-card .status.w { color: var(--danger); }
+
+  .review-card .rq { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+
+  .review-card .answers {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .review-card .answers .your { color: var(--danger); }
+  .review-card .answers .correct { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="tag">Interview Prep</div>
+    <h1>JavaScript <span>Async</span><br>Operations</h1>
+    <p class="subtitle">// callbacks · promises · async/await · event loop · more</p>
+  </header>
+
+  <div id="quiz-section">
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="progress-label">
+      <span id="progress-text">Question 1 of 30</span>
+      <span id="score-live">Score: 0</span>
+    </div>
+
+    <div id="question-area"></div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn btn-primary" id="btn-next" onclick="navigate(1)" disabled>Next →</button>
+    </div>
+  </div>
+
+  <div id="score-screen">
+    <div class="score-big" id="score-pct"></div>
+    <div class="score-label">Final Score</div>
+    <div class="verdict" id="verdict-text"></div>
+    <div class="score-breakdown">
+      <div class="score-stat"><div class="val c" id="correct-count">0</div><div class="lbl">Correct</div></div>
+      <div class="score-stat"><div class="val w" id="wrong-count">0</div><div class="lbl">Wrong</div></div>
+      <div class="score-stat"><div class="val" id="total-count">0</div><div class="lbl">Total</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+    &nbsp;&nbsp;
+    <button class="btn btn-ghost" onclick="showReview()">Review Answers</button>
+  </div>
+
+  <div id="review-section">
+    <div class="tag">Review</div>
+    <h1 style="font-size:2rem;margin:12px 0 32px">Answer <span>Review</span></h1>
+    <div id="review-cards"></div>
+    <div style="margin-top:24px">
+      <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // ─── Callbacks ───────────────────────────────────────────────────────────────
+  {
+    section: "Callbacks",
+    q: "What is a callback function in JavaScript?",
+    options: [
+      "A function that calls itself recursively",
+      "A function passed as an argument to another function, to be executed later",
+      "A function that returns another function",
+      "A built-in browser API method"
+    ],
+    answer: 1,
+    explanation: "A <strong>callback</strong> is a function passed into another function as an argument, which is then invoked inside the outer function to complete some kind of action or routine."
+  },
+  {
+    section: "Callbacks",
+    q: "What is 'callback hell' and what problem does it represent?",
+    options: [
+      "A JavaScript engine bug that crashes deeply nested calls",
+      "An error thrown when too many callbacks are registered",
+      "Deeply nested callbacks that make code hard to read and maintain",
+      "When callbacks execute in the wrong order"
+    ],
+    answer: 2,
+    explanation: "<strong>Callback hell</strong> (or the 'pyramid of doom') occurs when multiple async operations are chained by nesting callbacks inside callbacks, leading to code that is hard to read, debug, and maintain."
+  },
+  {
+    section: "Callbacks",
+    q: `What does this code log?
+<pre><span class='fn'>setTimeout</span>(() => <span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'A'</span>), <span class='num'>0</span>);
+<span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'B'</span>);</pre>`,
+    options: ["A, B", "B, A", "A only", "Depends on the browser"],
+    answer: 1,
+    explanation: "<strong>B, A</strong>. Even with a 0ms delay, <code>setTimeout</code> is sent to the Web API and its callback is queued in the macrotask queue. Synchronous code (<code>B</code>) runs first, then the event loop picks up the callback."
+  },
+  {
+    section: "Callbacks",
+    q: "Which Node.js convention do error-first callbacks follow?",
+    options: [
+      "The callback receives a success boolean as its first argument",
+      "The callback's first argument is an error (or null if no error)",
+      "Errors are thrown synchronously before the callback fires",
+      "The last argument of the callback is always the error"
+    ],
+    answer: 1,
+    explanation: "Node.js uses the <strong>error-first</strong> (errback) pattern: <code>callback(err, result)</code>. If no error occurred, <code>err</code> is <code>null</code>; otherwise it holds the Error object."
+  },
+
+  // ─── Event Loop ──────────────────────────────────────────────────────────────
+  {
+    section: "Event Loop",
+    q: "What is the JavaScript Event Loop?",
+    options: [
+      "A loop that iterates over DOM events",
+      "A mechanism that continuously checks the call stack and moves callbacks from the queue to the stack when the stack is empty",
+      "A Web Worker that handles background tasks",
+      "A CSS animation frame scheduler"
+    ],
+    answer: 1,
+    explanation: "The <strong>Event Loop</strong> monitors the call stack and the task queues. When the call stack is empty, it picks the next task from the queue and pushes it onto the stack for execution."
+  },
+  {
+    section: "Event Loop",
+    q: `What is the output order?
+<pre><span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'1'</span>);
+<span class='fn'>setTimeout</span>(() => <span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'2'</span>), <span class='num'>0</span>);
+<span class='kw'>Promise</span>.<span class='fn'>resolve</span>().<span class='fn'>then</span>(() => <span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'3'</span>));
+<span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str'>'4'</span>);</pre>`,
+    options: ["1, 2, 3, 4", "1, 4, 2, 3", "1, 4, 3, 2", "1, 3, 4, 2"],
+    answer: 2,
+    explanation: "<strong>1, 4, 3, 2</strong>. Sync code runs first (1, 4). Microtasks (Promise .then) drain before macrotasks (setTimeout), so 3 prints before 2."
+  },
+  {
+    section: "Event Loop",
+    q: "What is the difference between the microtask queue and the macrotask (task) queue?",
+    options: [
+      "Microtasks are for DOM events; macrotasks are for network requests",
+      "Microtasks execute after every macrotask completes and the stack is empty; they run before the next macrotask",
+      "Macrotasks always have higher priority than microtasks",
+      "There is no difference; they are the same queue"
+    ],
+    answer: 1,
+    explanation: "After each <strong>macrotask</strong> (e.g., setTimeout callback), the engine fully drains the <strong>microtask queue</strong> (Promise callbacks, queueMicrotask) before picking the next macrotask. Microtasks therefore have higher effective priority."
+  },
+  {
+    section: "Event Loop",
+    q: "Which of the following schedules a microtask?",
+    options: [
+      "setTimeout(fn, 0)",
+      "setInterval(fn, 0)",
+      "Promise.resolve().then(fn)",
+      "requestAnimationFrame(fn)"
+    ],
+    answer: 2,
+    explanation: "<strong>Promise.resolve().then(fn)</strong> schedules <code>fn</code> as a microtask. <code>setTimeout</code> and <code>setInterval</code> schedule macrotasks; <code>requestAnimationFrame</code> schedules a rendering task."
+  },
+
+  // ─── Promises ────────────────────────────────────────────────────────────────
+  {
+    section: "Promises",
+    q: "Which states can a Promise be in?",
+    options: [
+      "open, closed, error",
+      "pending, resolved, rejected",
+      "pending, fulfilled, rejected",
+      "waiting, done, failed"
+    ],
+    answer: 2,
+    explanation: "A Promise has three states: <strong>pending</strong> (initial), <strong>fulfilled</strong> (operation succeeded), and <strong>rejected</strong> (operation failed). Once settled (fulfilled or rejected) it cannot change state."
+  },
+  {
+    section: "Promises",
+    q: `What does this log?
+<pre><span class='kw'>const</span> p = <span class='kw'>new</span> <span class='kw'>Promise</span>((resolve, reject) => {
+  resolve(<span class='num'>1</span>);
+  reject(<span class='num'>2</span>);
+  resolve(<span class='num'>3</span>);
+});
+p.<span class='fn'>then</span>(v => <span class='fn'>console</span>.<span class='fn'>log</span>(v));</pre>`,
+    options: ["1", "2", "3", "1, 2, 3"],
+    answer: 0,
+    explanation: "A Promise can only be settled <strong>once</strong>. The first <code>resolve(1)</code> settles it as fulfilled; subsequent calls to <code>reject</code> or <code>resolve</code> are silently ignored."
+  },
+  {
+    section: "Promises",
+    q: "What does Promise.all() do when one of the promises rejects?",
+    options: [
+      "It waits for all promises to settle and returns an array of results including the rejection",
+      "It ignores the rejection and continues",
+      "It immediately rejects with the first rejection reason",
+      "It retries the rejected promise automatically"
+    ],
+    answer: 2,
+    explanation: "<strong>Promise.all()</strong> short-circuits: if any promise rejects, the returned promise immediately rejects with that reason. Use <code>Promise.allSettled()</code> if you want to wait for all outcomes."
+  },
+  {
+    section: "Promises",
+    q: "What is the difference between Promise.all() and Promise.allSettled()?",
+    options: [
+      "They are identical; one is just an alias for the other",
+      "Promise.all() rejects fast on first failure; Promise.allSettled() waits for all and returns each outcome",
+      "Promise.allSettled() only works with async/await",
+      "Promise.all() returns only fulfilled values; Promise.allSettled() returns only rejections"
+    ],
+    answer: 1,
+    explanation: "<strong>Promise.all()</strong> rejects as soon as one promise rejects. <strong>Promise.allSettled()</strong> always waits for every promise and returns an array of objects with <code>{status, value/reason}</code> for each."
+  },
+  {
+    section: "Promises",
+    q: "What does Promise.race() return?",
+    options: [
+      "The promise that resolves last",
+      "An array of all settled promises",
+      "A promise that settles with the value/reason of the first promise to settle",
+      "The promise with the smallest resolved value"
+    ],
+    answer: 2,
+    explanation: "<strong>Promise.race()</strong> returns a promise that mirrors the first promise to settle (fulfill or reject), regardless of the others."
+  },
+  {
+    section: "Promises",
+    q: "What is Promise.any() and how does it differ from Promise.race()?",
+    options: [
+      "They are the same",
+      "Promise.any() resolves with the first fulfilled promise, ignoring rejections unless all reject",
+      "Promise.any() rejects with the first rejection",
+      "Promise.any() waits for all promises and resolves with the fastest"
+    ],
+    answer: 1,
+    explanation: "<strong>Promise.any()</strong> resolves with the value of the first promise that <em>fulfills</em>, ignoring rejections. If all reject, it rejects with an <code>AggregateError</code>. <code>Promise.race()</code> by contrast settles on either the first fulfillment <em>or</em> rejection."
+  },
+  {
+    section: "Promises",
+    q: "Where should you put cleanup code (e.g., closing a connection) that must run regardless of success or failure?",
+    options: [
+      "In the .then() handler only",
+      "In the .catch() handler only",
+      "In the .finally() handler",
+      "In both .then() and .catch() separately"
+    ],
+    answer: 2,
+    explanation: "<strong>.finally()</strong> runs whether the promise fulfilled or rejected, making it ideal for cleanup logic. It passes through the original value/reason to the next handler."
+  },
+  {
+    section: "Promises",
+    q: `What is the output?
+<pre><span class='kw'>Promise</span>.<span class='fn'>resolve</span>(<span class='num'>1</span>)
+  .<span class='fn'>then</span>(x => x + <span class='num'>1</span>)
+  .<span class='fn'>then</span>(x => { <span class='kw'>throw</span> <span class='kw'>new</span> <span class='fn'>Error</span>(<span class='str'>'oops'</span>); })
+  .<span class='fn'>then</span>(x => x + <span class='num'>1</span>)
+  .<span class='fn'>catch</span>(e => <span class='fn'>console</span>.<span class='fn'>log</span>(e.message));</pre>`,
+    options: ["3", "2", "oops", "Uncaught Error: oops"],
+    answer: 2,
+    explanation: "The second <code>.then</code> throws, which skips the third <code>.then</code> and falls into <code>.catch</code>, which logs <strong>oops</strong>. Errors propagate down the chain until a rejection handler is found."
+  },
+
+  // ─── async / await ───────────────────────────────────────────────────────────
+  {
+    section: "async / await",
+    q: "What does the async keyword do to a function's return value?",
+    options: [
+      "It makes the function run in a separate thread",
+      "It automatically wraps the return value in a resolved Promise",
+      "It pauses execution of the entire script",
+      "It converts the function to a generator"
+    ],
+    answer: 1,
+    explanation: "An <strong>async</strong> function always returns a Promise. If the function returns a non-promise value, it is automatically wrapped in <code>Promise.resolve(value)</code>."
+  },
+  {
+    section: "async / await",
+    q: "What does await do inside an async function?",
+    options: [
+      "It blocks the JavaScript main thread until the Promise resolves",
+      "It pauses execution of the async function until the Promise settles, without blocking the event loop",
+      "It converts a Promise to a synchronous value globally",
+      "It schedules the Promise in the macrotask queue"
+    ],
+    answer: 1,
+    explanation: "<strong>await</strong> suspends the current async function, yielding control back to the event loop. The rest of the async function resumes as a microtask when the awaited Promise settles. The main thread is never blocked."
+  },
+  {
+    section: "async / await",
+    q: `What is the correct way to handle errors with async/await?
+<pre><span class='kw'>async function</span> <span class='fn'>fetchData</span>() {
+  <span class='cm'>// ... await something that might throw</span>
+}</pre>`,
+    options: [
+      "Use .catch() after the await expression",
+      "Wrap the await in a try/catch block",
+      "Pass an error handler as a second argument to await",
+      "Errors in async functions cannot be caught"
+    ],
+    answer: 1,
+    explanation: "Inside an async function, use a <strong>try/catch</strong> block. If the awaited Promise rejects, the error is thrown at the <code>await</code> expression and caught by <code>catch(e)</code>."
+  },
+  {
+    section: "async / await",
+    q: `Which version runs the fetches in parallel?`,
+    options: [
+      `<pre><span class='kw'>const</span> a = <span class='kw'>await</span> <span class='fn'>fetchA</span>();\n<span class='kw'>const</span> b = <span class='kw'>await</span> <span class='fn'>fetchB</span>();</pre>`,
+      `<pre><span class='kw'>const</span> [a, b] = <span class='kw'>await</span> <span class='kw'>Promise</span>.<span class='fn'>all</span>([<span class='fn'>fetchA</span>(), <span class='fn'>fetchB</span>()]);</pre>`,
+      "Both are equivalent in performance",
+      "Neither runs in parallel because JavaScript is single-threaded"
+    ],
+    answer: 1,
+    explanation: "In option A the fetches are <strong>sequential</strong>: B starts only after A finishes. Option B starts both requests immediately and awaits both together with <strong>Promise.all</strong>, running them in parallel and saving time equal to whichever is faster."
+  },
+  {
+    section: "async / await",
+    q: "Can you use await at the top level of a module (outside an async function)?",
+    options: [
+      "No, await is only valid inside async functions",
+      "Yes, with Top-Level Await in ES modules (.mjs or type='module')",
+      "Yes, in any script with the 'use strict' directive",
+      "Only in Node.js, not in browsers"
+    ],
+    answer: 1,
+    explanation: "<strong>Top-Level Await</strong> (ES2022) allows <code>await</code> at the top level of an ES module. It is not available in classic scripts or CommonJS modules."
+  },
+
+  // ─── Generators & Iterators ──────────────────────────────────────────────────
+  {
+    section: "Generators",
+    q: "What does a generator function return when called?",
+    options: [
+      "The first yielded value immediately",
+      "A Promise",
+      "An iterator object (generator object)",
+      "undefined"
+    ],
+    answer: 2,
+    explanation: "Calling a generator function (declared with <code>function*</code>) does <em>not</em> execute the body; it returns a <strong>generator object</strong> that conforms to both the iterator and iterable protocols."
+  },
+  {
+    section: "Generators",
+    q: `What is logged?
+<pre><span class='kw'>function*</span> <span class='fn'>gen</span>() {
+  <span class='kw'>yield</span> <span class='num'>1</span>;
+  <span class='kw'>yield</span> <span class='num'>2</span>;
+}
+<span class='kw'>const</span> g = <span class='fn'>gen</span>();
+<span class='fn'>console</span>.<span class='fn'>log</span>(g.<span class='fn'>next</span>().value);
+<span class='fn'>console</span>.<span class='fn'>log</span>(g.<span class='fn'>next</span>().value);</pre>`,
+    options: ["1, 1", "1, 2", "2, 1", "undefined, undefined"],
+    answer: 1,
+    explanation: "Each call to <code>next()</code> resumes the generator until the next <code>yield</code>. The first <code>next()</code> yields <strong>1</strong>, the second yields <strong>2</strong>."
+  },
+  {
+    section: "Generators",
+    q: "How can generators be used to manage asynchronous flow (before async/await existed)?",
+    options: [
+      "They cannot; generators are synchronous only",
+      "By yielding Promises and using a runner function that resumes the generator when each Promise settles",
+      "By using yield inside a setTimeout callback",
+      "By converting the generator to a Promise with Promise.from()"
+    ],
+    answer: 1,
+    explanation: "Libraries like <code>co</code> would call <code>gen.next()</code>, receive a yielded Promise, wait for it to resolve, and then call <code>gen.next(resolvedValue)</code> to feed the result back — enabling async code that <em>looked</em> synchronous. <code>async/await</code> is essentially syntactic sugar over this pattern."
+  },
+
+  // ─── Web APIs ────────────────────────────────────────────────────────────────
+  {
+    section: "Web APIs & Timers",
+    q: "Is setTimeout guaranteed to fire exactly after its specified delay?",
+    options: [
+      "Yes, it is a hard real-time guarantee",
+      "No, it fires after at least the specified delay, but actual firing time depends on the call stack being clear",
+      "No, it always fires 4ms later than specified due to the HTML spec minimum",
+      "Yes, but only in Node.js"
+    ],
+    answer: 1,
+    explanation: "<code>setTimeout</code> specifies a <strong>minimum</strong> delay. If the call stack is busy or the system is under load, the callback will fire later. The HTML spec also enforces a minimum of 4ms for nested timers (depth ≥ 5)."
+  },
+  {
+    section: "Web APIs & Timers",
+    q: "What is queueMicrotask() used for?",
+    options: [
+      "To schedule a function as a macrotask like setTimeout",
+      "To queue a function to run in the microtask queue after the current task but before the next macrotask",
+      "To create a Web Worker task",
+      "To run code before the current synchronous block finishes"
+    ],
+    answer: 1,
+    explanation: "<strong>queueMicrotask(fn)</strong> adds <code>fn</code> to the microtask queue, meaning it runs after the currently executing script and before the browser renders or picks the next macrotask — without creating a Promise."
+  },
+  {
+    section: "Web APIs & Timers",
+    q: "What is the Fetch API and what does fetch() return?",
+    options: [
+      "A synchronous XMLHttpRequest wrapper that returns the response body directly",
+      "An async function that returns a Promise resolving to a Response object",
+      "A callback-based API that fires an event when the request completes",
+      "A generator function that yields chunks of the response"
+    ],
+    answer: 1,
+    explanation: "<strong>fetch()</strong> returns a <strong>Promise</strong> that resolves to a <code>Response</code> object as soon as the headers are received. You then call <code>response.json()</code> or <code>response.text()</code> (also Promises) to read the body."
+  },
+  {
+    section: "Web APIs & Timers",
+    q: "An AbortController is used with fetch() to:",
+    options: [
+      "Retry a failed request automatically",
+      "Set a timeout on the request using the HTML timeout attribute",
+      "Cancel an in-flight fetch request",
+      "Parse the JSON response body"
+    ],
+    answer: 2,
+    explanation: "<strong>AbortController</strong> provides an <code>AbortSignal</code> you pass to <code>fetch({signal})</code>. Calling <code>controller.abort()</code> cancels the request, causing the fetch Promise to reject with an <code>AbortError</code>."
+  },
+
+  // ─── Advanced / Mixed ────────────────────────────────────────────────────────
+  {
+    section: "Advanced Patterns",
+    q: "What is an async iterator and how do you consume one?",
+    options: [
+      "An iterator that wraps a Promise; consumed with a regular for...of loop",
+      "An object implementing Symbol.asyncIterator that yields Promises; consumed with for await...of",
+      "A generator function declared with async function*; consumed with .next().then()",
+      "A Web Worker that sends values via postMessage"
+    ],
+    answer: 1,
+    explanation: "An <strong>async iterator</strong> implements <code>Symbol.asyncIterator</code>, where each call to <code>next()</code> returns a Promise of <code>{value, done}</code>. The <strong>for await...of</strong> loop awaits each step automatically."
+  },
+  {
+    section: "Advanced Patterns",
+    q: `What is the output of this code?
+<pre><span class='kw'>async function</span> <span class='fn'>main</span>() {
+  <span class='kw'>try</span> {
+    <span class='kw'>await</span> <span class='kw'>Promise</span>.<span class='fn'>reject</span>(<span class='kw'>new</span> <span class='fn'>Error</span>(<span class='str'>'fail'</span>));
+  } <span class='kw'>catch</span>(e) {
+    <span class='fn'>console</span>.<span class='fn'>log</span>(<span class='str">'caught:'</span>, e.message);
+  }
+}
+<span class='fn'>main</span>();</pre>`,
+    options: [
+      "Uncaught Error: fail",
+      "caught: fail",
+      "Nothing — rejected promises inside async are silently ignored",
+      "caught: undefined"
+    ],
+    answer: 1,
+    explanation: "<code>await Promise.reject()</code> causes the awaited expression to <strong>throw</strong> inside the async function, which is caught by the surrounding <code>try/catch</code>, logging <strong>caught: fail</strong>."
+  },
+  {
+    section: "Advanced Patterns",
+    q: "What is the purpose of Promise.resolve() when called with an already-resolved Promise as argument?",
+    options: [
+      "It creates a new Promise that waits for the original to settle",
+      "It returns the same Promise if it is a native Promise, or wraps it if it is a thenable",
+      "It always creates a brand new resolved Promise regardless of input",
+      "It throws a TypeError if given a Promise"
+    ],
+    answer: 1,
+    explanation: "Per the spec, <strong>Promise.resolve(p)</strong> returns <code>p</code> unchanged if <code>p</code> is already a native Promise of the same realm. If <code>p</code> is a non-Promise thenable, it wraps it in a new Promise. This makes it safe to normalise thenables."
+  }
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let current = 0;
+let userAnswers = new Array(questions.length).fill(null);
+let score = 0;
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const q = questions[current];
+  const area = document.getElementById('question-area');
+  const letters = ['A','B','C','D'];
+
+  area.innerHTML = `
+    <div class="section-label">${q.section}</div>
+    <div class="question-card" style="animation-delay:0s">
+      <div class="q-number">Question ${current + 1} / ${questions.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts">
+        ${q.options.map((opt, i) => `
+          <button class="option" id="opt-${i}" onclick="selectAnswer(${i})">
+            <span class="letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="explanation">${q.explanation}</div>
+    </div>
+  `;
+
+  // Restore state if revisiting
+  const saved = userAnswers[current];
+  if (saved !== null) {
+    markAnswer(saved, q.answer);
+    document.getElementById('explanation').classList.add('visible');
+    document.getElementById('btn-next').disabled = false;
+  }
+
+  updateProgress();
+}
+
+function selectAnswer(idx) {
+  const q = questions[current];
+  if (userAnswers[current] !== null) return; // already answered
+
+  // First time answering
+  if (idx === q.answer) score++;
+  userAnswers[current] = idx;
+
+  markAnswer(idx, q.answer);
+  document.getElementById('explanation').classList.add('visible');
+  document.getElementById('btn-next').disabled = false;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+}
+
+function markAnswer(chosen, correct) {
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.disabled = true);
+  opts[chosen].classList.add(chosen === correct ? 'correct' : 'wrong');
+  if (chosen !== correct) opts[correct].classList.add('correct');
+  opts[chosen].classList.add('selected');
+}
+
+function navigate(dir) {
+  current += dir;
+  if (current < 0) current = 0;
+  if (current >= questions.length) {
+    showScore();
+    return;
+  }
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').disabled = userAnswers[current] === null;
+  if (current === questions.length - 1 && userAnswers[current] !== null) {
+    document.getElementById('btn-next').textContent = 'Finish →';
+  } else {
+    document.getElementById('btn-next').textContent = 'Next →';
+  }
+  render();
+}
+
+function updateProgress() {
+  const answered = userAnswers.filter(a => a !== null).length;
+  const pct = ((current) / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+
+  document.getElementById('btn-prev').disabled = current === 0;
+
+  // Change last button text
+  if (current === questions.length - 1) {
+    document.getElementById('btn-next').textContent = 'Finish →';
+  } else {
+    document.getElementById('btn-next').textContent = 'Next →';
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-section').style.display = 'none';
+  const ss = document.getElementById('score-screen');
+  ss.style.display = 'block';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const el = document.getElementById('score-pct');
+  el.textContent = pct + '%';
+
+  if (pct >= 80) { el.className = 'score-big excellent'; document.getElementById('verdict-text').textContent = '🔥 Interview-ready. You\'ve got this.'; }
+  else if (pct >= 60) { el.className = 'score-big good'; document.getElementById('verdict-text').textContent = '⚡ Solid foundation — review the misses.'; }
+  else { el.className = 'score-big retry'; document.getElementById('verdict-text').textContent = '📚 Keep studying — you\'ve got room to grow.'; }
+
+  document.getElementById('correct-count').textContent = score;
+  document.getElementById('wrong-count').textContent = questions.length - score;
+  document.getElementById('total-count').textContent = questions.length;
+}
+
+function showReview() {
+  document.getElementById('score-screen').style.display = 'none';
+  const rs = document.getElementById('review-section');
+  rs.style.display = 'block';
+
+  const letters = ['A','B','C','D'];
+  const cards = questions.map((q, i) => {
+    const correct = userAnswers[i] === q.answer;
+    return `
+      <div class="review-card">
+        <div class="status ${correct ? 'c' : 'w'}">${correct ? '✓ Correct' : '✗ Wrong'} — ${q.section}</div>
+        <div class="rq">${q.q.replace(/<[^>]*>/g, '').replace(/\s+/g,' ').trim().slice(0,120)}${q.q.length > 120 ? '…' : ''}</div>
+        <div class="answers">
+          ${!correct ? `<span class="your">Your answer: ${letters[userAnswers[i]]} — ${q.options[userAnswers[i]].replace(/<[^>]*>/g,'').trim().slice(0,80)}</span><br>` : ''}
+          <span class="correct">Correct: ${letters[q.answer]} — ${q.options[q.answer].replace(/<[^>]*>/g,'').trim().slice(0,80)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('review-cards').innerHTML = cards;
+}
+
+function restartQuiz() {
+  current = 0;
+  userAnswers = new Array(questions.length).fill(null);
+  score = 0;
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('review-section').style.display = 'none';
+  document.getElementById('quiz-section').style.display = 'block';
+  render();
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
