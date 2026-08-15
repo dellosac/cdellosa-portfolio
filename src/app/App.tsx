@@ -189,7 +189,7 @@ function NavigationAndContent() {
                                             Christopher&nbsp;Dellosa
                                         </Typography>
                                     }
-                                    subheader={`Frontend\u00A0Web\u00A0Developer / HTML\u00A0Email\u00A0Developer`}
+                                    subheader={`Messaging\u00A0Developer`}
                                 />
 
                                 {/** Left Navigation Menu */}
@@ -210,6 +210,9 @@ function NavigationAndContent() {
                                             !open &&
                                             !openFunStuff
                                         }
+                                        style={{
+                                            display: "none",
+                                        }}
                                     >
                                         <ListItemIcon>
                                             <FeedOutlinedIcon />
@@ -220,6 +223,9 @@ function NavigationAndContent() {
                                     <ListItemButton
                                         href="https://www.linkedin.com/in/christopher-dellosa-905a737/"
                                         target="_blank"
+                                        style={{
+                                            display: "none",
+                                        }}
                                     >
                                         <ListItemIcon>
                                             <LinkedInIcon />
@@ -230,6 +236,9 @@ function NavigationAndContent() {
                                     <ListItemButton
                                         href="https://github.com/dellosac"
                                         target="_blank"
+                                        style={{
+                                            display: "none",
+                                        }}
                                     >
                                         <ListItemIcon>
                                             <GitHubIcon />
@@ -243,6 +252,9 @@ function NavigationAndContent() {
                                             (open || view === "Prototypes") &&
                                             !openFunStuff
                                         }
+                                        style={{
+                                            display: "none",
+                                        }}
                                     >
                                         <ListItemIcon>
                                             <TipsAndUpdatesOutlinedIcon />
@@ -320,6 +332,9 @@ function NavigationAndContent() {
                                             navigate(next ? "/funstuff" : "/");
                                         }}
                                         selected={openFunStuff}
+                                        style={{
+                                            display: "none",
+                                        }}
                                     >
                                         <ListItemIcon>
                                             <AutoAwesomeIcon />
