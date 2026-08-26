@@ -1,55 +1,87 @@
 {
     "emails": [
         {
-            "name": "Activity Digest List",
+            "name": "Netflix - Bridgerton Adhoc",
+            "filename": "netlifx_bridgerton_adhoc.png"
+        },
+        {
+            "name": "Netflix - TV Recommendations",
+            "filename": "netflix_tv_recommendation.png"
+        },
+        {
+            "name": "Netflix - Live Event",
+            "filename": "netflix_live_event.png"
+        },
+        {
+            "name": "Netflix - New TV Series",
+            "filename": "netflix_new_tv_series.png"
+        },
+        {
+            "name": "Netflix - Cancellation Confirmation",
+            "filename": "netflix_cancellation_confirmation.png"
+        },
+        {
+            "name": "Netflix - Email Verify",
+            "filename": "netflix_email_verify.png"
+        },
+        {
+            "name": "Netflix - Terms and Privacy",
+            "filename": "netflix_terms_and_privacy.png"
+        },
+        {
+            "name": "Netflix - Cancellation Confirmation",
+            "filename": "netflix_cancellation_confirmation.png"
+        },
+        {
+            "name": "Twitter - Activity Digest List",
             "filename": "activity_digest_list.png"
         },
         {
-            "name": "Activity Digest With Headline Change",
+            "name": "Twitter - Activity Digest With Headline Change",
             "filename": "activity_digest_with_headline_change.png"
         },
         {
-            "name": "Consumermktg Email New Lonely Birds",
+            "name": "Twitter - Consumermktg Email New Lonely Birds",
             "filename": "consumermktg_email_new_lonely_birds.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Address Book",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Address Book",
             "filename": "consumermktg_email_new_nux_2021_address_book.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Download T4",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Download T4",
             "filename": "consumermktg_email_new_nux_2021_download_t4.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Edit Profile T1",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Edit Profile T1",
             "filename": "consumermktg_email_new_nux_2021_edit_profile_t1.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Edit Profile T2",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Edit Profile T2",
             "filename": "consumermktg_email_new_nux_2021_edit_profile_t2.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Edit Profile",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Edit Profile",
             "filename": "consumermktg_email_new_nux_2021_edit_profile.png"
         },
         {
-            "name": "Consumermktg Email New Nux 2021 Welcome",
+            "name": "Twitter - Consumermktg Email New Nux 2021 Welcome",
             "filename": "consumermktg_email_new_nux_2021_welcome.png"
         },
         {
-            "name": "Consumermktg Email New Nux Like Email",
+            "name": "Twitter - Consumermktg Email New Nux Like Email",
             "filename": "consumermktg_email_new_nux_like_email.png"
         },
         {
-            "name": "Consumermktg Email New Nux Reply Email",
+            "name": "Twitter - Consumermktg Email New Nux Reply Email",
             "filename": "consumermktg_email_new_nux_reply_email.png"
         },
         {
-            "name": "Consumermktg Email New Nux Safety Email",
+            "name": "Twitter - Consumermktg Email New Nux Safety Email",
             "filename": "consumermktg_email_new_nux_safety_email.png"
         },
         {
-            "name": "Consumermktg Email New Nux Welcome Email",
+            "name": "Twitter - Consumermktg Email New Nux Welcome Email",
             "filename": "consumermktg_email_new_nux_welcome_email.png"
         }
     ]

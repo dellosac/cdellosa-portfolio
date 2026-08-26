@@ -9,7 +9,7 @@ ReactGA.initialize("G-XXXXXXXXXX");
 
 const theme = createTheme({
     typography: {
-        fontFamily: '"Noto Sans", sans-serif',
+        fontFamily: "Arial, sans-serif",
     },
 });
 
