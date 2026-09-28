@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCE Specialist Practice Exam</title>
+<style>
+:root{
+  --bg:#f5f3ee; --surface:#ffffff; --ink:#1c2230; --muted:#5d6577; --line:#e2ded4;
+  --accent:#0b5cad; --accent-soft:#e3eefa; --good:#1f7a4a; --good-soft:#e2f3e9;
+  --bad:#b3261e; --bad-soft:#fbe6e4; --warn:#a86a00; --warn-soft:#fdf1d8;
+  --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#12151c; --surface:#1b2029; --ink:#e7e9ee; --muted:#9aa2b3; --line:#2c3340;
+    --accent:#6aa8ec; --accent-soft:#1d2f45; --good:#5cc98d; --good-soft:#173226;
+    --bad:#f08077; --bad-soft:#3a1f1d; --warn:#e8b34d; --warn-soft:#3a2e15;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.15;margin:0 0 6px;letter-spacing:-.02em}
+h2{font-size:1.15rem;margin:0 0 12px}
+.kicker{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--accent)}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-top:18px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:18px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.fact b{display:block;font-size:1.35rem}
+.fact span{font-size:.8rem;color:var(--muted)}
+.sections{width:100%;border-collapse:collapse;font-size:.95rem}
+.sections td{padding:9px 4px;border-top:1px solid var(--line)}
+.sections tr:first-child td{border-top:0}
+.sections td:last-child{text-align:right;white-space:nowrap;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.modes{grid-template-columns:1fr}}
+.mode{display:flex;flex-direction:column;gap:10px}
+.mode p{margin:0}
+button,.btn{font:inherit;cursor:pointer;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;font-weight:600}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme: dark){.primary{color:#0d1624}}
+.primary:hover{filter:brightness(1.07)}
+button:disabled{opacity:.45;cursor:not-allowed}
+label.chk{display:flex;gap:8px;align-items:flex-start;font-size:.93rem;padding:4px 0;cursor:pointer}
+label.chk input{margin-top:4px}
+select{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+
+/* Quiz */
+.topbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line)}
+.topbar .row{justify-content:space-between}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;padding:6px 12px;border-radius:8px;background:var(--accent-soft);color:var(--accent)}
+.timer.low{background:var(--bad-soft);color:var(--bad)}
+.progress{height:4px;background:var(--line);border-radius:99px;margin-top:10px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.qmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:.82rem}
+.tag{padding:3px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tag.multi{background:var(--warn-soft);color:var(--warn)}
+.qtext{font-size:1.12rem;font-weight:600;margin:14px 0 18px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font-weight:500;padding:13px 14px;border-radius:10px;width:100%}
+.opt .key{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:.8rem;font-weight:700;border:1px solid var(--line);color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .key{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.correct .key{background:var(--good);border-color:var(--good);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt:disabled{opacity:1;cursor:default}
+.explain{margin-top:16px;padding:14px 16px;border-radius:10px;border-left:4px solid var(--accent);background:var(--accent-soft);font-size:.95rem}
+.explain.good{border-color:var(--good);background:var(--good-soft)}
+.explain.bad{border-color:var(--bad);background:var(--bad-soft)}
+.explain b{display:block;margin-bottom:4px}
+.nav{margin-top:20px}
+.flagbtn.on{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px;margin-top:10px}
+.grid button{padding:7px 0;font-size:.8rem;font-weight:600;border-radius:7px;position:relative}
+.grid button.ans{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent)}
+.grid button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.grid button.flag::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--warn)}
+.grid button.r-good{background:var(--good-soft);border-color:var(--good-soft);color:var(--good)}
+.grid button.r-bad{background:var(--bad-soft);border-color:var(--bad-soft);color:var(--bad)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.hint{font-size:.78rem;color:var(--muted);margin-top:14px}
+kbd{font:inherit;font-size:.75rem;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;background:var(--surface)}
+
+/* Results */
+.score{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:120px;height:120px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring div{width:94px;height:94px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-size:1.6rem;font-weight:800}
+.verdict{font-size:1.5rem;font-weight:800;margin:0}
+.pass{color:var(--good)} .fail{color:var(--bad)}
+.secres{margin-top:6px}
+.secres .item{padding:10px 0;border-top:1px solid var(--line)}
+.secres .item:first-child{border-top:0}
+.secres .bar i.g{background:var(--good)} .secres .bar i.b{background:var(--bad)} .secres .bar i.w{background:var(--warn)}
+.review .rq{padding:16px 0;border-top:1px solid var(--line)}
+.review .rq:first-of-type{border-top:0}
+.review ul{margin:8px 0 0;padding-left:0;list-style:none}
+.review li{padding:6px 10px;border-radius:7px;margin:4px 0;font-size:.93rem}
+.review li.c{background:var(--good-soft)}
+.review li.w{background:var(--bad-soft)}
+.review .ex{font-size:.9rem;color:var(--muted);margin-top:8px}
+.src{display:block;margin-top:8px;font-size:.85rem;font-weight:600;color:var(--accent);text-decoration:none}
+.src:hover{text-decoration:underline}
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(10,14,22,.45)}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal p{margin:0 0 18px}
+.modal .row{justify-content:flex-end}
+.hidden{display:none!important}
+.disclaimer{font-size:.8rem;color:var(--muted);margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HOME -->
+<section id="home">
+  <div class="kicker">Practice Exam</div>
+  <h1>Marketing Cloud Engagement Specialist</h1>
+  <p class="muted">Original practice questions mapped to the official exam outline. <span id="bankCount"></span></p>
+
+  <div class="facts">
+    <div class="fact"><b>60</b><span>scored questions</span></div>
+    <div class="fact"><b>90 min</b><span>time allotted</span></div>
+    <div class="fact"><b>67%</b><span>to pass (41 of 60)</span></div>
+    <div class="fact"><b>5</b><span>exam domains</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Exam outline &amp; weighting</h2>
+    <table class="sections" id="outline"></table>
+  </div>
+
+  <div class="modes">
+    <div class="card mode">
+      <h2>Exam simulation</h2>
+      <p class="muted">60 questions drawn to match the official weighting, a 90-minute timer, and no answers shown until you submit.</p>
+      <div class="spacer"></div>
+      <button class="primary" id="startExam">Start exam</button>
+    </div>
+    <div class="card mode">
+      <h2>Practice mode</h2>
+      <p class="muted">Instant feedback and explanations. Untimed.</p>
+      <div id="secPicks"></div>
+      <div class="row">
+        <select id="pCount">
+          <option value="10">10 questions</option>
+          <option value="25" selected>25 questions</option>
+          <option value="50">50 questions</option>
+          <option value="all">All matching</option>
+        </select>
+        <button class="primary" id="startPractice">Start</button>
+      </div>
+    </div>
+  </div>
+  <p class="disclaimer">These are original study questions written against the published exam guide (which states the exam aligns to the Summer '23 release). They are not actual exam questions. Verify details against current Salesforce Help and Trailhead documentation.</p>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="hidden">
+  <div class="topbar">
+    <div class="row">
+      <div><strong id="qPos"></strong> <span class="muted" id="qMode"></span></div>
+      <div class="row">
+        <span class="timer hidden" id="timer">90:00</span>
+        <button id="quitBtn">Quit</button>
+      </div>
+    </div>
+    <div class="progress"><i id="progBar"></i></div>
+  </div>
+
+  <div class="card">
+    <div class="qmeta"><span class="tag" id="qSec"></span><span class="tag multi hidden" id="qMulti"></span></div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="qOpts"></div>
+    <div id="qExplain"></div>
+    <div class="row nav">
+      <button id="prevBtn">&larr; Back</button>
+      <button class="flagbtn" id="flagBtn">Flag</button>
+      <div class="spacer"></div>
+      <button class="hidden" id="checkBtn">Check answer</button>
+      <button class="primary" id="nextBtn">Next &rarr;</button>
+    </div>
+    <div class="hint">Keys: <kbd>A</kbd>–<kbd>E</kbd> select · <kbd>Enter</kbd> check / next · <kbd>&larr;</kbd><kbd>&rarr;</kbd> navigate · <kbd>F</kbd> flag</div>
+  </div>
+
+  <div class="card">
+    <div class="row"><h2 style="margin:0">Questions</h2><div class="spacer"></div><button class="primary" id="submitBtn">Submit exam</button></div>
+    <div class="grid" id="navGrid"></div>
+    <div class="legend">
+      <span><i style="background:var(--accent-soft);border:1px solid var(--accent)"></i>Answered</span>
+      <span><i style="background:var(--warn)"></i>Flagged</span>
+      <span><i style="background:var(--good-soft)"></i>Correct</span>
+      <span><i style="background:var(--bad-soft)"></i>Incorrect</span>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="hidden">
+  <div class="kicker">Results</div>
+  <h1 id="rTitle">Your results</h1>
+  <div class="card">
+    <div class="score">
+      <div class="ring" id="ring"><div id="rPct">0%</div></div>
+      <div>
+        <p class="verdict" id="rVerdict"></p>
+        <p class="muted" id="rDetail" style="margin:4px 0 0"></p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>By domain</h2>
+    <div class="secres" id="rSections"></div>
+  </div>
+  <div class="card review">
+    <div class="row" style="margin-bottom:6px">
+      <h2 style="margin:0">Review</h2><div class="spacer"></div>
+      <select id="rFilter">
+        <option value="wrong">Incorrect &amp; unanswered</option>
+        <option value="flag">Flagged</option>
+        <option value="all">All questions</option>
+      </select>
+    </div>
+    <div id="rList"></div>
+  </div>
+  <div class="row" style="margin-top:18px">
+    <button id="retryWrong">Practice my misses</button>
+    <div class="spacer"></div>
+    <button class="primary" id="homeBtn">Back to start</button>
+  </div>
+</section>
+
+</div>
+
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalMsg">
+  <div class="box">
+    <p id="modalMsg"></p>
+    <div class="row">
+      <button id="modalCancel">Cancel</button>
+      <button class="primary" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DOMAINS (official weighting from the exam guide)
+   ============================================================ */
+const SECTIONS = [
+  { name: "Email Marketing Best Practices", weight: 10 },
+  { name: "Content Creation and Delivery",  weight: 24 },
+  { name: "Marketing Automation",           weight: 26 },
+  { name: "Subscriber and Data Management", weight: 26 },
+  { name: "Insights and Analytics",         weight: 14 }
+];
+const EXAM_SIZE = 60, EXAM_MINUTES = 90, PASS_PCT = 67;
+
+/* ============================================================
+   QUESTION BANK
+   s = section index, q = prompt, o = options, a = correct option index(es), e = explanation
+   ============================================================ */
+const BANK = [
+/* ---------- 0: Email Marketing Best Practices ---------- */
+{s:0,q:"Northern Trail Outfitters wants its emails to come from a dedicated IP, have links and images branded with its own domain, and route replies intelligently. Which Marketing Cloud offering bundles these together?",
+ o:["Sender Authentication Package (SAP)","A Send Classification","A Delivery Profile","Reply Mail Management on its own"],a:[0],
+ e:"SAP bundles a private domain, a dedicated IP address, account branding (links and images on your domain), and Reply Mail Management. It strengthens authentication and brand consistency."},
+{s:0,q:"A company has just been assigned a new dedicated IP address. What is the recommended way to begin sending from it?",
+ o:["Gradually ramp volume over several weeks, starting with the most recently engaged subscribers","Send to the full list on day one so ISPs quickly learn the volume","Start with the least engaged subscribers to clean the list first","Send only transactional emails from it for the first six months"],a:[0],
+ e:"IP warming builds reputation gradually. Starting with engaged subscribers produces positive signals (opens, low complaints) while ISPs learn the new IP's volume pattern."},
+{s:0,q:"Which metric is the most damaging to sender reputation if it rises?",
+ o:["Spam complaint rate","Click-to-open rate falling slightly","Email file size","Number of links in the email"],a:[0],
+ e:"ISPs weigh spam complaints (and high hard-bounce rates) heavily. A small rise in complaints can quickly push mail to the junk folder or cause blocking."},
+{s:0,q:"Which two items are requirements of the U.S. CAN-SPAM Act for commercial email? (Choose 2)",
+ o:["Include a valid physical postal address of the sender","Provide a working opt-out mechanism and honor requests within 10 business days","Use double opt-in for every subscriber","Keep subject lines under 50 characters"],a:[0,1],
+ e:"CAN-SPAM requires a valid physical postal address, a functioning unsubscribe that is honored within 10 business days, and non-deceptive header and subject information. Double opt-in is a best practice, not a CAN-SPAM requirement."},
+{s:0,q:"A partner offers to share a list of 50,000 attendees from a trade show. What should the marketer do?",
+ o:["Do not import it; collect opt-ins directly, for example through a sign-up form promoted by the partner","Import the list and send a welcome email with a clear unsubscribe link","Import the list but send from a different business unit","Send to the list once and remove anyone who does not open"],a:[0],
+ e:"Mailing contacts who never gave you permission leads to complaints, spam traps, and reputation damage. Grow the list through your own permission-based acquisition."},
+{s:0,q:"What is the primary benefit of a double opt-in (confirmed opt-in) process?",
+ o:["It verifies the address is valid and that its owner consented, reducing typos, spam traps, and complaints","It doubles the number of welcome emails sent","It removes the need for an unsubscribe link","It automatically assigns the subscriber to a publication list"],a:[0],
+ e:"Requiring the subscriber to confirm via a link proves the address works and that the person actually wants the email, which protects deliverability."},
+{s:0,q:"About 20% of a list hasn't opened or clicked in over a year. What is the best practice?",
+ o:["Run a re-engagement (win-back) campaign, then suppress or remove those who still don't respond","Increase send frequency to those subscribers to recapture attention","Keep mailing them because they have not unsubscribed","Delete them immediately without any attempt to re-engage"],a:[0],
+ e:"Long-inactive addresses hurt engagement metrics and may become spam traps. A win-back campaign gives them a final chance, then non-responders should be suppressed."},
+{s:0,q:"Which design choice best supports readers on mobile devices?",
+ o:["A single-column responsive layout with large, well-spaced tap targets","A three-column layout with small text to fit more content above the fold","A single large image containing all of the text","Hiding the call-to-action until the bottom of the email"],a:[0],
+ e:"Single-column responsive layouts reflow cleanly on small screens, and large buttons are easier to tap. Image-only emails are risky for both rendering and deliverability."},
+{s:0,q:"Why should every image in an email include descriptive alt text?",
+ o:["Many email clients block images by default, and alt text also supports screen readers","Alt text is required for the email to be sent","Alt text raises the image resolution","Alt text is used to calculate open rates"],a:[0],
+ e:"When images are blocked or fail to load, alt text communicates the message. It also improves accessibility for visually impaired subscribers."},
+{s:0,q:"A retailer sees high unsubscribe rates from its daily promotional emails. Which approach best improves retention?",
+ o:["Offer a preference center where subscribers can choose topics and frequency instead of unsubscribing entirely","Remove the unsubscribe link from the footer","Send the promotions from a different From name","Move all promotional emails to a transactional send classification"],a:[0],
+ e:"A preference center lets subscribers opt down rather than out. Removing unsubscribe links or misclassifying commercial mail as transactional violates law and best practice."},
+{s:0,q:"Which email is most likely to be flagged by spam filters?",
+ o:["An email that is one large image with little or no live text","An email with both HTML and plain-text versions","An email from an authenticated sending domain","An email with a consistent, recognizable From name"],a:[0],
+ e:"Image-only emails are a classic spam signal because filters cannot read their content. A healthy balance of live text and images is recommended."},
+{s:0,q:"When is the best time to send a welcome email to a new subscriber?",
+ o:["Immediately after sign-up, while interest is highest","At the next scheduled weekly newsletter","After 30 days, to avoid overwhelming them","Only after the subscriber makes a first purchase"],a:[0],
+ e:"Welcome emails see some of the highest engagement of any message type when sent right away. Delays reduce engagement and increase the chance the subscriber forgets signing up."},
+{s:0,q:"Which two practices directly improve email deliverability? (Choose 2)",
+ o:["Authenticating the sending domain with SPF, DKIM, and DMARC","Regularly removing invalid and unengaged addresses (list hygiene)","Using a web-safe font family","Adding a preheader to every email"],a:[0,1],
+ e:"Authentication proves you are who you say you are, and list hygiene keeps bounce and complaint rates low. Fonts and preheaders affect the reading experience, not inbox placement."},
+
+/* ---------- 1: Content Creation and Delivery ---------- */
+{s:1,q:"What three components make up a Send Classification?",
+ o:["Sender Profile, Delivery Profile, and CAN-SPAM classification (Commercial or Transactional)","Sender Profile, Publication List, and Suppression List","Delivery Profile, Send Throttle, and Exclusion Script","From Address, Reply Mail Management, and IP Pool"],a:[0],
+ e:"A Send Classification packages a Sender Profile (From info), a Delivery Profile (IP, header/footer), and a CAN-SPAM classification. Selecting it at send time applies all three."},
+{s:1,q:"Where does a marketer configure the default header and footer content and the IP address used for a send?",
+ o:["Delivery Profile","Sender Profile","Publication List","Content Builder template"],a:[0],
+ e:"Delivery Profiles define the IP address, the header and footer, and the domain used. Sender Profiles define the From name and From address."},
+{s:1,q:"A team wants several brands sending from one account, each with its own From name and From address. What should they create?",
+ o:["A Sender Profile for each brand","A Delivery Profile for each brand","A separate publication list for each brand","A separate Content Builder folder for each brand"],a:[0],
+ e:"Sender Profiles hold the From name and From email. They can be combined with Delivery Profiles in Send Classifications for each brand."},
+{s:1,q:"NTO needs to send password-reset emails, including to people who have unsubscribed from marketing emails. Which setup is appropriate?",
+ o:["Use a Send Classification with the Transactional CAN-SPAM classification, and keep the content free of promotions","Use a Commercial send classification and temporarily reactivate unsubscribed subscribers","Send it to the All Subscribers list","Add the unsubscribed subscribers to a new publication list"],a:[0],
+ e:"Transactional classifications are for messages that complete an agreed transaction, like password resets and receipts. They aren't blocked by commercial opt-outs, so they must not include promotional content."},
+{s:1,q:"A marketer wants to show a different hero image based on a subscriber's LoyaltyTier value without writing code. What should they use?",
+ o:["A Dynamic Content block in Content Builder with rules based on LoyaltyTier","A separate email for each tier sent at the same time","An exclusion script for each tier","A Delivery Profile per tier"],a:[0],
+ e:"Dynamic Content blocks let you define rules on subscriber or data extension attributes and show different content for each rule, with a default for everyone else."},
+{s:1,q:"The brand team wants marketers to edit only specific areas of emails, while the header, footer, and styles stay fixed. What is the best approach?",
+ o:["Build a Content Builder template with locked content and designated editable areas","Paste HTML into a new email for each campaign","Give every marketer full administrator permissions","Use text-only emails"],a:[0],
+ e:"Content Builder templates can lock layout and brand elements while exposing specific areas for marketers, which enforces consistency."},
+{s:1,q:"A marketer wants to see exactly how an email renders for a particular subscriber, including personalization, before sending. What should they use?",
+ o:["Preview and Test in Content Builder, previewing against a specific data extension row or subscriber","Content Detective","The Email Performance by Domain report","A Verification activity"],a:[0],
+ e:"Preview and Test renders the email using data from a selected subscriber or data extension record, so you can check personalization and dynamic content."},
+{s:1,q:"Which tool shows how an email will render across clients like Outlook, Gmail, and iOS Mail?",
+ o:["Inbox Preview in Content Builder","Subscriber Preview","Content Detective","Send Log data extension"],a:[0],
+ e:"Inbox Preview generates screenshots of the email across many email clients and devices so you can catch rendering issues."},
+{s:1,q:"Stakeholders must approve the final email in their own inboxes before the production send. What should the marketer do?",
+ o:["Send a Test Send to a test data extension or list of the stakeholders","Send to the production audience with a 'DRAFT' subject","Schedule the send and ask stakeholders to check the Tracking tab","Add stakeholders to the auto-suppression list"],a:[0],
+ e:"Test Sends deliver the email to selected test recipients (optionally with a [Test] prefix) without affecting production tracking."},
+{s:1,q:"Which Email Studio feature scans an email for words and phrases that spam filters commonly flag?",
+ o:["Content Detective","Inbox Preview","Validation Report","Einstein Copy Insights"],a:[0],
+ e:"Content Detective checks the email's content against common spam-trigger phrases and flags them before sending."},
+{s:1,q:"An email sent to a data extension contains %%First_Name%%. Where does the value come from?",
+ o:["The First_Name column in the sending data extension","The From name in the Sender Profile","The Subscriber Key","A publication list attribute of the same name"],a:[0],
+ e:"When sending to a data extension, personalization strings resolve to columns with a matching name in that data extension."},
+{s:1,q:"Some subscribers have an empty FirstName. The greeting should read 'Valued Customer' for them. What's the simplest reliable approach?",
+ o:["Use AMPscript to check for an empty value, for example IF Empty(@firstName) THEN SET @firstName = 'Valued Customer'","Set a default value on the Sender Profile","Enable Content Detective","Exclude those subscribers with an exclusion script"],a:[0],
+ e:"AMPscript's Empty() function checks for null or empty values so you can set a fallback. Excluding them would stop them getting the email entirely."},
+{s:1,q:"A legal footer is used in hundreds of emails and changes often. The team wants to update it in one place. What should they do?",
+ o:["Store it as a single content block and reference it in emails, e.g. with AMPscript ContentBlockByKey()","Copy the footer text into each email","Update the Content Builder template each time","Put the footer in the email subject line"],a:[0],
+ e:"Referencing one content block means changing it once updates every email that references it. Changing a template doesn't update emails already created from it."},
+{s:1,q:"A promotion will drive calls to a small call center. The team wants to spread the send across the afternoon. What should they use?",
+ o:["Send throttling, limiting emails per hour within a delivery window","A Wait activity in Automation Studio","A Random Split in Journey Builder","A Transactional send classification"],a:[0],
+ e:"Send throttling controls how many emails go out per hour and during which window, preventing a spike in responses."},
+{s:1,q:"The sendable data extension has a Boolean column called HasPurchased. At send time, subscribers where HasPurchased is true should be skipped without changing the data. What should be used?",
+ o:["An Exclusion Script on the send","An Auto-Suppression list","A publication list","A different Delivery Profile"],a:[0],
+ e:"Exclusion Scripts are AMPscript expressions evaluated per subscriber at send time; if the expression is true, that subscriber is excluded."},
+{s:1,q:"Legal requires that a list of competitor addresses never receive any commercial email from the account. What is the best solution?",
+ o:["An Auto-Suppression list applied to the account's commercial send classifications","An exclusion script added to each email manually","Setting those subscribers to Held status","Deleting those records from each data extension before every send"],a:[0],
+ e:"Auto-Suppression lists automatically suppress their addresses from every send that uses the assigned send classifications (or the whole account), without per-send effort."},
+{s:1,q:"Which two elements can be tested with Email Studio's A/B testing? (Choose 2)",
+ o:["Subject line","From name","The IP address","The CAN-SPAM classification"],a:[0,1],
+ e:"Email Studio A/B tests support subject lines, from names, whole emails, content areas, preheaders, and send times. IP and CAN-SPAM classification are not test variables."},
+{s:1,q:"Which criteria can determine the winner of an Email Studio A/B test?",
+ o:["Highest unique open rate or highest click-through rate (overall or on a specific link)","Highest revenue per email","Lowest bounce rate","Most forwards to a friend"],a:[0],
+ e:"The winner is chosen by open rate or click-through rate, where click-through can be measured across all links or for a specific link."},
+{s:1,q:"What is a preheader?",
+ o:["A short snippet of text that inbox views display next to or below the subject line","The HTML head section of the email","The header defined in the Delivery Profile","The From name shown in the inbox"],a:[0],
+ e:"The preheader is preview text shown in the inbox. A well-written one supports the subject line and can improve open rates."},
+{s:1,q:"A marketer wants a saved, reusable send configuration (email, audience, send classification) that an automation can send on a schedule. What is needed?",
+ o:["A User-Initiated Send Definition used by a Send Email activity","A Triggered Send Definition","A Journey with an API Event entry source","A Guided Send saved as a template"],a:[0],
+ e:"User-Initiated Send Definitions store the email, audience, and settings. Automation Studio's Send Email activity runs them."},
+{s:1,q:"A company in an Enterprise 2.0 account wants its approved logo and footer available to all child business units. What should it use?",
+ o:["Shared Content in Content Builder","A shared data extension","A publication list","Copy the assets into each business unit manually"],a:[0],
+ e:"Shared Content folders in Content Builder make assets available across business units, so everyone uses the same approved versions."},
+{s:1,q:"A large team struggles to find campaign assets. Which Content Builder practice helps most?",
+ o:["Consistent folder structure and naming conventions, plus tags for searching","Storing all assets in one folder","Saving every asset as an email","Using the Portfolio tool in Email Studio exclusively"],a:[0],
+ e:"Content Builder supports folders and tags. A clear naming convention with tags makes assets easy to search and reuse."},
+{s:1,q:"Which Einstein feature automatically adds descriptive tags to images in Content Builder so they are easier to search?",
+ o:["Einstein Content Tagging","Einstein Engagement Scoring","Einstein Send Time Optimization","Einstein Copy Insights"],a:[0],
+ e:"Einstein Content Tagging uses image recognition to tag Content Builder images, making assets searchable by what's in them."},
+{s:1,q:"The marketer wants click reports to show readable names like 'Hero CTA' instead of long URLs. What should they add to each link?",
+ o:["A link alias","A tracking pixel","A UTM parameter only","An exclusion script"],a:[0],
+ e:"The alias attribute labels a link in tracking reports, which is especially useful when several links share the same URL."},
+{s:1,q:"Which tool guides a marketer through a one-time send to a data extension, including audience, exclusions, send classification, and scheduling, with a final review?",
+ o:["The Email Studio send flow","Automation Studio","Contact Builder","Data Designer"],a:[0],
+ e:"Email Studio's send flow walks through selecting the email, audiences, exclusions, and send settings, then shows a review screen before sending or scheduling."},
+
+/* ---------- 2: Marketing Automation ---------- */
+{s:2,q:"A marketer wants a welcome series that sends three emails over two weeks and changes the path depending on whether each email was opened. Which tool fits best?",
+ o:["Journey Builder","Automation Studio","Email Studio A/B testing","Contact Builder"],a:[0],
+ e:"Journey Builder handles individual, multi-step paths with branching on engagement and data. Automation Studio is better suited to batch data processes."},
+{s:2,q:"Every night, a CRM file must be imported, segmented with SQL, and used to refresh a sendable data extension. Which tool fits best?",
+ o:["Automation Studio","Journey Builder","Content Builder","Email Studio send flow"],a:[0],
+ e:"Automation Studio runs scheduled or file-triggered batch activities like File Transfer, Import, SQL Query, and Filter."},
+{s:2,q:"An automation should start as soon as a partner uploads a file to the Enhanced FTP. What starting source should be used?",
+ o:["File Drop","Schedule","API Event","Salesforce Data"],a:[0],
+ e:"A File Drop starting source watches a specific Enhanced FTP folder (optionally with a filename pattern) and runs the automation when a matching file arrives."},
+{s:2,q:"A zipped, encrypted file arrives on the FTP. What is the correct activity order to get it sent?",
+ o:["File Transfer (unzip/decrypt) → Import File → SQL Query → Send Email","Import File → File Transfer → Send Email → SQL Query","SQL Query → Import File → File Transfer → Send Email","Send Email → Import File → SQL Query → File Transfer"],a:[0],
+ e:"The file must be decompressed and decrypted first, then imported, then segmented, and finally sent."},
+{s:2,q:"A SQL Query activity should completely replace the target data extension's rows each run. Which data action should be selected?",
+ o:["Overwrite","Append","Update","Add and Update"],a:[0],
+ e:"Overwrite clears the target and writes the results. Append adds rows, and Update adds new rows and updates existing ones by primary key."},
+{s:2,q:"A marketer built a saved data filter and wants it to refresh a filtered data extension automatically in an automation. Which activity should be used?",
+ o:["Filter activity","Verification activity","Data Extract activity","Script activity"],a:[0],
+ e:"The Filter activity runs a saved data filter as part of an automation and refreshes the resulting filtered data extension."},
+{s:2,q:"An automation should stop before sending if an import produced fewer than 1,000 rows, since that signals a bad file. What should be added?",
+ o:["A Verification activity checking the data extension's row count","A Wait activity","A second Import activity","An Exclusion Script"],a:[0],
+ e:"The Verification activity checks the row count of a data extension against conditions and can stop the automation and send a notification if the check fails."},
+{s:2,q:"Tracking data must be delivered to the data warehouse's FTP daily. Which two activities are needed? (Choose 2)",
+ o:["Data Extract (Tracking Extract)","File Transfer","Import File","Filter activity"],a:[0,1],
+ e:"A Data Extract creates the tracking file in the Safehouse, then a File Transfer moves it to the FTP location."},
+{s:2,q:"Customers should enter a journey in real time when they complete a purchase on the website. Which entry source should be used?",
+ o:["API Event","Data Extension entry source on a daily schedule","Automation Studio File Drop","Manual Journey Builder audience upload"],a:[0],
+ e:"An API Event entry source lets an external system inject contacts into the journey in real time."},
+{s:2,q:"Contacts should enter a journey when a Case is closed in Salesforce CRM. What is required?",
+ o:["Marketing Cloud Connect, using a Salesforce Data entry source","A File Drop automation","An Enhanced FTP account","Einstein Engagement Scoring"],a:[0],
+ e:"Salesforce Data entry sources rely on Marketing Cloud Connect to admit contacts when CRM records are created or updated and meet criteria."},
+{s:2,q:"A contact may re-enter a journey, but only after completing their current pass through it. Which setting applies?",
+ o:["Re-entry only after exiting","No re-entry","Re-entry anytime","Evaluate all records"],a:[0],
+ e:"'Re-entry only after exiting' prevents a contact from being in the journey twice at once, while still allowing future entries."},
+{s:2,q:"Which Journey Builder activity branches contacts based on whether they opened or clicked a previous email?",
+ o:["Engagement Split","Decision Split","Random Split","Update Contact"],a:[0],
+ e:"Engagement Splits branch on email opens, clicks (optionally on a specific link), or bounces. Decision Splits branch on data attributes."},
+{s:2,q:"In a Decision Split, what is the difference between Journey Data and Contact Data?",
+ o:["Journey Data is the value when the contact entered; Contact Data is the current value when the split is evaluated","Journey Data is always current; Contact Data is captured at entry","They are identical and interchangeable","Journey Data only includes email tracking"],a:[0],
+ e:"Journey Data is a snapshot from the entry event. Contact Data reads the current value from Contact Builder at the moment the split is evaluated."},
+{s:2,q:"A marketer wants to test several different paths and have the journey automatically send remaining contacts down the best-performing path. What should they use?",
+ o:["Path Optimizer","Random Split","Engagement Split","Decision Split"],a:[0],
+ e:"Path Optimizer tests multiple paths (up to 10) and can select a winner automatically based on engagement, or you can pick it manually."},
+{s:2,q:"A marketer wants to hold back 10% of entrants as a control group that receives nothing. Which activity fits?",
+ o:["Random Split","Engagement Split","Path Optimizer with one path","Exit criteria"],a:[0],
+ e:"Random Split divides contacts into paths by percentage; one path can be left empty to act as a holdout control group."},
+{s:2,q:"How can a marketer measure the percentage of journey contacts who made a purchase, and optionally remove them once they do?",
+ o:["Configure a Goal, with the option to exit contacts when they meet it","Add an Engagement Split after each email","Add a Wait by Duration activity","Use a Verification activity"],a:[0],
+ e:"Goals measure the share of contacts reaching a target, and can be set to remove contacts once they meet it."},
+{s:2,q:"Contacts who unsubscribe from a product line should leave a nurture journey, even if they haven't reached a goal. What should be configured?",
+ o:["Exit criteria","A Random Split","A Goal only","A Wait until Date"],a:[0],
+ e:"Exit criteria remove contacts who meet the defined conditions. They're evaluated after each wait activity in the journey."},
+{s:2,q:"A reminder must go out three days before each customer's appointment date stored in the data extension. Which activity should be used?",
+ o:["Wait by Attribute","Wait by Duration","Wait until Date","Random Split"],a:[0],
+ e:"Wait by Attribute holds each contact until a time relative to a date attribute, like three days before their AppointmentDate."},
+{s:2,q:"A running journey needs a new email added. How should this be done?",
+ o:["Create a new version of the journey, edit it, and activate it","Edit the running journey directly","Stop the journey and delete all contacts","Copy the journey into Automation Studio"],a:[0],
+ e:"Running journeys can't be structurally edited. A new version receives new entrants, while contacts already in the old version continue there."},
+{s:2,q:"Inside a journey, a flag in a data extension needs to be set when a contact reaches a certain step. Which activity should be used?",
+ o:["Update Contact","Decision Split","Wait by Attribute","Goal"],a:[0],
+ e:"Update Contact writes values to a data extension field as contacts pass through the activity."},
+{s:2,q:"A journey uses a Data Extension entry source on a recurring schedule, and an automation adds new rows daily. Only new rows should enter. What should be selected?",
+ o:["Evaluate new records only","Re-entry anytime","Evaluate all records","Overwrite on the SQL activity"],a:[0],
+ e:"'Evaluate new records only' admits only rows added since the last evaluation, preventing earlier rows from being processed again."},
+{s:2,q:"The entry data extension has a PreferredEmail column, and the journey must send to that address rather than the contact's default email. What should be configured?",
+ o:["In Journey Settings, choose Email Address from Entry Source and select PreferredEmail","Rename PreferredEmail to EmailAddress in All Subscribers","Add an Update Contact activity","Use a different Sender Profile"],a:[0],
+ e:"Journey Settings let you choose whether emails go to the contact's default email address or an address field from the entry source."},
+{s:2,q:"An administrator wants to be alerted when a scheduled automation fails. What should be configured?",
+ o:["Notification email settings for the automation's run errors","A Verification activity at the start of every step","An Engagement Split","An Einstein Messaging Insights subscription only"],a:[0],
+ e:"Automation Studio can send run-completion and error notifications to specified email addresses."},
+{s:2,q:"An order confirmation must be sent within seconds of the order being placed on the website. Which approach is most appropriate?",
+ o:["A transactional send triggered through the API (e.g. a Transactional Send Journey)","A journey using a daily Data Extension entry source","An hourly automation","A scheduled Email Studio send"],a:[0],
+ e:"Real-time transactional messages should be triggered via API. Scheduled and batch approaches introduce delays."},
+{s:2,q:"In Automation Studio, how do activities in the same step run compared to activities in different steps?",
+ o:["Activities in the same step run in parallel; steps run in sequence","All activities run strictly one after another","Steps run in parallel; activities in a step run in sequence","Order is random each run"],a:[0],
+ e:"Steps execute sequentially, but activities within one step run at the same time. Put dependent activities in separate steps."},
+{s:2,q:"What is the most frequent recurring schedule that can be set on a scheduled automation in Automation Studio?",
+ o:["Hourly","Every minute","Every 5 minutes","Every 15 minutes"],a:[0],
+ e:"The shortest standard recurrence for scheduled automations is hourly. For near real-time needs, use file drops or API-triggered sends."},
+
+/* ---------- 3: Subscriber and Data Management ---------- */
+{s:3,q:"Which two settings are required for a data extension to be used as a send audience? (Choose 2)",
+ o:["The data extension is marked Is Sendable","A Send Relationship maps a field to Subscriber Key","A data retention policy is enabled","The data extension is stored in the Shared Data Extensions folder"],a:[0,1],
+ e:"A sendable data extension must be marked sendable with a Send Relationship linking a field to Subscriber Key. It also needs an email address field."},
+{s:3,q:"Why is a primary key important on a data extension?",
+ o:["It ensures unique rows and is required for update and add-and-update imports","It encrypts the data","It sets the order of rows for sends","It makes the data extension sendable"],a:[0],
+ e:"Primary keys enforce uniqueness and are how Marketing Cloud matches rows when updating existing records."},
+{s:3,q:"An import should add new records and update existing ones based on the primary key. Which import option should be chosen?",
+ o:["Add and Update","Add Only","Update Only","Overwrite"],a:[0],
+ e:"Add and Update inserts new rows and updates rows that match on the primary key. Overwrite deletes all existing rows first."},
+{s:3,q:"Each import file is a complete replacement of the data extension's contents. Which import option should be used?",
+ o:["Overwrite","Add Only","Update Only","Add and Update"],a:[0],
+ e:"Overwrite removes all existing rows before loading the file, so the data extension exactly matches the latest file."},
+{s:3,q:"A data extension should automatically remove rows older than 90 days. What should be configured?",
+ o:["A data retention policy on the data extension","A daily SQL delete query","A Verification activity","An auto-suppression list"],a:[0],
+ e:"Data retention policies automatically delete individual records, all records, or the whole data extension after a set period."},
+{s:3,q:"A subscriber unsubscribes from the All Subscribers list in a business unit. What happens?",
+ o:["They stop receiving commercial emails sent from that business unit, regardless of the list or data extension used","They only stop receiving emails sent to one publication list","Nothing changes for sends to data extensions","They stop receiving transactional emails too"],a:[0],
+ e:"Unsubscribed status in All Subscribers is a master opt-out for commercial sends in that business unit. Transactional sends are still allowed."},
+{s:3,q:"Why is it recommended to use a unique ID, rather than email address, as the Subscriber Key?",
+ o:["It lets one email address belong to multiple subscribers and lets a subscriber change email without losing history","It speeds up sending","It's required for dynamic content","It prevents bounces"],a:[0],
+ e:"A stable unique ID (like a CRM ID) keeps tracking history intact when email addresses change, and supports shared addresses when appropriate."},
+{s:3,q:"When does Marketing Cloud change a subscriber's status to Held?",
+ o:["After three bounces with at least 15 days between the first and third bounce","After the first soft bounce","After one spam complaint","After 12 months without an open"],a:[0],
+ e:"Held status protects reputation by stopping sends to addresses that repeatedly bounce: three bounces spanning at least 15 days."},
+{s:3,q:"A send to a data extension of 10,000 rows shows only 9,300 sent. Which two are likely causes? (Choose 2)",
+ o:["Some subscribers are Unsubscribed or Held in All Subscribers","Duplicate records were de-duplicated at send time","The email used a Dynamic Content block","The data extension had a data retention policy set for 1 year"],a:[0,1],
+ e:"Sends skip unsubscribed, held, suppressed, and excluded subscribers, and de-duplicate by Subscriber Key/email. Dynamic content doesn't reduce the audience."},
+{s:3,q:"A subscriber opted out of the 'Weekly Deals' publication list through the Subscription Center but still received the Weekly Deals email sent to a data extension. What is the most likely reason?",
+ o:["The send didn't reference the Weekly Deals publication list","Publication lists can't be used with data extensions","The subscriber was Held","Opt-outs take 30 days to process"],a:[0],
+ e:"When sending to a data extension, you choose a publication list at send time. If the correct one wasn't selected, its opt-outs aren't applied."},
+{s:3,q:"What does a publication list allow subscribers to do?",
+ o:["Opt out of a specific type of communication without unsubscribing from everything","Receive transactional emails","Choose their preferred IP address","Update their Subscriber Key"],a:[0],
+ e:"Publication lists represent communication types (e.g. newsletter). Subscribers can opt out of one while staying subscribed to others."},
+{s:3,q:"A company has 2 million customers and related purchase history. What's the recommended storage approach?",
+ o:["Data extensions, related through Data Designer","Lists with profile attributes","Groups","One large list with a column per purchase"],a:[0],
+ e:"Data extensions scale well, support relational data, and are the recommended storage for large or complex data. Lists are best for small, simple audiences."},
+{s:3,q:"What is the purpose of Attribute Groups in Contact Builder's Data Designer?",
+ o:["To relate data extensions to the contact record (with cardinality like one-to-many) for use in Journey Builder and segmentation","To store email templates","To define send throttles","To create publication lists"],a:[0],
+ e:"Attribute Groups link data extensions to the contact model via Contact Key and defined relationships, making the data available as Contact Data."},
+{s:3,q:"In Contact Builder, which value identifies a contact across channels and matches the Subscriber Key for email?",
+ o:["Contact Key","Email Address","Job ID","Send Classification ID"],a:[0],
+ e:"Contact Key is the unique identifier of the contact across Marketing Cloud and corresponds to Subscriber Key in Email Studio."},
+{s:3,q:"A marketer without SQL skills needs to segment California subscribers who clicked an email in the last 30 days. What should they use?",
+ o:["A data filter using a measure for click behavior","A SQL Query activity","A Script activity","An Import activity"],a:[0],
+ e:"Data filters offer drag-and-drop segmentation on attributes, and measures add behavioral criteria like clicks or opens within a time window."},
+{s:3,q:"A segment requires joining three data extensions with complex conditions. What's most appropriate?",
+ o:["A SQL Query activity writing results to a target data extension","A data filter on one data extension","A publication list","An exclusion script"],a:[0],
+ e:"SQL Query activities can join multiple data extensions and system data views. Results are written to a target data extension."},
+{s:3,q:"Which system data view would you query to find subscribers who opened an email?",
+ o:["_Open","_Sent","_Subscribers","_Job"],a:[0],
+ e:"Data views like _Sent, _Open, _Click, _Bounce, and _Unsubscribe expose tracking data for SQL queries. They retain roughly six months of data."},
+{s:3,q:"About how much tracking history is available through system data views such as _Open and _Click?",
+ o:["Approximately six months","30 days","Two years","Unlimited"],a:[0],
+ e:"System data views keep about six months of data. For longer history, store results in your own data extensions or extract them."},
+{s:3,q:"Which hosted page lets subscribers manage their own list subscriptions, as opposed to profile details?",
+ o:["Subscription Center","Profile Center","Content Builder","Data Designer"],a:[0],
+ e:"The Subscription Center manages list and publication subscriptions. The Profile Center lets subscribers update profile attributes."},
+{s:3,q:"After an import, accented characters in names look garbled. What most likely fixes it?",
+ o:["Set the import's character encoding to match the file, e.g. UTF-8","Change the primary key","Switch the import to Overwrite","Enable a data retention policy"],a:[0],
+ e:"Encoding mismatches cause garbled special characters. Setting the correct encoding during import resolves it."},
+{s:3,q:"With Marketing Cloud Connect, Salesforce CRM data brought into Marketing Cloud via Synchronized Data Sources is stored as what?",
+ o:["Synchronized data extensions, which are read-only in Marketing Cloud","Editable data extensions in Email Studio","Lists in All Subscribers","Publication lists"],a:[0],
+ e:"Synchronized data extensions refresh from CRM on an interval and can't be edited directly. Copy data into standard data extensions via SQL if needed."},
+{s:3,q:"In an Enterprise 2.0 account, a data extension must be accessible from multiple business units. Where should it be created?",
+ o:["The Shared Data Extensions folder","Any business unit's local folder","Content Builder Shared Content","The Synchronized Data Extensions folder"],a:[0],
+ e:"Shared data extensions can be accessed by the business units granted permission. Local data extensions are limited to their own business unit."},
+{s:3,q:"Postal codes like 02134 are losing their leading zeros. Which field type should be used?",
+ o:["Text","Number","Decimal","Date"],a:[0],
+ e:"Number fields drop leading zeros. Identifiers like ZIP codes and phone numbers should be stored as Text."},
+{s:3,q:"A subscriber is Held, but the customer confirms the address now works. What is the appropriate action?",
+ o:["After verifying the address, change the subscriber's status to Active","Delete and re-add the subscriber to a publication list","Send with a Transactional classification","Change their Subscriber Key"],a:[0],
+ e:"An admin can reactivate a held subscriber once the address is confirmed valid. It's important to verify before reactivating to avoid more bounces."},
+{s:3,q:"A data extension should enforce that a field always has a value when imported. What should be set?",
+ o:["Uncheck the Nullable setting for the field","Mark it as a publication list","Set it as the Send Relationship","Add a data retention policy"],a:[0],
+ e:"Non-nullable fields require a value. Imports with an empty value for a required field will error on those rows unless a default value is set."},
+{s:3,q:"A marketer wants to append subscriber-level send information (Job ID, subscriber, date) to a log each time an email sends. What should they use?",
+ o:["A Send Log data extension","A publication list","A synchronized data extension","Content Detective"],a:[0],
+ e:"Send logging writes a row per subscriber per send into a Send Log data extension, which can capture send-time data like Job ID and custom values."},
+
+/* ---------- 4: Insights and Analytics ---------- */
+{s:4,q:"How does Marketing Cloud typically calculate the open rate for an email send?",
+ o:["Unique opens divided by delivered emails","Total opens divided by sent emails","Clicks divided by opens","Delivered divided by sent"],a:[0],
+ e:"Open rate uses unique opens over delivered. Delivered excludes bounces."},
+{s:4,q:"What does click-to-open rate (CTOR) measure?",
+ o:["Unique clicks divided by unique opens, showing how compelling content was for people who opened","Clicks divided by sends","Opens divided by delivered","Unsubscribes divided by clicks"],a:[0],
+ e:"CTOR isolates content effectiveness by looking at clickers among openers."},
+{s:4,q:"An email was sent to 50,000 addresses and 1,500 bounced. How many were delivered?",
+ o:["48,500","50,000","51,500","1,500"],a:[0],
+ e:"Delivered = Sent − Bounces. 50,000 − 1,500 = 48,500."},
+{s:4,q:"Open rates jumped after many recipients began using Apple Mail Privacy Protection. How should the marketer evaluate engagement?",
+ o:["Rely more on clicks, conversions, and other non-open signals","Treat the higher open rate as real engagement","Stop tracking engagement","Increase send frequency to capitalize on higher opens"],a:[0],
+ e:"MPP pre-loads images, inflating opens. Clicks and conversions are more reliable engagement signals."},
+{s:4,q:"A marketer suspects one inbox provider is bouncing mail. Which standard report helps identify this?",
+ o:["Email Performance by Domain","Account Send Summary","Journey Analytics","Subscriber Preview"],a:[0],
+ e:"Email Performance by Domain breaks down deliverability and engagement by receiving domain, e.g. gmail.com or outlook.com."},
+{s:4,q:"A manager wants a weekly Marketing Cloud report delivered automatically. What should be done?",
+ o:["Schedule the report in Analytics Builder > Reports with email or FTP delivery","Export it manually each week","Create a journey that sends the report","Use a Verification activity"],a:[0],
+ e:"Reports can be run ad hoc or scheduled to run automatically with delivery by email or to the FTP."},
+{s:4,q:"Which Einstein feature predicts each subscriber's likelihood to open, click, stay subscribed, and convert?",
+ o:["Einstein Engagement Scoring","Einstein Send Time Optimization","Einstein Content Tagging","Einstein Copy Insights"],a:[0],
+ e:"Engagement Scoring assigns predicted engagement scores and personas that can be used in segmentation and journeys."},
+{s:4,q:"In Einstein Engagement Scoring, which persona describes subscribers likely to open but unlikely to click?",
+ o:["Window Shoppers","Loyalists","Selective Subscribers","Winbacks"],a:[0],
+ e:"Loyalists open and click; Window Shoppers open but don't click; Selective Subscribers rarely open but do click; Winbacks rarely do either."},
+{s:4,q:"Which Einstein persona indicates subscribers who are unlikely to either open or click?",
+ o:["Winbacks","Loyalists","Window Shoppers","Selective Subscribers"],a:[0],
+ e:"Winbacks have low predicted open and click engagement and are good candidates for re-engagement campaigns."},
+{s:4,q:"A marketer wants each contact in a journey to receive the email at the time they're most likely to engage. What should be used?",
+ o:["Einstein Send Time Optimization","Send throttling","Einstein Engagement Frequency","Random Split"],a:[0],
+ e:"Einstein STO predicts the best send time per contact and holds each email until that time."},
+{s:4,q:"Which Einstein feature identifies contacts who are over-emailed (saturated) or under-emailed?",
+ o:["Einstein Engagement Frequency","Einstein Engagement Scoring","Einstein Copy Insights","Einstein Content Selection"],a:[0],
+ e:"Engagement Frequency classifies contacts as Saturated, On Target, or Undersaturated so you can adjust frequency."},
+{s:4,q:"Which Einstein feature analyzes subject line language to show which words and phrases drive engagement?",
+ o:["Einstein Copy Insights","Einstein Content Tagging","Einstein Engagement Scoring","Einstein Send Time Optimization"],a:[0],
+ e:"Copy Insights analyzes past subject lines and highlights language that correlates with better or worse engagement."},
+{s:4,q:"Which Einstein feature alerts marketers to unusual changes in email performance, like a sudden drop in opens?",
+ o:["Einstein Messaging Insights","Einstein Content Tagging","Einstein Engagement Frequency","Einstein Copy Insights"],a:[0],
+ e:"Messaging Insights monitors sends and journeys for anomalies and flags significant changes."},
+{s:4,q:"A marketer wants to see which specific links in a sent email received the most clicks. Where should they look?",
+ o:["The send's tracking details in Email Studio, including link click activity","Content Builder's Preview and Test","The Delivery Profile","Data Designer"],a:[0],
+ e:"Email Studio tracking for a send job shows opens, clicks, bounces, and click activity per link (with aliases shown if set)."},
+{s:4,q:"A marketer wants web analytics tools to attribute site visits to specific emails by appending parameters to links automatically. What should be used?",
+ o:["Web Analytics Connector (link tracking parameters such as UTM tags)","Content Detective","Send throttling","Auto-Suppression lists"],a:[0],
+ e:"Web Analytics Connector appends configured query string parameters to email links so analytics platforms can attribute traffic."},
+{s:4,q:"A marketer wants prebuilt, visual dashboards of email engagement across campaigns without building custom reports. What fits best?",
+ o:["Marketing Cloud Intelligence reports for Engagement (formerly Datorama Reports)","A SQL Query activity","A Send Log data extension","Content Builder"],a:[0],
+ e:"These built-in dashboards visualize email and journey performance, with options to filter, compare, and share."},
+{s:4,q:"Which two metrics best measure whether a campaign drove business results? (Choose 2)",
+ o:["Conversion rate","Revenue attributed to the email","Number of links in the email","Open rate alone"],a:[0,1],
+ e:"Open and click metrics measure engagement, but conversion rate and revenue show business impact. Open rates alone can be misleading."},
+{s:4,q:"What does a high unsubscribe rate following a specific send most likely indicate?",
+ o:["The content, frequency, or audience targeting didn't match subscriber expectations","The IP address is blocklisted","The email was image-heavy","The subject line was too short"],a:[0],
+ e:"Unsubscribes reflect a relevance or frequency mismatch. Reviewing targeting, content, and cadence is the first step."}
+];
+
+
+/* Source topic per question (same order as BANK) → Salesforce Help search link */
+const TOPICS = [
+"Sender Authentication Package",
+"IP warming Marketing Cloud",
+"deliverability spam complaints Marketing Cloud",
+"CAN-SPAM Marketing Cloud",
+"permission-based email list acquisition",
+"double opt-in Marketing Cloud",
+"re-engagement unengaged subscribers Marketing Cloud",
+"responsive email design Content Builder",
+"image alt text email",
+"preference center Marketing Cloud",
+"email deliverability best practices Marketing Cloud",
+"welcome email Journey Builder",
+"SPF DKIM DMARC Marketing Cloud",
+"send classification",
+"delivery profile",
+"sender profile",
+"transactional send classification",
+"dynamic content block Content Builder",
+"Content Builder templates locked content",
+"Preview and Test Content Builder",
+"Inbox Preview Content Builder",
+"test send Marketing Cloud Email",
+"Content Detective",
+"personalization strings Marketing Cloud",
+"AMPscript Empty function",
+"ContentBlockByKey AMPscript",
+"send throttling Email Studio",
+"exclusion script",
+"auto-suppression list",
+"A/B testing Email Studio",
+"A/B test winner Email Studio",
+"preheader Content Builder",
+"user-initiated email send definition",
+"shared content Content Builder",
+"Content Builder folders tags",
+"Einstein Content Tagging",
+"link alias tracking",
+"Email Studio send flow",
+"Journey Builder",
+"Automation Studio",
+"File Drop automation",
+"File Transfer activity",
+"SQL Query activity data action",
+"Filter activity Automation Studio",
+"Verification activity Automation Studio",
+"Tracking Extract data extract activity",
+"API Event entry source",
+"Salesforce Data entry source",
+"journey re-entry settings",
+"engagement split",
+"decision split contact data journey data",
+"Path Optimizer",
+"Random Split Journey Builder",
+"journey goal",
+"journey exit criteria",
+"Wait by Attribute",
+"journey versions",
+"Update Contact activity",
+"data extension entry source evaluate new records",
+"journey settings default email address",
+"automation run notifications",
+"transactional send journey",
+"Automation Studio steps activities",
+"Automation Studio schedule",
+"sendable data extension",
+"data extension primary key",
+"import add and update",
+"import overwrite data extension",
+"data retention policy data extension",
+"All Subscribers list unsubscribe",
+"subscriber key",
+"held subscriber status bounces",
+"send discrepancy subscribers not sent",
+"publication list send to data extension",
+"publication lists",
+"data extensions vs lists",
+"attribute groups Data Designer",
+"contact key",
+"data filter measures",
+"SQL Query activity",
+"_Open data view",
+"system data views",
+"Subscription Center",
+"import character encoding",
+"synchronized data extensions",
+"shared data extensions",
+"data extension field types",
+"reactivate held subscriber",
+"nullable field data extension",
+"send logging data extension",
+"email tracking open rate",
+"click-to-open rate",
+"delivered bounces email tracking",
+"Apple Mail Privacy Protection Marketing Cloud",
+"Email Performance by Domain report",
+"schedule reports Analytics Builder",
+"Einstein Engagement Scoring",
+"Einstein Engagement Scoring personas",
+"Einstein Engagement Scoring personas",
+"Einstein Send Time Optimization",
+"Einstein Engagement Frequency",
+"Einstein Copy Insights",
+"Einstein Messaging Insights",
+"email tracking link clicks",
+"Web Analytics Connector",
+"Intelligence Reports for Engagement",
+"conversion tracking Marketing Cloud",
+"unsubscribe rate email tracking"
+];
+if(TOPICS.length!==BANK.length) console.warn('TOPICS/BANK length mismatch');
+BANK.forEach((q,i)=>{ q.r = TOPICS[i]; });
+const helpUrl = t => 'https://help.salesforce.com/s/search-result?language=en_US#q=' + encodeURIComponent(t) + '&t=allResultsTab&sort=relevancy';
+function srcLink(q){ const a=document.createElement('a'); a.className='src'; a.href=helpUrl(q.r); a.target='_blank'; a.rel='noopener'; a.textContent='Learn more: '+q.r+' ↗'; return a; }
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+/* In-page dialog. Browser confirm()/alert() are silently blocked in many previews and embedded viewers. */
+let modalResolve = null;
+function ask(msg, ok='OK', cancel='Cancel'){
+  $('modalMsg').textContent = msg;
+  $('modalOk').textContent = ok;
+  $('modalCancel').textContent = cancel || '';
+  $('modalCancel').classList.toggle('hidden', !cancel);
+  $('modal').classList.remove('hidden');
+  $('modalOk').focus();
+  return new Promise(res=>{ modalResolve = res; });
+}
+function closeModal(v){ $('modal').classList.add('hidden'); if(modalResolve){ const r=modalResolve; modalResolve=null; r(v); } }
+const notify = msg => ask(msg, 'OK', null);
+let S = null;            // current session
+let timerId = null;
+
+function shuffle(arr){ const a = arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// Build a presentable question with shuffled options (correct indexes remapped)
+function prep(qi){
+  const src = BANK[qi];
+  const order = shuffle(src.o.map((_,i)=>i));
+  return { qi, s:src.s, q:src.q, e:src.e, r:src.r,
+    o: order.map(i=>src.o[i]),
+    a: src.a.map(ai=>order.indexOf(ai)).sort(),
+    multi: src.a.length>1, pick: src.a.length };
+}
+
+function examPool(){
+  // allocate 60 by weight using largest remainder
+  const raw = SECTIONS.map(s=>EXAM_SIZE*s.weight/100);
+  const alloc = raw.map(Math.floor);
+  let left = EXAM_SIZE - alloc.reduce((a,b)=>a+b,0);
+  raw.map((r,i)=>[r-Math.floor(r),i]).sort((x,y)=>y[0]-x[0]).slice(0,left).forEach(([,i])=>alloc[i]++);
+  let picked = [];
+  SECTIONS.forEach((_,si)=>{
+    const ids = BANK.map((q,i)=>q.s===si?i:-1).filter(i=>i>=0);
+    picked = picked.concat(shuffle(ids).slice(0,alloc[si]));
+  });
+  return shuffle(picked);
+}
+
+function start(mode, ids){
+  S = { mode, qs: ids.map(prep), idx:0, answers:{}, checked:{}, flags:{},
+        endAt: mode==='exam' ? Date.now()+EXAM_MINUTES*60000 : null, done:false };
+  show('quiz');
+  $('qMode').textContent = mode==='exam' ? '· Exam simulation' : '· Practice';
+  $('timer').classList.toggle('hidden', mode!=='exam');
+  $('submitBtn').textContent = mode==='exam' ? 'Submit exam' : 'Finish';
+  clearInterval(timerId);
+  if(mode==='exam'){ tick(); timerId = setInterval(tick, 1000); }
+  render();
+}
+
+function tick(){
+  const ms = Math.max(0, S.endAt - Date.now());
+  const m = Math.floor(ms/60000), s = Math.floor(ms%60000/1000);
+  $('timer').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  $('timer').classList.toggle('low', ms < 10*60000);
+  if(ms<=0){ clearInterval(timerId); finish(true); }
+}
+
+function isCorrect(q, ans){
+  if(!ans || !ans.length) return false;
+  const a = ans.slice().sort();
+  return a.length===q.a.length && a.every((v,i)=>v===q.a[i]);
+}
+
+/* ============================================================
+   RENDER QUIZ
+   ============================================================ */
+function render(){
+  const q = S.qs[S.idx], total = S.qs.length;
+  const ans = S.answers[S.idx] || [];
+  const reveal = S.mode==='practice' && S.checked[S.idx];
+
+  $('qPos').textContent = `Question ${S.idx+1} of ${total}`;
+  const answered = Object.keys(S.answers).filter(k=>S.answers[k].length).length;
+  $('progBar').style.width = (answered/total*100)+'%';
+  $('qSec').textContent = SECTIONS[q.s].name;
+  $('qMulti').classList.toggle('hidden', !q.multi);
+  $('qMulti').textContent = `Choose ${q.pick}`;
+  $('qText').textContent = q.q;
+
+  const box = $('qOpts'); box.innerHTML = '';
+  q.o.forEach((txt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<span class="key">${'ABCDE'[i]}</span><span></span>`;
+    b.lastChild.textContent = txt;
+    if(ans.includes(i)) b.classList.add('sel');
+    if(reveal){
+      b.disabled = true;
+      if(q.a.includes(i)){ b.classList.remove('sel'); b.classList.add('correct'); }
+      else if(ans.includes(i)){ b.classList.remove('sel'); b.classList.add('wrong'); }
+    }
+    b.onclick = ()=>choose(i);
+    box.appendChild(b);
+  });
+
+  const ex = $('qExplain');
+  if(reveal){
+    const ok = isCorrect(q, ans);
+    ex.innerHTML = `<div class="explain ${ok?'good':'bad'}"><b>${ok?'Correct':'Not quite'}</b><span></span></div>`;
+    ex.querySelector('span').textContent = q.e;
+    ex.querySelector('.explain').appendChild(srcLink(q));
+  } else ex.innerHTML = '';
+
+  $('prevBtn').disabled = S.idx===0;
+  $('flagBtn').classList.toggle('on', !!S.flags[S.idx]);
+  $('flagBtn').textContent = S.flags[S.idx] ? 'Flagged' : 'Flag';
+
+  const needCheck = S.mode==='practice' && !S.checked[S.idx];
+  $('checkBtn').classList.toggle('hidden', !needCheck);
+  $('checkBtn').disabled = ans.length !== q.pick;
+  $('nextBtn').textContent = S.idx===total-1 ? (S.mode==='exam'?'Review & submit':'Finish') : 'Next →';
+
+  renderGrid();
+}
+
+function renderGrid(){
+  const g = $('navGrid'); g.innerHTML = '';
+  S.qs.forEach((q,i)=>{
+    const b = document.createElement('button');
+    b.textContent = i+1;
+    const a = S.answers[i];
+    if(S.mode==='practice' && S.checked[i]) b.classList.add(isCorrect(q,a)?'r-good':'r-bad');
+    else if(a && a.length) b.classList.add('ans');
+    if(S.flags[i]) b.classList.add('flag');
+    if(i===S.idx) b.classList.add('cur');
+    b.onclick = ()=>{ S.idx=i; render(); };
+    g.appendChild(b);
+  });
+}
+
+function choose(i){
+  const q = S.qs[S.idx];
+  if(S.mode==='practice' && S.checked[S.idx]) return;
+  let a = (S.answers[S.idx]||[]).slice();
+  if(q.multi){
+    if(a.includes(i)) a = a.filter(x=>x!==i);
+    else { if(a.length>=q.pick) a.shift(); a.push(i); }
+  } else a = [i];
+  S.answers[S.idx] = a;
+  render();
+}
+
+function check(){
+  const q = S.qs[S.idx];
+  if((S.answers[S.idx]||[]).length !== q.pick) return;
+  S.checked[S.idx] = true; render();
+}
+
+function next(){
+  if(S.mode==='practice' && !S.checked[S.idx] && (S.answers[S.idx]||[]).length===S.qs[S.idx].pick){ check(); return; }
+  if(S.idx < S.qs.length-1){ S.idx++; render(); window.scrollTo({top:0}); }
+  else submitPrompt();
+}
+
+async function submitPrompt(){
+  if(S.mode==='practice'){
+    const n = Object.values(S.answers).filter(a=>a.length).length;
+    if(!n){
+      if(await ask('You haven\'t answered any questions yet. Leave practice and go back to the start?','Leave practice','Keep going')){ S=null; show('home'); }
+      return;
+    }
+    const left = S.qs.length - n;
+    const msg = left ? `Finish now? You'll be scored on the ${n} question${n>1?'s':''} you answered; the other ${left} will be skipped.` : 'Finish and see your results?';
+    if(await ask(msg,'See results','Keep going')) finish(false);
+    return;
+  }
+  const unanswered = S.qs.length - Object.values(S.answers).filter(a=>a.length).length;
+  const flagged = Object.values(S.flags).filter(Boolean).length;
+  let msg = 'Submit and see your results?';
+  if(unanswered) msg = `You have ${unanswered} unanswered question${unanswered>1?'s':''}` + (flagged?` and ${flagged} flagged`:'') + '. Submit anyway?';
+  else if(flagged) msg = `You have ${flagged} flagged question${flagged>1?'s':''}. Submit anyway?`;
+  if(await ask(msg,'Submit exam','Keep going')) finish(false);
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+function finish(timeUp){
+  clearInterval(timerId);
+  S.done = true;
+  if(S.mode==='practice'){
+    // Drop unanswered questions so an early finish isn't scored against skipped ones
+    const keep = S.qs.map((_,i)=>i).filter(i=>(S.answers[i]||[]).length);
+    const remap = o => { const n={}; keep.forEach((oi,ni)=>{ if(o[oi]!==undefined) n[ni]=o[oi]; }); return n; };
+    S.qs = keep.map(i=>S.qs[i]);
+    S.answers = remap(S.answers); S.flags = remap(S.flags); S.checked = remap(S.checked);
+  }
+  const total = S.qs.length;
+  const correct = S.qs.filter((q,i)=>isCorrect(q,S.answers[i])).length;
+  const pct = Math.round(correct/total*100);
+  const pass = pct >= PASS_PCT;
+
+  show('results');
+  $('rTitle').textContent = timeUp ? "Time's up" : (S.mode==='exam' ? 'Exam results' : 'Practice results');
+  $('ring').style.setProperty('--p', pct);
+  $('ring').style.setProperty('--c', pass ? 'var(--good)' : 'var(--bad)');
+  $('rPct').textContent = pct+'%';
+  $('rVerdict').textContent = pass ? 'Pass' : 'Not yet';
+  $('rVerdict').className = 'verdict ' + (pass?'pass':'fail');
+  let detail = `${correct} of ${total} correct · passing is ${PASS_PCT}%`;
+  if(S.mode==='exam'){
+    const used = Math.min(EXAM_MINUTES*60000, EXAM_MINUTES*60000 - (S.endAt-Date.now()));
+    detail += ` · time used ${Math.floor(used/60000)}m ${Math.floor(used%60000/1000)}s`;
+  }
+  $('rDetail').textContent = detail;
+
+  const rs = $('rSections'); rs.innerHTML='';
+  SECTIONS.forEach((sec,si)=>{
+    const qs = S.qs.map((q,i)=>({q,i})).filter(x=>x.q.s===si);
+    if(!qs.length) return;
+    const c = qs.filter(x=>isCorrect(x.q,S.answers[x.i])).length;
+    const p = Math.round(c/qs.length*100);
+    const cls = p>=PASS_PCT?'g':(p>=50?'w':'b');
+    const d = document.createElement('div'); d.className='item';
+    d.innerHTML = `<div class="row"><span>${sec.name} <span class="muted">(${sec.weight}% of exam)</span></span><div class="spacer"></div><strong>${c}/${qs.length} · ${p}%</strong></div><div class="bar"><i class="${cls}" style="width:${p}%"></i></div>`;
+    rs.appendChild(d);
+  });
+  renderReview();
+  window.scrollTo({top:0});
+}
+
+function renderReview(){
+  const f = $('rFilter').value, list = $('rList'); list.innerHTML='';
+  const items = S.qs.map((q,i)=>({q,i})).filter(({q,i})=>{
+    if(f==='all') return true;
+    if(f==='flag') return S.flags[i];
+    return !isCorrect(q,S.answers[i]);
+  });
+  if(!items.length){ list.innerHTML = '<p class="muted">Nothing to show here.</p>'; return; }
+  items.forEach(({q,i})=>{
+    const a = S.answers[i]||[];
+    const d = document.createElement('div'); d.className='rq';
+    const status = !a.length ? 'Unanswered' : (isCorrect(q,a)?'Correct':'Incorrect');
+    d.innerHTML = `<div class="qmeta"><strong>Q${i+1}</strong><span class="tag"></span><span class="muted"></span></div><div class="qtext" style="margin:8px 0 0;font-size:1rem"></div><ul></ul><div class="ex"></div>`;
+    d.querySelector('.tag').textContent = SECTIONS[q.s].name;
+    d.querySelector('.qmeta .muted').textContent = status + (S.flags[i]?' · flagged':'');
+    d.querySelector('.qtext').textContent = q.q;
+    const ul = d.querySelector('ul');
+    q.o.forEach((t,oi)=>{
+      const li = document.createElement('li');
+      const isC = q.a.includes(oi), picked = a.includes(oi);
+      if(isC) li.className='c'; else if(picked) li.className='w';
+      li.textContent = `${'ABCDE'[oi]}. ${t}` + (isC?'  ✓':'') + (picked&&!isC?'  (your answer)':'') + (picked&&isC?' (your answer)':'');
+      ul.appendChild(li);
+    });
+    d.querySelector('.ex').textContent = q.e;
+    d.querySelector('.ex').appendChild(srcLink(q));
+    list.appendChild(d);
+  });
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function show(id){ ['home','quiz','results'].forEach(x=>$(x).classList.toggle('hidden', x!==id)); }
+
+function buildHome(){
+  $('bankCount').textContent = `${BANK.length} questions in the bank.`;
+  const t = $('outline'); t.innerHTML='';
+  SECTIONS.forEach((s,si)=>{
+    const n = BANK.filter(q=>q.s===si).length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s.name}<div class="bar"><i style="width:${s.weight/26*100}%"></i></div></td><td>${s.weight}% · ${n} in bank</td>`;
+    t.appendChild(tr);
+  });
+  const sp = $('secPicks'); sp.innerHTML='';
+  SECTIONS.forEach((s,si)=>{
+    const l = document.createElement('label'); l.className='chk';
+    l.innerHTML = `<input type="checkbox" checked value="${si}"><span>${s.name}</span>`;
+    sp.appendChild(l);
+  });
+}
+
+$('startExam').onclick = ()=> start('exam', examPool());
+$('startPractice').onclick = ()=>{
+  const secs = [...document.querySelectorAll('#secPicks input:checked')].map(i=>+i.value);
+  if(!secs.length){ notify('Pick at least one domain.'); return; }
+  let ids = shuffle(BANK.map((q,i)=>secs.includes(q.s)?i:-1).filter(i=>i>=0));
+  const c = $('pCount').value;
+  if(c!=='all') ids = ids.slice(0,+c);
+  start('practice', ids);
+};
+$('prevBtn').onclick = ()=>{ if(S.idx>0){S.idx--; render();} };
+$('nextBtn').onclick = next;
+$('checkBtn').onclick = check;
+$('flagBtn').onclick = ()=>{ S.flags[S.idx]=!S.flags[S.idx]; render(); };
+$('submitBtn').onclick = submitPrompt;
+$('quitBtn').onclick = async ()=>{
+  const msg = S.mode==='exam' ? 'Quit this exam? Your answers will be lost.' : 'Quit practice? Your progress will be lost. (Use Finish instead to see results for what you answered.)';
+  if(await ask(msg,'Quit','Keep going')){ clearInterval(timerId); S=null; show('home'); window.scrollTo({top:0}); }
+};
+$('modalOk').onclick = ()=>closeModal(true);
+$('modalCancel').onclick = ()=>closeModal(false);
+$('modal').onclick = e=>{ if(e.target.id==='modal') closeModal(false); };
+$('homeBtn').onclick = ()=>{ S=null; show('home'); window.scrollTo({top:0}); };
+$('rFilter').onchange = renderReview;
+$('retryWrong').onclick = ()=>{
+  const ids = S.qs.filter((q,i)=>!isCorrect(q,S.answers[i])).map(q=>q.qi);
+  if(!ids.length){ notify('No misses to practice. Nice work.'); return; }
+  start('practice', shuffle(ids));
+};
+
+document.addEventListener('keydown', e=>{
+  if(!$('modal').classList.contains('hidden')){
+    if(e.key==='Escape'){ e.preventDefault(); closeModal(false); }
+    else if(e.key==='Enter'){ e.preventDefault(); closeModal(true); }
+    return;
+  }
+  if(!S || S.done || $('quiz').classList.contains('hidden')) return;
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k = e.key.toLowerCase();
+  const n = 'abcde'.indexOf(k);
+  if(n>=0 && n < S.qs[S.idx].o.length){ choose(n); e.preventDefault(); }
+  else if(k>='1' && k<='5' && +k-1 < S.qs[S.idx].o.length){ choose(+k-1); }
+  else if(k==='f'){ $('flagBtn').click(); }
+  else if(e.key==='ArrowRight'){ if(S.idx<S.qs.length-1){S.idx++;render();} }
+  else if(e.key==='ArrowLeft'){ $('prevBtn').click(); }
+  else if(e.key==='Enter'){ e.preventDefault(); next(); }
+});
+
+buildHome();
+</script>
+</body>
+</html>
